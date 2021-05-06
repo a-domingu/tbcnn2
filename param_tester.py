@@ -6,14 +6,14 @@ import os
 
 # TODO asignar los valores que queramos para cada caso
 
-vector_size_ls = [20]
+vector_size_ls = [30, 40]
 
-learning_rate_ls = [0.1]
+learning_rate_ls = [0.1, 0.2]
 
-momentum_ls = [0.01]
+momentum_ls = [0.01, 0.02]
 
 # Second neural network parameters
-feature_size_ls = [4]
+feature_size_ls = [5, 10, 20]
 epoch = 10
 pooling = 'one-way pooling'
 l2_penalty_ls = [0]
