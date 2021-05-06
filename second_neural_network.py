@@ -75,9 +75,6 @@ class SecondNeuralNetwork():
                 raise AttributeError
             
             # zero the parameter gradients
-            print('outputs: \n', outputs)
-            #print('Matrix w_r_conv: \n', params[4])
-
             optimizer.zero_grad()
 
             # Calculates the derivative

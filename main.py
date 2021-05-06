@@ -25,7 +25,7 @@ from validation_neural_network import Validation_neural_network
     
 #####################################
 # SCRIPT
-def main(vector_size, learning_rate, momentum, learning_rate2, feature_size, epoch, pooling, l2_penalty):
+def main(vector_size, learning_rate, momentum, epoch_first, learning_rate2, feature_size, epoch, pooling, l2_penalty):
 
 
     ### Creation of the training set and validation set
@@ -33,7 +33,7 @@ def main(vector_size, learning_rate, momentum, learning_rate2, feature_size, epo
     training_dict, validation_dict, targets_training, targets_validation = training_and_validation_sets_creation(path) 
 
     # We now do the first neural network for every file:
-    training_dict = first_neural_network(training_dict, vector_size, learning_rate, momentum, l2_penalty)
+    training_dict = first_neural_network(training_dict, vector_size, learning_rate, momentum, l2_penalty, epoch_first)
 
     # Training
     secnn = SecondNeuralNetwork(vector_size, feature_size, pooling)
@@ -96,7 +96,7 @@ def tensor_creation(folder_path, training_set, validation_set, targets_training,
     return training_set, validation_set, targets_training, targets_validation
 
 
-def first_neural_network(training_dict, vector_size = 20, learning_rate = 0.1, momentum = 0.01, l2_penalty = 0):
+def first_neural_network(training_dict, vector_size = 20, learning_rate = 0.1, momentum = 0.01, l2_penalty = 0, epoch = 45):
     total = len(training_dict)
     i = 1
     for data in training_dict:
@@ -115,7 +115,7 @@ def first_neural_network(training_dict, vector_size = 20, learning_rate = 0.1, m
         ls_nodes = embed.node_embedding()
 
         # Calculate the vector representation for each node
-        vector_representation = First_neural_network(ls_nodes, dict_ast_to_Node, vector_size, learning_rate, momentum, l2_penalty)
+        vector_representation = First_neural_network(ls_nodes, dict_ast_to_Node, vector_size, learning_rate, momentum, l2_penalty, epoch)
         ls_nodes, w_l_code, w_r_code, b_code = vector_representation.vector_representation()
 
         training_dict[data] = [ls_nodes, dict_ast_to_Node, dict_sibling, w_l_code, w_r_code, b_code]
@@ -134,12 +134,13 @@ if __name__ == '__main__':
     learning_rate = 0.1
     momentum = 0.01
     l2_penalty = 0
+    epoch_first = 45
     # Second neural network parameters
     learning_rate2 = 0.1
     feature_size = 4
     epoch = 10
     pooling = 'one-way pooling'
 
-    main(vector_size, learning_rate, momentum, learning_rate2, feature_size, epoch, pooling, l2_penalty)
+    main(vector_size, learning_rate, momentum, epoch_first, learning_rate2, feature_size, epoch, pooling, l2_penalty)
 
 

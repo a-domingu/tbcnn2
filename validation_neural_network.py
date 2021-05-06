@@ -118,7 +118,7 @@ confusion_matrix:
         return outputs
     
 
-    def first_neural_network(self, file, learning_rate = 0.3, momentum = 0, l2_penalty = 0):
+    def first_neural_network(self, file, learning_rate = 0.3, momentum = 0, l2_penalty = 0, epoch = 45):
         '''Initializing node list, dict list and dict sibling'''
         # we parse the data of the file into a tree
         tree = file_parser(file)
@@ -133,7 +133,7 @@ confusion_matrix:
         ls_nodes = embed.node_embedding()
 
         # Calculate the vector representation for each node
-        vector_representation = First_neural_network(ls_nodes, dict_ast_to_Node, self.vector_size, learning_rate, momentum, l2_penalty)
+        vector_representation = First_neural_network(ls_nodes, dict_ast_to_Node, self.vector_size, learning_rate, momentum, l2_penalty, epoch)
         ls_nodes, w_l_code, w_r_code, b_code = vector_representation.vector_representation()
 
         

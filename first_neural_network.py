@@ -31,13 +31,14 @@ class First_neural_network():
     b [array[features_size]]: bias term
     '''
 
-    def __init__(self, ls_nodes, dict_ast_to_Node, features_size, learning_rate, momentum, l2_penalty):
+    def __init__(self, ls_nodes, dict_ast_to_Node, features_size, learning_rate, momentum, l2_penalty, epoch):
         self.ls = ls_nodes
         self.dict_ast_to_Node = dict_ast_to_Node
         self.features_size = features_size
         self.alpha = learning_rate
         self.epsilon = momentum
         self.l2_penalty = l2_penalty
+        self.total_epochs = epoch
         self.w_l = None
         self.w_r = None
         self.b = None
@@ -64,7 +65,7 @@ class First_neural_network():
         # Stochastic gradient descent with momentum algorithm
         optimizer = torch.optim.SGD(params, lr = self.alpha, momentum = self.epsilon)
         # TODO cambiar el número de iteraciones para que sea un parámetro que pasamos como input a la clase
-        for step in range(5):
+        for step in range(self.total_epochs):
             # Training loop (forward step)
             output_J = self.training_iterations()
 

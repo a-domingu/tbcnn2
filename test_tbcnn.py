@@ -5,7 +5,7 @@ import torch
 from gensim.models import Word2Vec
 
 from embeddings import Embedding
-from main import training_and_validation_sets_creation, target_tensor_set_up, first_neural_network
+from main import training_and_validation_sets_creation, tensor_creation, first_neural_network
 from node import Node
 from matrix_generator import MatrixGenerator
 from node_object_creator import *
@@ -19,13 +19,13 @@ from get_targets import GetTargets
 from second_neural_network import SecondNeuralNetwork
 from validation_neural_network import Validation_neural_network
 
-
+'''
 @pytest.fixture
 def setup_get_targets():
     get_targets = GetTargets('test\labels')
     targets = get_targets.df_iterator()
     return targets
-'''
+
 @pytest.fixture
 def setup_training_dict():
     training_dict = training_dict_set_up('test')
@@ -33,20 +33,21 @@ def setup_training_dict():
 '''
 @pytest.fixture
 def setup_training_validation_sets_creation():
-    path = '..\\sets\\generators'
-    training_dict, validation_dict = training_and_validation_sets_creation(path) 
-    return training_dict, validation_dict
-
+    path = os.path.join('test', 'generators')
+    training_dict, validation_dict, targets_training, targets_validation = training_and_validation_sets_creation(path) 
+    return training_dict, validation_dict, targets_training, targets_validation
+'''
 @pytest.fixture
 def setup_targets_tensor():
     training_dict, validation_dict = training_and_validation_sets_creation('test')
     targets = target_tensor_set_up('test', training_dict)
     return targets
-
+'''
 @pytest.fixture
 def setup_first_neural_network():
-    training_dict, validation_dict = training_and_validation_sets_creation('test')
-    training_dict = first_neural_network(training_dict, 20, 0.1, 0.001)
+    path = os.path.join('test', 'generators')
+    training_dict, validation_dict, targets_training, targets_validation = training_and_validation_sets_creation(path)
+    training_dict = first_neural_network(training_dict, 20, 0.1, 0.001, 5)
     return training_dict
 
 @pytest.fixture
@@ -240,8 +241,8 @@ def setup_validation_neural_network():
     accuracy = val.accuracy(predicts, targets)
     return predicts, accuracy
 
-
-def test_get_targets(setup_get_targets):
+'''
+def est_get_targets(setup_get_targets):
     targets = setup_get_targets
     assert isinstance(targets, dict)
     assert targets != {}
@@ -253,7 +254,7 @@ def test_get_targets(setup_get_targets):
     assert target.shape[0] == 1
     assert target.numpy()[0] == 0
     
-'''
+
 def test_training_dict(setup_training_dict):
     training_dict = setup_training_dict
     assert isinstance(training_dict, dict)
@@ -261,18 +262,22 @@ def test_training_dict(setup_training_dict):
 '''
 
 def test_training_validation_sets_creation(setup_training_validation_sets_creation):
-    training_dict, validation_dict = setup_training_validation_sets_creation
+    training_dict, validation_dict, targets_training, targets_validation = setup_training_validation_sets_creation
     assert isinstance(training_dict, dict)
     assert isinstance(validation_dict, dict)
     assert training_dict != {}
     assert validation_dict != {}
+    assert isinstance(targets_training, torch.Tensor)
+    assert len(targets_training) == 4
+    assert isinstance(targets_validation, torch.Tensor)
+    assert len(targets_validation) == 2
 
-
+'''
 def targets_tensor_dict(setup_targets_tensor):
     targets = setup_targets_tensor
     assert isinstance(targets, torch.Tensor)
     assert len(targets) == 1
-
+'''
 
 def test_first_neural_network(setup_first_neural_network):
     training_dict = setup_first_neural_network
