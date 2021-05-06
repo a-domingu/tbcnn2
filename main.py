@@ -100,6 +100,7 @@ def first_neural_network(training_dict, vector_size = 20, learning_rate = 0.1, m
     total = len(training_dict)
     i = 1
     for data in training_dict:
+        time1 = time()
         # Initializing node list, dict list and dict sibling
 
         # we parse the data of the file into a tree
@@ -119,7 +120,9 @@ def first_neural_network(training_dict, vector_size = 20, learning_rate = 0.1, m
         ls_nodes, w_l_code, w_r_code, b_code = vector_representation.vector_representation()
 
         training_dict[data] = [ls_nodes, dict_ast_to_Node, dict_sibling, w_l_code, w_r_code, b_code]
-        print(f"finished vector representation of file: {data} ({i}/{total})")
+        time2 = time()
+        dtime = time2 - time1
+        print(f"finished vector representation of file: {data} ({i}/{total}) in ", dtime//60, 'min and', dtime%60, 'sec.')
         i += 1
     return training_dict
 
@@ -130,13 +133,13 @@ def first_neural_network(training_dict, vector_size = 20, learning_rate = 0.1, m
 
 if __name__ == '__main__':
     #first neural network parameters
-    vector_size = 20
-    learning_rate = 0.1
+    vector_size = 30
+    learning_rate = 0.3
     momentum = 0.01
-    l2_penalty = 0
+    l2_penalty = 0.5
     # Second neural network parameters
-    learning_rate2 = 0.1
-    feature_size = 4
+    learning_rate2 = 0.3
+    feature_size = 30
     epoch = 10
     pooling = 'one-way pooling'
 
