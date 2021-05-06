@@ -1,11 +1,12 @@
 import pytest
+import os
 import numpy as np
 import ast
 import torch
 from gensim.models import Word2Vec
 
 from embeddings import Embedding
-from main import training_and_validation_sets_creation, tensor_creation, first_neural_network
+from main_tester import training_and_validation_sets_creation, tensor_creation, first_neural_network
 from node import Node
 from matrix_generator import MatrixGenerator
 from node_object_creator import *
@@ -19,30 +20,13 @@ from get_targets import GetTargets
 from second_neural_network import SecondNeuralNetwork
 from validation_neural_network import Validation_neural_network
 
-'''
-@pytest.fixture
-def setup_get_targets():
-    get_targets = GetTargets('test\labels')
-    targets = get_targets.df_iterator()
-    return targets
 
-@pytest.fixture
-def setup_training_dict():
-    training_dict = training_dict_set_up('test')
-    return training_dict
-'''
 @pytest.fixture
 def setup_training_validation_sets_creation():
     path = os.path.join('test', 'generators')
     training_dict, validation_dict, targets_training, targets_validation = training_and_validation_sets_creation(path) 
     return training_dict, validation_dict, targets_training, targets_validation
-'''
-@pytest.fixture
-def setup_targets_tensor():
-    training_dict, validation_dict = training_and_validation_sets_creation('test')
-    targets = target_tensor_set_up('test', training_dict)
-    return targets
-'''
+
 @pytest.fixture
 def setup_first_neural_network():
     path = os.path.join('test', 'generators')
@@ -52,58 +36,55 @@ def setup_first_neural_network():
 
 @pytest.fixture
 def set_up_dictionary():
-    tree = file_parser('test\pruebas.py')
+    path = os.path.join('test', 'generators')
+    data = os.path.join(path, 'prueba.py')
+    tree = file_parser(data)
     ls_nodes, dict_ast_to_Node = node_object_creator(tree)
     return tree, dict_ast_to_Node
 
 @pytest.fixture
 def set_up_embeddings():
-    tree = file_parser('test\pruebas.py')
+    path = os.path.join('test', 'generators')
+    data = os.path.join(path, 'prueba.py')
+    tree = file_parser(data)
     ls_nodes, dict_ast_to_Node = node_object_creator(tree)
     embed = Embedding(20, ls_nodes, dict_ast_to_Node)
     return embed
 
 @pytest.fixture
 def set_up_matrix():
-    tree = file_parser('test\pruebas.py')
+    path = os.path.join('test', 'generators')
+    data = os.path.join(path, 'prueba.py')
+    tree = file_parser(data)
     ls_nodes, dict_ast_to_Node = node_object_creator(tree)
     embed = Embedding(20, ls_nodes, dict_ast_to_Node)
     ls_nodes = embed.node_embedding()[:]
     matrices = MatrixGenerator(20, 10)
     return matrices
 
-'''
-@pytest.fixture
-def set_up_update_vector():
-    tree = path_to_module('test\pruebas.py')
-    ls_nodes, dict_ast_to_Node = node_object_creator(tree)
-    embed = Embedding(20, ls_nodes, dict_ast_to_Node)
-    ls_nodes = embed.node_embedding()[:]
-    matrices = MatrixGenerator(20, 10)
-    w, b = matrices.w, matrices.b
-    nodes_vector_update(ls_nodes, w, b)
-    w, b = matrices.w, matrices.b
-    nodes_vector_update(ls_nodes, w, b)
-    return ls_nodes
-'''
-
 @pytest.fixture
 def set_up_vector_representation():
-    tree = file_parser('test\pruebas.py')
+    path = os.path.join('test', 'generators')
+    data = os.path.join(path, 'prueba.py')
+    tree = file_parser(data)
     ls_nodes, dict_ast_to_Node = node_object_creator(tree)
+    ls_nodes = leaves_nodes_assign(ls_nodes, dict_ast_to_Node)
     embed = Embedding(20, ls_nodes, dict_ast_to_Node)
     ls_nodes = embed.node_embedding()[:]
-    vector_representation = First_neural_network(ls_nodes, dict_ast_to_Node, 20, 0.1, 0.001)
+    vector_representation = First_neural_network(ls_nodes, dict_ast_to_Node, 20, 0.1, 0.001, 0, 5)
     ls_nodes, w_l, w_r, b_code = vector_representation.vector_representation()
     return ls_nodes, w_l, w_r, b_code
 
 @pytest.fixture
 def set_up_coding_layer():
-    tree = file_parser('test\pruebas.py')
+    path = os.path.join('test', 'generators')
+    data = os.path.join(path, 'prueba.py')
+    tree = file_parser(data)
     ls_nodes, dict_ast_to_Node = node_object_creator(tree)
+    ls_nodes = leaves_nodes_assign(ls_nodes, dict_ast_to_Node)
     embed = Embedding(20, ls_nodes, dict_ast_to_Node)
     ls_nodes = embed.node_embedding()[:]
-    vector_representation = First_neural_network(ls_nodes, dict_ast_to_Node, 20, 0.1, 0.001)
+    vector_representation = First_neural_network(ls_nodes, dict_ast_to_Node, 20, 0.1, 0.001, 0, 5)
     ls_nodes, w_l, w_r, b_code = vector_representation.vector_representation()
     w_comb1 = torch.diag(torch.randn(20, dtype=torch.float32)).requires_grad_()
     w_comb2 = torch.diag(torch.randn(20, dtype=torch.float32)).requires_grad_()
@@ -113,13 +94,16 @@ def set_up_coding_layer():
 
 @pytest.fixture
 def set_up_convolutional_layer():
-    tree = file_parser('test\pruebas.py')
+    path = os.path.join('test', 'generators')
+    data = os.path.join(path, 'prueba.py')
+    tree = file_parser(data)
     ls_nodes, dict_ast_to_Node = node_object_creator(tree)
     ls_nodes = node_position_assign(ls_nodes)
     ls_nodes, dict_sibling = node_sibling_assign(ls_nodes)
+    ls_nodes = leaves_nodes_assign(ls_nodes, dict_ast_to_Node)
     embed = Embedding(20, ls_nodes, dict_ast_to_Node)
     ls_nodes = embed.node_embedding()[:]
-    vector_representation = First_neural_network(ls_nodes, dict_ast_to_Node, 20, 0.1, 0.001)
+    vector_representation = First_neural_network(ls_nodes, dict_ast_to_Node, 20, 0.1, 0.001, 0, 5)
     ls_nodes, w_l, w_r, b_code = vector_representation.vector_representation()
     w_comb1 = torch.diag(torch.randn(20, dtype=torch.float32)).requires_grad_()
     w_comb2 = torch.diag(torch.randn(20, dtype=torch.float32)).requires_grad_()
@@ -136,13 +120,17 @@ def set_up_convolutional_layer():
 
 @pytest.fixture
 def set_up_one_max_pooling_layer():
-    tree = file_parser('test\pruebas.py')
+    path = os.path.join('test', 'generators')
+    data = os.path.join(path, 'prueba.py')
+    tree = file_parser(data)
     ls_nodes, dict_ast_to_Node = node_object_creator(tree)
     ls_nodes = node_position_assign(ls_nodes)
     ls_nodes, dict_sibling = node_sibling_assign(ls_nodes)
+    ls_nodes = leaves_nodes_assign(ls_nodes, dict_ast_to_Node)
+    ls_nodes = leaves_nodes_assign(ls_nodes, dict_ast_to_Node)
     embed = Embedding(20, ls_nodes, dict_ast_to_Node)
     ls_nodes = embed.node_embedding()[:]
-    vector_representation = First_neural_network(ls_nodes, dict_ast_to_Node, 20, 0.1, 0.001)
+    vector_representation = First_neural_network(ls_nodes, dict_ast_to_Node, 20, 0.1, 0.001, 0, 5)
     ls_nodes, w_l, w_r, b_code = vector_representation.vector_representation()
     w_comb1 = torch.diag(torch.randn(20, dtype=torch.float32)).requires_grad_()
     w_comb2 = torch.diag(torch.randn(20, dtype=torch.float32)).requires_grad_()
@@ -161,13 +149,16 @@ def set_up_one_max_pooling_layer():
 
 @pytest.fixture
 def set_up_dynamic_pooling_layer():
-    tree = file_parser('test\pruebas.py')
+    path = os.path.join('test', 'generators')
+    data = os.path.join(path, 'prueba.py')
+    tree = file_parser(data)
     ls_nodes, dict_ast_to_Node = node_object_creator(tree)
     ls_nodes = node_position_assign(ls_nodes)
     ls_nodes, dict_sibling = node_sibling_assign(ls_nodes)
+    ls_nodes = leaves_nodes_assign(ls_nodes, dict_ast_to_Node)
     embed = Embedding(20, ls_nodes, dict_ast_to_Node)
     ls_nodes = embed.node_embedding()[:]
-    vector_representation = First_neural_network(ls_nodes, dict_ast_to_Node, 20, 0.1, 0.001)
+    vector_representation = First_neural_network(ls_nodes, dict_ast_to_Node, 20, 0.1, 0.001, 0, 5)
     ls_nodes, w_l, w_r, b_code = vector_representation.vector_representation()
     w_comb1 = torch.diag(torch.randn(20, dtype=torch.float32)).requires_grad_()
     w_comb2 = torch.diag(torch.randn(20, dtype=torch.float32)).requires_grad_()
@@ -188,13 +179,16 @@ def set_up_dynamic_pooling_layer():
 
 @pytest.fixture
 def set_up_hidden_layer():
-    tree = file_parser('test\pruebas.py')
+    path = os.path.join('test', 'generators')
+    data = os.path.join(path, 'prueba.py')
+    tree = file_parser(data)
     ls_nodes, dict_ast_to_Node = node_object_creator(tree)
     ls_nodes = node_position_assign(ls_nodes)
     ls_nodes, dict_sibling = node_sibling_assign(ls_nodes)
+    ls_nodes = leaves_nodes_assign(ls_nodes, dict_ast_to_Node)
     embed = Embedding(20, ls_nodes, dict_ast_to_Node)
     ls_nodes = embed.node_embedding()[:]
-    vector_representation = First_neural_network(ls_nodes, dict_ast_to_Node, 20, 0.1, 0.001)
+    vector_representation = First_neural_network(ls_nodes, dict_ast_to_Node, 20, 0.1, 0.001, 0, 5)
     ls_nodes, w_l, w_r, b_code = vector_representation.vector_representation()
     w_comb1 = torch.diag(torch.randn(20, dtype=torch.float32)).requires_grad_()
     w_comb2 = torch.diag(torch.randn(20, dtype=torch.float32)).requires_grad_()
@@ -220,8 +214,8 @@ def set_up_hidden_layer():
 
 @pytest.fixture
 def setup_second_neural_network():
-    training_dict, validation_dict = training_and_validation_sets_creation('test')
-    targets = target_tensor_set_up('test', training_dict)
+    path = os.path.join('test', 'generators')
+    training_dict, validation_dict, targets_training, targets_validation = training_and_validation_sets_creation(path) 
     training_dict = first_neural_network(training_dict, 20)
     secnn = SecondNeuralNetwork(20, 4)
     outputs = secnn.forward(training_dict)
@@ -230,36 +224,16 @@ def setup_second_neural_network():
 
 @pytest.fixture
 def setup_validation_neural_network():
-    training_dict, validation_dict = training_and_validation_sets_creation('test')
-    targets = target_tensor_set_up('test', training_dict)
+    path = os.path.join('test', 'generators')
+    training_dict, validation_dict, targets_training, targets_validation = training_and_validation_sets_creation(path) 
     training_dict = first_neural_network(training_dict, 20)
     secnn = SecondNeuralNetwork(20, 4)
-    secnn.train(targets, training_dict)
+    secnn.train(targets_training, training_dict)
     val = Validation_neural_network(20, 4)
-    targets = val.target_tensor_set_up('test', validation_dict)
     predicts = val.prediction(validation_dict)
-    accuracy = val.accuracy(predicts, targets)
+    accuracy = val.accuracy(predicts, targets_validation)
     return predicts, accuracy
 
-'''
-def est_get_targets(setup_get_targets):
-    targets = setup_get_targets
-    assert isinstance(targets, dict)
-    assert targets != {}
-    for target_key in targets:
-        target = targets[target_key]
-        break
-    assert isinstance(target, torch.Tensor)
-    assert len(target.shape) == 1
-    assert target.shape[0] == 1
-    assert target.numpy()[0] == 0
-    
-
-def test_training_dict(setup_training_dict):
-    training_dict = setup_training_dict
-    assert isinstance(training_dict, dict)
-    assert training_dict != {}
-'''
 
 def test_training_validation_sets_creation(setup_training_validation_sets_creation):
     training_dict, validation_dict, targets_training, targets_validation = setup_training_validation_sets_creation
@@ -268,16 +242,10 @@ def test_training_validation_sets_creation(setup_training_validation_sets_creati
     assert training_dict != {}
     assert validation_dict != {}
     assert isinstance(targets_training, torch.Tensor)
-    assert len(targets_training) == 4
+    assert len(targets_training) == 2
     assert isinstance(targets_validation, torch.Tensor)
     assert len(targets_validation) == 2
 
-'''
-def targets_tensor_dict(setup_targets_tensor):
-    targets = setup_targets_tensor
-    assert isinstance(targets, torch.Tensor)
-    assert len(targets) == 1
-'''
 
 def test_first_neural_network(setup_first_neural_network):
     training_dict = setup_first_neural_network
@@ -323,11 +291,7 @@ def test_matrix_length(set_up_matrix):
     assert w.shape == (20, 10)
     assert len(b) == 20
 
-'''
-def test_update_vector(set_up_update_vector):
-    for node in set_up_update_vector:
-        assert len(node.new_vector) > 0
-'''
+
 def test_vector_representation(set_up_vector_representation):
     
     ls_nodes, w_l, w_r, b_code = set_up_vector_representation

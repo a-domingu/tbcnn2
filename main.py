@@ -41,7 +41,7 @@ def main(vector_size, learning_rate, momentum, epoch_first, learning_rate2, feat
 
     # Validation
     val = Validation_neural_network(vector_size, feature_size, pooling)
-    val.validation(targets_validation, validation_dict)
+    val.validation(targets_validation, validation_dict, learning_rate, momentum, l2_penalty, epoch_first)
 
 
 #####################################
