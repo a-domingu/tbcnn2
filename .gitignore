@@ -1,0 +1,9 @@
+*.csv
+__pycache__
+.pytest_cache
+.vscode
+*.csv
+sets
+sets_short
+results.txt
+params
