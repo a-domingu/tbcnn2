@@ -64,7 +64,7 @@ class First_neural_network():
         # Stochastic gradient descent with momentum algorithm
         optimizer = torch.optim.SGD(params, lr = self.alpha, momentum = self.epsilon)
         # TODO cambiar el número de iteraciones para que sea un parámetro que pasamos como input a la clase
-        for step in range(5):
+        for step in range(45):
             # Training loop (forward step)
             output_J = self.training_iterations()
 
