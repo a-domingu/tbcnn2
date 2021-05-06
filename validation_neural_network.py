@@ -59,15 +59,11 @@ class Validation_neural_network():
         self.hidden = Hidden_layer(self.w_hidden, self.b_hidden)
 
 
-    def validation(self, validation_path, validation_dict):
+    def validation(self, targets, validation_dict):
         """Create the validation loop"""
         print('########################################')
         print('\n\n\nFinished training process. Entering validation process\n\n\n')
-        ### Validation set
-        # this is to have all the information of each file in the folder contained in a dictionary
-        #validation_dict = self.validation_dict_set_up(validation_path)
-        # this is the tensor with all target values associated to the validation set
-        targets = self.target_tensor_set_up(validation_path, validation_dict)
+        print("The correct value of the files is: ", targets)
 
 
         # We calculate the predictions
@@ -98,27 +94,6 @@ confusion_matrix:
         # correct += (predicted == labels).sum()
         accuracy = self.accuracy(predicts, targets)
         print('accuracy: ', accuracy)
-
-
-
-    def target_tensor_set_up(self, validation_path, validation_dict):
-        # Target dict initialization
-        target = GetTargets(validation_path)
-        targets_dict = target.df_iterator()
-        targets = []
-        for filepath in validation_dict.keys():
-            # Targets' tensor creation
-            split_filepath = os.path.split(filepath)
-            filepath_target = 'label_' + split_filepath[1] + '.csv'
-            search_target = os.path.join(split_filepath[0], filepath_target)
-            if search_target in targets_dict.keys():
-                if targets == []:
-                    targets = targets_dict[search_target]
-                else:
-                    targets = torch.cat((targets, targets_dict[search_target]), 0)
-        print("The correct value of the files is: ", targets)
-        return targets
-
 
 
     def prediction(self, validation_dict):

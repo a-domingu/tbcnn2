@@ -30,74 +30,70 @@ def main(vector_size, learning_rate, momentum, learning_rate2, feature_size, epo
 
     ### Creation of the training set and validation set
     path = os.path.join('sets', 'generators')
-    training_dict, validation_dict = training_and_validation_sets_creation(path) 
-
-
-    
-    ### Training set
-    # this is the tensor with all target values
-    targets = target_tensor_set_up(path, training_dict)
+    training_dict, validation_dict, targets_training, targets_validation = training_and_validation_sets_creation(path) 
 
     # We now do the first neural network for every file:
     training_dict = first_neural_network(training_dict, vector_size, learning_rate, momentum, l2_penalty)
 
     # Training
     secnn = SecondNeuralNetwork(vector_size, feature_size, pooling)
-    secnn.train(targets, training_dict, epoch, learning_rate2)
+    secnn.train(targets_training, training_dict, epoch, learning_rate2)
 
     # Validation
     val = Validation_neural_network(vector_size, feature_size, pooling)
-    val.validation(path, validation_dict)
+    val.validation(targets_validation, validation_dict)
 
 
 #####################################
 # FUNCTIONS
-
 def training_and_validation_sets_creation(path):
     # we create the training set and the validation set
     training_set = {}
     validation_set = {}
+    # We create a target training target tensor and a validation target tensor
+    targets_training = [] 
+    targets_validation = []
     # iterates through the generators directory, identifies the folders and enter in them
     for (dirpath, dirnames, filenames) in os.walk(path):
         for folder in dirnames:
-            # we list all files of each folder
             folder_path = os.path.join(dirpath, folder)
-            list_dir = os.listdir(folder_path)
-            # Having a list with only .py files
-            list_files_py = [file for file in list_dir if file.endswith('.py')]
-            # we choose randomly 70% of this files
-            # Number of files in the training set
-            N = int(len(list_files_py)*0.7)
-            i=1
-            while list_files_py:
-                file = random.choice(list_files_py)
-                list_files_py.remove(file)
-                if i <= N:
-                    filepath = os.path.join(folder_path, file)
-                    training_set[filepath] = None
+            if folder == 'withgen':
+                training_set, validation_set, targets_training, targets_validation = tensor_creation(folder_path, training_set, validation_set, targets_training, targets_validation, 1)
+            elif folder == 'nogen':
+                training_set, validation_set, targets_training, targets_validation = tensor_creation(folder_path, training_set, validation_set, targets_training, targets_validation, 0)
+            
+    return training_set, validation_set, targets_training.float(), targets_validation.float()
+
+
+def tensor_creation(folder_path, training_set, validation_set, targets_training, targets_validation, value):
+    # we list all files of each folder
+    list_files = os.listdir(folder_path)
+    # Having a list with only .py files
+    list_files_py = [file for file in list_files if file.endswith('.py')]
+    # we choose randomly 70% of this files
+    # Number of files in the training set
+    N = int(len(list_files_py)*0.7)
+    i=1
+    while list_files_py:
+        file = random.choice(list_files_py)
+        list_files_py.remove(file)
+        if file.endswith('.py'):
+            if i <= N:
+                filepath = os.path.join(folder_path, file)
+                training_set[filepath] = None
+                if targets_training == []:
+                    targets_training = torch.tensor([value])
                 else:
-                    filepath = os.path.join(folder_path, file)
-                    validation_set[filepath] = None
-                i += 1
-    return training_set, validation_set
-
-
-def target_tensor_set_up(path, training_dict):
-    # Target dict initialization
-    target = GetTargets(path)
-    targets_dict = target.df_iterator()
-    targets = []
-    for filepath in training_dict.keys():
-        # Targets' tensor creation
-        split_filepath = os.path.split(filepath)
-        filepath_target = 'label_' + split_filepath[1] + '.csv'
-        search_target = os.path.join(split_filepath[0], filepath_target)
-        if search_target in targets_dict.keys():
-            if targets == []:
-                targets = targets_dict[search_target]
+                    targets_training = torch.cat((targets_training, torch.tensor([value])), 0)
             else:
-                targets = torch.cat((targets, targets_dict[search_target]), 0)
-    return targets
+                filepath = os.path.join(folder_path, file)
+                validation_set[filepath] = None
+                if targets_validation == []:
+                    targets_validation = torch.tensor([value])
+                else:
+                    targets_validation = torch.cat((targets_validation, torch.tensor([value])), 0)
+            i += 1
+    return training_set, validation_set, targets_training, targets_validation
 
 
 def first_neural_network(training_dict, vector_size = 20, learning_rate = 0.1, momentum = 0.01, l2_penalty = 0):
