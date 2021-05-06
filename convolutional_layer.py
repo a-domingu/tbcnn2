@@ -66,85 +66,93 @@ class Convolutional_layer():
         return self.ls
 
     def calculate_y(self):
-
         for node in self.ls:
+            ''' 
+            We are going to create the sliding window. Taking as reference the book,
+            we are going to set the kernel depth of our windows as 2. We consider into the window
+            the node and its children.
+            Question for ourselves: if we decide to increase the kernel depth to 3, should be
+            appropiate to take node: its children and its grand-children or node, parent and children?
+
+            We are going to calculate the parameters of the sliding window when its kernel depth
+            is fixed to 2.
+            In case we change the depth of the window, we have to change the parameters of each tensor
+            '''
             if node.children:
-                ''' We are going to create the sliding window. Taking as reference the book,
-                we are going to set the kernel depth of our windows as 2. We consider into the window
-                the node and its children.
-                Question for ourselves: if we decide to increase the kernel depth to 3, should be
-                appropiate to take node: its children and its grand-children or node, parent and children?
-                '''
-                # We create the sliding window with kernel depth = 2.
-                window_nodes = [node]
-                for child in node.children:  
-                    window_nodes.append(self.dict_ast_to_Node[child])
+                self.sliding_window_tensor(node)
 
-                # We initialize the sum of weighted vector nodes
-                sum = torch.zeros(self.Nc)
+                # The convolutional matrix for each node is a linear combination of matrices w_t, w_l and w_r
+                convolutional_matrix = (self.w_t_params*self.w_t) + (self.w_l_params*self.w_l) + (self.w_r_params*self.w_r)
 
-                '''
-                We are going to calculate the parameters of the sliding window when its kernel depth
-                is fixed to 2.
-                In case we change the depth of the window, we have to change the parameters of this loop
-                '''
-                # We initialize p_i
-                i = 1
-                for item in window_nodes:
-                    # We calculate the coefficients of the first node
-                    if item == node:
-                        # We set n = 2 because n cannot be 1 (eta_r uses n -1 as denominator)
-                        n = 2
-                        # Is the only node in the first level
-                        p_i = 1
-                        # Is the node at the top
-                        d_i = 2
-                    else:
-                        # We calculate the number of node in the bottom level
-                        n = len(node.children)
-                        # If there is only one child, then we set n = 2 because n cannot be 1 
-                        # (eta_r uses n -1 as denominator)
-                        if n == 1:
-                            n = 2
-                        # We save the position of each node in the sliding window
-                        p_i = i
-                        i += 1
-                        # The nodes are at the bottom
-                        d_i = 1
-
-                    # The weighted matrix for each node is a linear combination of matrices w_t, w_l and w_r
-                    weighted_matrix = self.weight_matrix_update(d_i, self.kernel_depth, p_i, n)
-
-                    sum = sum + torch.matmul(weighted_matrix,item.combined_vector)
+                final_matrix = torch.matmul(convolutional_matrix, self.vector_matrix)
+                final_vector = torch.sum(final_matrix, 0)
+                final_vector = torch.squeeze(final_vector, 1)
 
                 # When all the "weighted vectors" are added, we add on the b_conv.
-                argument = sum + self.b_conv
+                argument = final_vector + self.b_conv
 
                 # We used relu as the activation function in TBCNN mainly because we hope to 
                 # encode features to a same semantic space during coding.
                 node.set_y(F.relu(argument))
 
             else:
-                # The weighted matrix for each node is a linear combination of matrices w_t, w_l and w_r
-                weighted_matrix = self.weight_matrix_update(self.kernel_depth, self.kernel_depth, 1, 2)
-                argument = torch.matmul(weighted_matrix,node.combined_vector) + self.b_conv
+                # The convolutional matrix for each node is a linear combination of matrices w_t, w_l and w_r
+                convolutional_matrix = self.w_t
+                argument = torch.matmul(convolutional_matrix, node.combined_vector) + self.b_conv
                 node.set_y(F.relu(argument))
 
-    def weight_matrix_update(self, d_i, d, p_i, n):
-        # The matrices coefficients are computed according to the relative position of 
-        # a node in the sliding window.
 
-        n_t = (d_i - 1)/(d-1)       # Coefficient associated to w_t
-        n_r = (1-n_t)*(p_i-1)/(n-1) # Coefficient associated to w_r
-        n_l = (1-n_t)*(1-n_r)        # Coefficient associated to w_l 
+    def sliding_window_tensor(self, node):
+        # We create a list with all combined vectors
+        vectors = [node.combined_vector]
+        # Parameters used to calculate the convolutional matrix for each node
+        n = len(node.children)
+        # If there is only one child, then we set n = 2 because n cannot be 1 
+        # (eta_r uses n -1 as denominator)
+        if n == 1:
+            n = 2
+        d = self.kernel_depth
+        # The nodes children are at the bottom
+        d_i = 1
+        # First node is the node at the top: d_i=2, p_i=1, n=2
+        w_t_list = [(2-1)/(d-1)]
+        w_r_list = [0]
+        w_l_list = [0]
+        i = 1
+        for child in node.children:
+            # We save the position of each node in the sliding window
+            p_i = i
+            w_t_list.append((d_i-1)/(d-1))
+            w_r_list.append((1-w_t_list[i])*((p_i-1)/(n-1)))
+            w_l_list.append((1-w_t_list[i])*(1-w_r_list[i]))
+            i += 1
+            # We save the combined vector of each node
+            vectors.append(self.dict_ast_to_Node[child].combined_vector)
 
-        '''
-        print('AAAAAAAAAAAAa')
-        print(type(n_t))
-        print(self.w_t.size())
-        '''
+        # We create a matrix with all the vectors
+        self.vector_matrix = torch.stack(tuple(vectors), 0)
+        # We create a tensor with the parameters associated to the top matrix
+        self.w_t_params = torch.tensor(w_t_list)
+        # We create a tensor with the parameters associated to the left matrix
+        self.w_l_params = torch.tensor(w_l_list)
+        # We create a tensor with the parameters associated to the right matrix
+        self.w_r_params = torch.tensor(w_r_list)
+        # Reshape the matrices and vectors and create 3D tensors
+        self.reshape_matrices_and_vectors()
 
-        top_matrix = n_t*self.w_t
-        left_matrix = n_l* self.w_l
-        right_matrix = n_r*self.w_r
-        return (top_matrix + left_matrix + right_matrix) 
+    # Reshape the matrices and vectors and create 3D tensors
+    def reshape_matrices_and_vectors(self):
+        # We create a 3D tensor for the vector matrix: shape(nb_nodes, 30, 1)
+        self.vector_matrix = torch.unsqueeze(self.vector_matrix, 2)
+
+        # We create a 3D tensor for the parameters associated to the top matrix: shape(nb_nodes, 1, 1)
+        self.w_t_params = torch.unsqueeze(self.w_t_params, 1)
+        self.w_t_params = torch.unsqueeze(self.w_t_params, 1)
+
+        # We create a 3D tensor for the parameters associated to the left matrix: shape(nb_nodes, 1, 1)
+        self.w_l_params = torch.unsqueeze(self.w_l_params, 1)
+        self.w_l_params = torch.unsqueeze(self.w_l_params, 1)
+
+        # We create a 3D tensor for the parameters associated to the right matrix: shape(nb_nodes, 1, 1)
+        self.w_r_params = torch.unsqueeze(self.w_r_params, 1)
+        self.w_r_params = torch.unsqueeze(self.w_r_params, 1)
