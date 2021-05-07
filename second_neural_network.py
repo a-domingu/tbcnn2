@@ -47,9 +47,9 @@ class SecondNeuralNetwork():
             self.b_hidden = torch.randn(1, requires_grad = True)
             self.pooling = Pooling_layer()
         # layers
-        self.cod = Coding_layer(self.vector_size, self.w_comb1, self.w_comb2)
-        self.conv = Convolutional_layer(self.vector_size, self.w_t, self.w_r, self.w_l, self.b_conv, features_size=self.feature_size)
-        self.hidden = Hidden_layer(self.w_hidden, self.b_hidden)
+        self.cod = Coding_layer(self.vector_size)
+        self.conv = Convolutional_layer(self.vector_size, features_size=self.feature_size)
+        self.hidden = Hidden_layer()
 
 
     
@@ -59,29 +59,40 @@ class SecondNeuralNetwork():
         # Construct the optimizer
         params = [self.w_comb1, self.w_comb2, self.w_t, self.w_l, self.w_r, self.b_conv, self.w_hidden, self.b_hidden]
         optimizer = torch.optim.SGD(params, lr = learning_rate)
+        m = nn.Sigmoid() # initialize sigmoid layer
         criterion = nn.BCELoss()
         print('The correct value of the files is: ', targets)
+        print(self.w_hidden)
 
         for epoch in range(total_epochs):
             # Time
             start = time()
-            outputs = self.forward(training_dict)
 
+            # zero the parameter gradients
+            optimizer.zero_grad()
+
+            # forward
+            outputs = self.forward(training_dict)
+            print('Outputs: \n', outputs)
+            # Sigmoid
+            predicts = m(outputs)
+
+            # Computes the loss function
             try:
-                loss = criterion(outputs, targets)
+                loss = criterion(predicts, targets)
             except AttributeError:
                 print(f'The size of outputs is {len(outputs)} and is of type {type(outputs)}')
                 print('Check that the path is a folder and not a file')
                 raise AttributeError
-            
-            # zero the parameter gradients
-            optimizer.zero_grad()
 
-            # Calculates the derivative
-            loss.backward(retain_graph = True)
+            # Backward = calculates the derivative
+            loss.backward() # w_r.grad = dloss/dw_r
 
             # Update parameters
             optimizer.step() #w_r = w_r - lr * w_r.grad
+            print('############### \n')
+            #print(self.w_hidden)
+            #assert self.w_hidden == params[6]
 
             #Time
             end = time()
@@ -120,14 +131,14 @@ The loss we have for the training network is: {loss}
         w_l_code = vector_representation_params[3]
         w_r_code = vector_representation_params[4]
         b_code = vector_representation_params[5]
-        ls_nodes = self.cod.coding_layer(ls_nodes, dict_ast_to_Node, w_l_code, w_r_code, b_code)
-        ls_nodes = self.conv.convolutional_layer(ls_nodes, dict_ast_to_Node)
+        ls_nodes = self.cod.coding_layer(ls_nodes, dict_ast_to_Node, w_l_code, w_r_code, b_code, self.w_comb1, self.w_comb2)
+        ls_nodes = self.conv.convolutional_layer(ls_nodes, dict_ast_to_Node, self.w_t, self.w_r, self.w_l, self.b_conv)
         if self.pooling == 'three-way pooling':
             self.max_pool.max_pooling(ls_nodes)
             vector = self.dynamic.three_way_pooling(ls_nodes, dict_sibling)
         else:
             vector = self.pooling.pooling_layer(ls_nodes)
-        output = self.hidden.hidden_layer(vector)
+        output = self.hidden.hidden_layer(vector, self.w_hidden, self.b_hidden)
 
         return output
 

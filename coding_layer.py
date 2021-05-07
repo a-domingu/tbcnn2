@@ -27,18 +27,18 @@ class Coding_layer():
     w_comb2 [matrix[features_size x features_size]]: Parameter 2 for combination
     '''
 
-    def __init__(self, features_size, w1, w2):
+    def __init__(self, features_size):
         self.ls = []
         self.dict_ast_to_Node = {}
         self.features_size = features_size
         self.w_l = None
         self.w_r = None
         self.b = None
-        self.w_comb1 = w1
-        self.w_comb2 = w2
+        self.w_comb1 = None
+        self.w_comb2 = None
 
 
-    def coding_layer(self, ls_nodes, dict_ast_to_Node, w_l, w_r, b):
+    def coding_layer(self, ls_nodes, dict_ast_to_Node, w_l, w_r, b, w1, w2):
         # Initialize the node list and the dict node
         self.ls = ls_nodes
         self.dict_ast_to_Node = dict_ast_to_Node
@@ -46,6 +46,8 @@ class Coding_layer():
         self.w_l = w_l
         self.w_r = w_r
         self.b = b
+        self.w_comb1 = w1
+        self.w_comb2 = w2
 
         self.coding_iterations()
 

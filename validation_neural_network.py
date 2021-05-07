@@ -54,9 +54,9 @@ class Validation_neural_network():
             self.max_pool = Max_pooling_layer()
 
         ### Layers
-        self.cod = Coding_layer(self.vector_size, self.w_comb1, self.w_comb2)
-        self.conv = Convolutional_layer(self.vector_size, self.w_t, self.w_r, self.w_l, self.b_conv, features_size=self.feature_size)
-        self.hidden = Hidden_layer(self.w_hidden, self.b_hidden)
+        self.cod = Coding_layer(self.vector_size)
+        self.conv = Convolutional_layer(self.vector_size, features_size=self.feature_size)
+        self.hidden = Hidden_layer()
 
 
     def validation(self, targets, validation_dict, learning_rate = 0.3, momentum = 0, l2_penalty = 0, epoch_first = 45):
@@ -147,14 +147,14 @@ confusion_matrix:
         w_l_code = vector_representation_params[3]
         w_r_code = vector_representation_params[4]
         b_code = vector_representation_params[5]
-        ls_nodes = self.cod.coding_layer(ls_nodes, dict_ast_to_Node, w_l_code, w_r_code, b_code)
-        ls_nodes = self.conv.convolutional_layer(ls_nodes, dict_ast_to_Node)
+        ls_nodes = self.cod.coding_layer(ls_nodes, dict_ast_to_Node, w_l_code, w_r_code, b_code, self.w_comb1, self.w_comb2)
+        ls_nodes = self.conv.convolutional_layer(ls_nodes, dict_ast_to_Node, self.w_t, self.w_r, self.w_l, self.b_conv)
         if self.pooling == 'one-way pooling':
             vector = self.pooling_layer.pooling_layer(ls_nodes)
         else:
             self.max_pool.max_pooling(ls_nodes)
             vector = self.dynamic.three_way_pooling(ls_nodes, dict_sibling)
-        output = self.hidden.hidden_layer(vector)
+        output = self.hidden.hidden_layer(vector, self.w_hidden, self.b_hidden)
 
         return output
 

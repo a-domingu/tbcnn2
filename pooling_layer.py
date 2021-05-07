@@ -19,7 +19,6 @@ class Pooling_layer():
         matrix = self.create_matrix(ls_tensors)
         #print('tree_tensor: \n', matrix)
         pooled_tensor, _indices = self.one_way_pooling(matrix)
-        #print('pooled_tensor:\n', pooled_tensor)
         return pooled_tensor
 
     def create_ls_tensors(self, ls_nodes):

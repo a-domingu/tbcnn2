@@ -130,14 +130,14 @@ def first_neural_network(training_dict, vector_size = 20, learning_rate = 0.1, m
 
 if __name__ == '__main__':
     #first neural network parameters
-    vector_size = 20
-    learning_rate = 0.1
-    momentum = 0.01
+    vector_size = 30
+    learning_rate = 0.3
+    momentum = 0
     l2_penalty = 0
-    epoch_first = 45
+    epoch_first = 5
     # Second neural network parameters
-    learning_rate2 = 0.1
-    feature_size = 4
+    learning_rate2 = 0.2
+    feature_size = 100
     epoch = 10
     pooling = 'one-way pooling'
 

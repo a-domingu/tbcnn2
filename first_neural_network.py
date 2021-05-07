@@ -81,8 +81,8 @@ class First_neural_network():
             # Zero gradients
             optimizer.zero_grad()
 
-            #if (step+1) % 5 == 0:
-                #print('Epoch: ', step+1, ' Loss: ', loss)
+            if (step+1) % 5 == 0:
+                print('Epoch: ', step+1, ' Loss: ', loss)
         
         for node in self.ls:
             node.vector.detach()

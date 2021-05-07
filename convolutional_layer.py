@@ -43,22 +43,27 @@ class Convolutional_layer():
     b_conv [array[features_size]]: bias term
     '''
 
-    def __init__(self, vector_size, w_t, w_r, w_l, b, kernel_depth = 2, features_size = 4):
+    def __init__(self, vector_size, kernel_depth = 2, features_size = 4):
         self.ls = []
         self.dict_ast_to_Node = {}
         self.vector_size = vector_size
-        self.w_t = w_t
-        self.w_r = w_r
-        self.w_l = w_l
-        self.b_conv = b
+        self.w_t = None
+        self.w_r = None
+        self.w_l = None
+        self.b_conv = None
         self.Nc = features_size
         self.kernel_depth = kernel_depth
 
 
-    def convolutional_layer(self, ls_nodes, dict_ast_to_Node):
+    def convolutional_layer(self, ls_nodes, dict_ast_to_Node, w_t, w_r, w_l, b):
         # Initialize the node list and the dict node
         self.ls = ls_nodes
         self.dict_ast_to_Node = dict_ast_to_Node
+        # Initialize matrices and bias
+        self.w_t = w_t
+        self.w_r = w_r
+        self.w_l = w_l
+        self.b_conv = b
 
         # self.y is the output of the convolutional layer.
         self.calculate_y()

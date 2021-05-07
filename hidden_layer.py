@@ -3,10 +3,10 @@ import torch
 
 class Hidden_layer():
     
-    def __init__(self, w, b):
+    def __init__(self):
         self.input = []
-        self.w = w
-        self.b = b
+        self.w = None
+        self.b = None
         #self.Nc = output_size
         # The size of n is based on the dynamic pooling method.
         # In one-way pooling the size of n is equal to the output_size / feature_detectors
@@ -14,7 +14,10 @@ class Hidden_layer():
         self.n = 3
 
 
-    def hidden_layer(self, vector):
+    def hidden_layer(self, vector, w, b):
+        # Initialize matrix and vector
+        self.w = w
+        self.b = b
         # Initialize the node list and the vector
         self.input = vector
         output = self.get_output()
