@@ -100,6 +100,7 @@ def first_neural_network(training_dict, vector_size = 20, learning_rate = 0.1, m
     total = len(training_dict)
     i = 1
     for data in training_dict:
+        time1 = time()
         # Initializing node list, dict list and dict sibling
 
         # we parse the data of the file into a tree
@@ -118,8 +119,11 @@ def first_neural_network(training_dict, vector_size = 20, learning_rate = 0.1, m
         vector_representation = First_neural_network(ls_nodes, dict_ast_to_Node, vector_size, learning_rate, momentum, l2_penalty, epoch)
         ls_nodes, w_l_code, w_r_code, b_code = vector_representation.vector_representation()
 
+        time2= time()
+        dtime = time2 - time1
+
         training_dict[data] = [ls_nodes, dict_ast_to_Node, dict_sibling, w_l_code, w_r_code, b_code]
-        print(f"finished vector representation of file: {data} ({i}/{total})")
+        print(f"Vector rep. of file: {data} ({i}/{total}) in ", dtime//60, 'min and', dtime%60, 'sec.')
         i += 1
     return training_dict
 
