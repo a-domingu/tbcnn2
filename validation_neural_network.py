@@ -59,7 +59,7 @@ class Validation_neural_network():
         self.hidden = Hidden_layer(self.w_hidden, self.b_hidden)
 
 
-    def validation(self, targets, validation_dict):
+    def validation(self, targets, validation_dict, learning_rate = 0.3, momentum = 0, l2_penalty = 0, epoch_first = 45):
         """Create the validation loop"""
         print('########################################')
         print('\n\n\nFinished training process. Entering validation process\n\n\n')
@@ -67,7 +67,7 @@ class Validation_neural_network():
 
 
         # We calculate the predictions
-        predicts = self.prediction(validation_dict)
+        predicts = self.prediction(validation_dict, learning_rate, momentum, l2_penalty, epoch_first)
         # print the predictions
         print('predictions: \n', predicts)
 
@@ -96,14 +96,14 @@ confusion_matrix:
         print('accuracy: ', accuracy)
 
 
-    def prediction(self, validation_dict):
+    def prediction(self, validation_dict, learning_rate, momentum, l2_penalty, epoch_first):
         outputs = []
         softmax = nn.Sigmoid()
         total = len(validation_dict)
         i = 1
         for filepath in validation_dict:
             # first neural network
-            validation_dict[filepath] = self.first_neural_network(filepath)
+            validation_dict[filepath] = self.first_neural_network(filepath, learning_rate, momentum, l2_penalty, epoch_first)
             print(f"finished vector representation of file: {filepath} ({i}/{total}) \n")
             i += 1
             ## forward (second neural network)
@@ -118,7 +118,7 @@ confusion_matrix:
         return outputs
     
 
-    def first_neural_network(self, file, learning_rate = 0.3, momentum = 0, l2_penalty = 0, epoch = 45):
+    def first_neural_network(self, file, learning_rate, momentum, l2_penalty, epoch):
         '''Initializing node list, dict list and dict sibling'''
         # we parse the data of the file into a tree
         tree = file_parser(file)
