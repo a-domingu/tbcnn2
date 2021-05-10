@@ -69,7 +69,8 @@ class SecondNeuralNetwork():
         # Construct the optimizer
         params = [self.w_comb1, self.w_comb2, self.w_t, self.w_l, self.w_r, self.b_conv, self.w_hidden, self.b_hidden]
         optimizer = torch.optim.SGD(params, lr = learning_rate)
-        criterion = nn.BCELoss()
+        #criterion = nn.BCELoss()
+        criterion = nn.BCEWithLogitsLoss()
         print('The correct value of the files is: ', targets)
 
         for epoch in range(total_epochs):
@@ -78,57 +79,7 @@ class SecondNeuralNetwork():
 
             # zero the parameter gradients
             optimizer.zero_grad()
-            '''
-            w_comb1_big = torch.gt(self.w_comb1, 1.0).sum()
-            w_comb1_small = torch.gt(torch.neg(self.w_comb1), 1.0).sum()
-            print('###############')
-            print('Matrix w_comb1:')
-            print('Number of elements bigger than 1: ', w_comb1_big)
-            print('Number of elements smaller than -1: ', w_comb1_small)
-            w_comb2_big = torch.gt(self.w_comb2, 1.0).sum()
-            w_comb2_small = torch.gt(torch.neg(self.w_comb2), 1.0).sum()
-            print('###############')
-            print('Matrix w_comb2:')
-            print('Number of elements bigger than 1: ', w_comb2_big)
-            print('Number of elements smaller than -1: ', w_comb2_small)
-            print('###############')
-            w_t_big = torch.gt(self.w_t, 1.0).sum()
-            w_t_small = torch.gt(torch.neg(self.w_t), 1.0).sum()
-            print('Matrix w_t:')
-            print('Number of elements bigger than 1: ', w_t_big)
-            print('Number of elements smaller than -1: ', w_t_small)
-            print('###############')
-            w_r_big = torch.gt(self.w_r, 1.0).sum()
-            w_r_small = torch.gt(torch.neg(self.w_r), 1.0).sum()
-            print('Matrix w_r:')
-            print('Number of elements bigger than 1: ', w_r_big)
-            print('Number of elements smaller than -1: ', w_r_small)
-            print('###############')
-            w_l_big = torch.gt(self.w_l, 1.0).sum()
-            w_l_small = torch.gt(torch.neg(self.w_l), 1.0).sum()
-            print('Matrix w_l:')
-            print('Number of elements bigger than 1: ', w_l_big)
-            print('Number of elements smaller than -1: ', w_l_small)
-            print('###############')
-            b_conv_big = torch.gt(self.b_conv, 1.0).sum()
-            b_conv_small = torch.gt(torch.neg(self.b_conv), 1.0).sum()
-            print('Matrix b_conv:')
-            print('Number of elements bigger than 1: ', b_conv_big)
-            print('Number of elements smaller than -1: ', b_conv_small)
-            print('###############')
-            w_hidden_big = torch.gt(self.w_hidden, 1.0).sum()
-            w_hidden_small = torch.gt(torch.neg(self.w_hidden), 1.0).sum()
-            print('Matrix w_hidden:')
-            print('Number of elements bigger than 1: ', w_hidden_big)
-            print('Number of elements smaller than -1: ', w_hidden_small)
-            print('###############')
-            b_hidden_big = torch.gt(self.b_hidden, 1.0).sum()
-            b_hidden_small = torch.gt(torch.neg(self.b_hidden), 1.0).sum()
-            print('Vector b_hidden:')
-            print('Number of elements bigger than 1: ', b_hidden_big)
-            print('Number of elements smaller than -1: ', b_hidden_small)
-            print('###############')
-            '''
+
             # forward
             outputs = self.forward(training_dict)
             print('Outputs: \n', outputs)
@@ -164,7 +115,7 @@ The loss we have for the training network is: {loss}
 
     def forward(self, training_dict):
         outputs = []
-        softmax = nn.Sigmoid()
+        #softmax = nn.Hardsigmoid()
         for filepath in training_dict.keys():
             data = filepath
             
@@ -173,9 +124,11 @@ The loss we have for the training network is: {loss}
 
             # output append
             if outputs == []:
-                outputs = softmax(output)
+                #outputs = softmax(output)
+                outputs = output
             else:
-                outputs = torch.cat((outputs, softmax(output)), 0)
+                #outputs = torch.cat((outputs, softmax(output)), 0)
+                outputs = torch.cat((outputs, output), 0)
 
         return outputs
 
@@ -194,14 +147,6 @@ The loss we have for the training network is: {loss}
             vector = self.dynamic.three_way_pooling(ls_nodes, dict_sibling)
         else:
             vector = self.pooling.pooling_layer(ls_nodes)
-        '''
-        vector_big = torch.gt(vector, 4.0).sum()
-        vector_small = torch.gt(torch.neg(vector), 4.0).sum()
-        print('vector pooling:')
-        print('Number of elements bigger than 4: ', vector_big)
-        print('Number of elements smaller than -4: ', vector_small)
-        print('###############')
-        '''
         output = self.hidden.hidden_layer(vector, self.w_hidden, self.b_hidden)
 
         return output

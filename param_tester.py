@@ -1,5 +1,4 @@
-# TODO cambiar esto por el main cuando funcione
-from main_tester import main
+from main import main
 from utils import writer, remover
 import os
 

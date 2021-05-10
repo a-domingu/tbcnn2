@@ -71,8 +71,6 @@ class Convolutional_layer():
         return self.ls
 
     def calculate_y(self):
-        #bigg_elements = 0
-        #small_elements = 0
         for node in self.ls:
             ''' 
             We are going to create the sliding window. Taking as reference the book,
@@ -100,22 +98,14 @@ class Convolutional_layer():
 
                 # We used relu as the activation function in TBCNN mainly because we hope to 
                 # encode features to a same semantic space during coding.
-                node.set_y(F.relu(argument))
+                node.set_y(F.leaky_relu(argument))
 
             else:
                 # The convolutional matrix for each node is a linear combination of matrices w_t, w_l and w_r
                 convolutional_matrix = self.w_t
                 argument = torch.matmul(convolutional_matrix, node.combined_vector) + self.b_conv
-                node.set_y(F.relu(argument))
+                node.set_y(F.leaky_relu(argument))
 
-            #bigg_elements = bigg_elements + torch.gt(node.y, 4.0).sum()
-            #small_elements = small_elements + torch.gt(torch.neg(node.y), 4.0).sum()
-        '''
-        print('y vector: ')
-        print('Number of elements bigger than 4: ', bigg_elements)
-        print('Number of elements smaller than -4: ', small_elements)
-        print('###############')
-        '''
 
     def sliding_window_tensor(self, node):
         # We create a list with all combined vectors

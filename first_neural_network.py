@@ -105,35 +105,8 @@ class First_neural_network():
             # Zero gradients
             optimizer.zero_grad()
 
-            #if (step+1) % 5 == 0:
-                #print('Epoch: ', step+1, ' Loss: ', loss)
-        '''
-        print('Matrix w_r:')
-        print('Number of elements bigger than 1: ', w_r_big)
-        print('Number of elements smaller than -1: ', w_r_small)
-        print('###############')
-        w_l_big = torch.gt(self.w_l, 1.0).sum()
-        w_l_small = torch.gt(torch.neg(self.w_l), 1.0).sum()
-        print('Matrix w_l:')
-        print('Number of elements bigger than 1: ', w_l_big)
-        print('Number of elements smaller than -1: ', w_l_small)
-        print('###############')
-        b_big = torch.gt(self.b, 1.0).sum()
-        b_small = torch.gt(torch.neg(self.b), 1.0).sum()
-        print('Matrix b:')
-        print('Number of elements bigger than 1: ', b_big)
-        print('Number of elements smaller than -1: ', b_small)
-        print('###############')
-        '''
-        #bigg_elements = 0
-        #small_elements = 0
         for node in self.ls:
             node.vector.detach()
-            #bigg_elements = bigg_elements + torch.gt(node.vector, 1.0).sum()
-            #small_elements = small_elements + torch.gt(torch.neg(node.vector), 1.0).sum()
-
-        #print('Number of elements bigger than 1: ', bigg_elements)
-        #print('Number of elements smaller than -1: ', small_elements)
 
         return self.ls, self.w_l.detach(), self.w_r.detach(), self.b.detach()
 

@@ -56,28 +56,17 @@ class Coding_layer():
 
     # We create each combined vector p
     def coding_iterations(self):
-        #bigg_elements = 0
-        #small_elements = 0
         for node in self.ls:
             if len(node.children) > 1:
                 combined_vector = self.node_coding(node)
-                #print(combined_vector)
                 node.set_combined_vector(combined_vector)
             elif len(node.children) == 1:
                 combined_vector = self.node_coding_special_case(node)
-                #print(combined_vector)
                 node.set_combined_vector(combined_vector)
             else:
                 combined_vector = torch.matmul(self.w_comb1, node.vector)
                 node.set_combined_vector(combined_vector)
-            #bigg_elements = bigg_elements + torch.gt(combined_vector, 4.0).sum()
-            #small_elements = small_elements + torch.gt(torch.neg(combined_vector), 4.0).sum()
-        '''
-        print('Combined vector: ')
-        print('Number of elements bigger than 4: ', bigg_elements)
-        print('Number of elements smaller than -4: ', small_elements)
-        print('###############')
-        '''
+
 
     # Calculate the combination vector of each node p
     def node_coding(self, node):
@@ -104,7 +93,7 @@ class Coding_layer():
             # Sum the weighted values over vec(child)
             sum = sum + torch.matmul(matrix, child_node.vector)
             i += 1
-        children_part = F.relu(sum + self.b)
+        children_part = F.leaky_relu(sum + self.b)
         second_term = torch.matmul(self.w_comb2, children_part)
         return (first_term + second_term)
 
@@ -120,5 +109,5 @@ class Coding_layer():
         first_term = torch.matmul(self.w_comb1, node.vector)
         code_matrix = ((1/2)*self.w_l) + ((1/2)*self.w_r)
         matrix = (self.dict_ast_to_Node[node.children[0]].leaves_nodes/node.leaves_nodes)*code_matrix
-        second_term = torch.matmul(self.w_comb2, F.relu(torch.matmul(matrix, self.dict_ast_to_Node[node.children[0]].vector) + self.b))
+        second_term = torch.matmul(self.w_comb2, F.leaky_relu(torch.matmul(matrix, self.dict_ast_to_Node[node.children[0]].vector) + self.b))
         return (first_term + second_term)
