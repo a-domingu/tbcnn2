@@ -1,24 +1,22 @@
 # TODO cambiar esto por el main cuando funcione
-from main import main
+from main_tester import main
 from utils import writer, remover
 import os
 
 
 # TODO asignar los valores que queramos para cada caso
 
-vector_size_ls = [30, 40]
-
-learning_rate_ls = [0.1, 0.2]
-
-momentum_ls = [0.01, 0.02]
-
+vector_size_ls = [30]
+learning_rate_ls = [0.3]
+momentum_ls = [0]
+l2_penalty_ls = [0]
 epoch_first = 45
 
 # Second neural network parameters
-feature_size_ls = [5, 10, 20]
-epoch = 10
+feature_size_ls = [10, 30, 100]
+learning_rate2_ls = [0.1, 0.01, 0.001]
+epoch = 40
 pooling = 'one-way pooling'
-l2_penalty_ls = [0]
 
 # If exists a results.txt file, then we remove it
 remover()
@@ -26,7 +24,7 @@ remover()
 for vector_size in vector_size_ls:
     for learning_rate in learning_rate_ls:
         for momentum in momentum_ls:
-            for learning_rate2 in [0.1]:
+            for learning_rate2 in learning_rate2_ls:
                 for feature_size in feature_size_ls:
                     for l2_penalty in l2_penalty_ls:
                         message = f'''
@@ -43,10 +41,10 @@ number of epochs for second neural network: {epoch}
 
 
                     '''
-                    # We append the results in a results.txt file
-                    writer(message)
-                    main(vector_size, learning_rate, momentum, epoch_first, learning_rate2,\
-                         feature_size, epoch, pooling, l2_penalty)
+                        # We append the results in a results.txt file
+                        writer(message)
+                        main(vector_size, learning_rate, momentum, epoch_first, learning_rate2,\
+                            feature_size, epoch, pooling, l2_penalty)
 
 
 

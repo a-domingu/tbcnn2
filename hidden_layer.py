@@ -21,6 +21,7 @@ class Hidden_layer():
         # Initialize the node list and the vector
         self.input = vector
         output = self.get_output()
+        print('The input of the sigmoid function is: ', output)
         return output
 
     def get_output(self):

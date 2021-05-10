@@ -56,6 +56,8 @@ class Coding_layer():
 
     # We create each combined vector p
     def coding_iterations(self):
+        #bigg_elements = 0
+        #small_elements = 0
         for node in self.ls:
             if len(node.children) > 1:
                 combined_vector = self.node_coding(node)
@@ -68,7 +70,14 @@ class Coding_layer():
             else:
                 combined_vector = torch.matmul(self.w_comb1, node.vector)
                 node.set_combined_vector(combined_vector)
-
+            #bigg_elements = bigg_elements + torch.gt(combined_vector, 4.0).sum()
+            #small_elements = small_elements + torch.gt(torch.neg(combined_vector), 4.0).sum()
+        '''
+        print('Combined vector: ')
+        print('Number of elements bigger than 4: ', bigg_elements)
+        print('Number of elements smaller than -4: ', small_elements)
+        print('###############')
+        '''
 
     # Calculate the combination vector of each node p
     def node_coding(self, node):

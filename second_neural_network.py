@@ -29,22 +29,32 @@ class SecondNeuralNetwork():
         self.vector_size = n
         self.feature_size = m
         # parameters
-        self.w_comb1 = torch.diag(torch.randn(self.vector_size, dtype=torch.float32)).requires_grad_()
-        self.w_comb2 = torch.diag(torch.randn(self.vector_size, dtype=torch.float32)).requires_grad_()
-        self.w_t = torch.randn(self.feature_size, self.vector_size, requires_grad = True)
-        self.w_r = torch.randn(self.feature_size, self.vector_size, requires_grad = True)
-        self.w_l = torch.randn(self.feature_size, self.vector_size, requires_grad = True)
-        self.b_conv = torch.randn(self.feature_size, requires_grad = True)
+        # Create uniform random numbers in half-open interval [-1.0, 1.0)
+        r1 = -1.0
+        r2 = 1.0
+        self.w_comb1 = torch.diag(torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.vector_size, 1)), 1)).requires_grad_()
+        #self.w_comb1 = torch.diag(torch.rand(self.vector_size, dtype=torch.float32)).requires_grad_()
+        self.w_comb2 = torch.diag(torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.vector_size, 1)), 1)).requires_grad_()
+        #self.w_comb2 = torch.diag(torch.rand(self.vector_size, dtype=torch.float32)).requires_grad_()
+        self.w_t = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_()
+        #self.w_t = torch.rand(self.feature_size, self.vector_size, requires_grad = True)
+        self.w_r = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_()
+        #self.w_r = torch.rand(self.feature_size, self.vector_size, requires_grad = True)
+        self.w_l = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_()
+        #self.w_l = torch.rand(self.feature_size, self.vector_size, requires_grad = True)
+        self.b_conv = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.feature_size, 1))).requires_grad_()
+        #self.b_conv = torch.rand(self.feature_size, requires_grad = True)
         # pooling method
         self.pooling = pooling
         if self.pooling == 'three-way pooling':
-            self.w_hidden = torch.randn(3, requires_grad = True)
-            self.b_hidden = torch.randn(1, requires_grad = True)
+            self.w_hidden = torch.rand(3, requires_grad = True)
+            self.b_hidden = torch.rand(1, requires_grad = True)
             self.dynamic = Dynamic_pooling_layer()
             self.max_pool = Max_pooling_layer()
         else:
-            self.w_hidden = torch.randn(self.feature_size, requires_grad = True)
-            self.b_hidden = torch.randn(1, requires_grad = True)
+            self.w_hidden = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.feature_size, 1))).requires_grad_()
+            #self.w_hidden = torch.rand(self.feature_size, requires_grad = True)
+            self.b_hidden = torch.rand(1, requires_grad = True)
             self.pooling = Pooling_layer()
         # layers
         self.cod = Coding_layer(self.vector_size)
@@ -59,10 +69,9 @@ class SecondNeuralNetwork():
         # Construct the optimizer
         params = [self.w_comb1, self.w_comb2, self.w_t, self.w_l, self.w_r, self.b_conv, self.w_hidden, self.b_hidden]
         optimizer = torch.optim.SGD(params, lr = learning_rate)
-        m = nn.Sigmoid() # initialize sigmoid layer
         criterion = nn.BCELoss()
+        print('w_comb1 shape: ', self.w_comb1.shape)
         print('The correct value of the files is: ', targets)
-        print(self.w_hidden)
 
         for epoch in range(total_epochs):
             # Time
@@ -70,16 +79,64 @@ class SecondNeuralNetwork():
 
             # zero the parameter gradients
             optimizer.zero_grad()
-
+            '''
+            w_comb1_big = torch.gt(self.w_comb1, 1.0).sum()
+            w_comb1_small = torch.gt(torch.neg(self.w_comb1), 1.0).sum()
+            print('###############')
+            print('Matrix w_comb1:')
+            print('Number of elements bigger than 1: ', w_comb1_big)
+            print('Number of elements smaller than -1: ', w_comb1_small)
+            w_comb2_big = torch.gt(self.w_comb2, 1.0).sum()
+            w_comb2_small = torch.gt(torch.neg(self.w_comb2), 1.0).sum()
+            print('###############')
+            print('Matrix w_comb2:')
+            print('Number of elements bigger than 1: ', w_comb2_big)
+            print('Number of elements smaller than -1: ', w_comb2_small)
+            print('###############')
+            w_t_big = torch.gt(self.w_t, 1.0).sum()
+            w_t_small = torch.gt(torch.neg(self.w_t), 1.0).sum()
+            print('Matrix w_t:')
+            print('Number of elements bigger than 1: ', w_t_big)
+            print('Number of elements smaller than -1: ', w_t_small)
+            print('###############')
+            w_r_big = torch.gt(self.w_r, 1.0).sum()
+            w_r_small = torch.gt(torch.neg(self.w_r), 1.0).sum()
+            print('Matrix w_r:')
+            print('Number of elements bigger than 1: ', w_r_big)
+            print('Number of elements smaller than -1: ', w_r_small)
+            print('###############')
+            w_l_big = torch.gt(self.w_l, 1.0).sum()
+            w_l_small = torch.gt(torch.neg(self.w_l), 1.0).sum()
+            print('Matrix w_l:')
+            print('Number of elements bigger than 1: ', w_l_big)
+            print('Number of elements smaller than -1: ', w_l_small)
+            print('###############')
+            b_conv_big = torch.gt(self.b_conv, 1.0).sum()
+            b_conv_small = torch.gt(torch.neg(self.b_conv), 1.0).sum()
+            print('Matrix b_conv:')
+            print('Number of elements bigger than 1: ', b_conv_big)
+            print('Number of elements smaller than -1: ', b_conv_small)
+            print('###############')
+            w_hidden_big = torch.gt(self.w_hidden, 1.0).sum()
+            w_hidden_small = torch.gt(torch.neg(self.w_hidden), 1.0).sum()
+            print('Matrix w_hidden:')
+            print('Number of elements bigger than 1: ', w_hidden_big)
+            print('Number of elements smaller than -1: ', w_hidden_small)
+            print('###############')
+            b_hidden_big = torch.gt(self.b_hidden, 1.0).sum()
+            b_hidden_small = torch.gt(torch.neg(self.b_hidden), 1.0).sum()
+            print('Vector b_hidden:')
+            print('Number of elements bigger than 1: ', b_hidden_big)
+            print('Number of elements smaller than -1: ', b_hidden_small)
+            print('###############')
+            '''
             # forward
             outputs = self.forward(training_dict)
             print('Outputs: \n', outputs)
-            # Sigmoid
-            predicts = m(outputs)
 
             # Computes the loss function
             try:
-                loss = criterion(predicts, targets)
+                loss = criterion(outputs, targets)
             except AttributeError:
                 print(f'The size of outputs is {len(outputs)} and is of type {type(outputs)}')
                 print('Check that the path is a folder and not a file')
@@ -87,17 +144,17 @@ class SecondNeuralNetwork():
 
             # Backward = calculates the derivative
             loss.backward() # w_r.grad = dloss/dw_r
+            for i in range(8):
+                print(params[i].grad.sum())
 
             # Update parameters
             optimizer.step() #w_r = w_r - lr * w_r.grad
-            print('############### \n')
-            #print(self.w_hidden)
-            #assert self.w_hidden == params[6]
 
             #Time
             end = time()
 
             print('Epoch: ', epoch, ', Time: ', end-start, ', Loss: ', loss)
+            print('############### \n')
 
         message = f'''
 The loss we have for the training network is: {loss}
@@ -138,6 +195,14 @@ The loss we have for the training network is: {loss}
             vector = self.dynamic.three_way_pooling(ls_nodes, dict_sibling)
         else:
             vector = self.pooling.pooling_layer(ls_nodes)
+        '''
+        vector_big = torch.gt(vector, 4.0).sum()
+        vector_small = torch.gt(torch.neg(vector), 4.0).sum()
+        print('vector pooling:')
+        print('Number of elements bigger than 4: ', vector_big)
+        print('Number of elements smaller than -4: ', vector_small)
+        print('###############')
+        '''
         output = self.hidden.hidden_layer(vector, self.w_hidden, self.b_hidden)
 
         return output

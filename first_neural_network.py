@@ -15,7 +15,6 @@ class First_neural_network():
     "Building Program Vector Representations for Deep Learning" report.
     First we compute the cost function J by using the coding criterion d and then we applied the back
     propagation algorithm
-
     Inputs:
     ls_nodes [list <class Node>]: list with all nodes in the AST
     dict_ast_to_Node[dict[ast_object] = <class Node>]: dictionary that relates class ast objects to class Node objects
@@ -51,9 +50,15 @@ class First_neural_network():
 
     def vector_representation(self):
         # Parameters initialization
-        self.w_l = torch.randn(self.features_size, self.features_size, requires_grad = True)
-        self.w_r = torch.randn(self.features_size, self.features_size, requires_grad = True)
-        self.b = torch.randn(self.features_size,  requires_grad = True) 
+        # Create uniform random numbers in half-open interval [-1.0, 1.0)
+        r1 = -1.0
+        r2 = 1.0
+        self.w_l = torch.distributions.Uniform(-1, +1).sample((self.features_size, self.features_size)).requires_grad_()
+        #self.w_l = torch.rand(self.features_size, self.features_size, requires_grad = True)
+        self.w_r = torch.distributions.Uniform(-1, +1).sample((self.features_size, self.features_size)).requires_grad_()
+        #self.w_r = torch.rand(self.features_size, self.features_size, requires_grad = True)
+        self.b = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.features_size, 1))).requires_grad_()
+        #self.b = torch.rand(self.features_size,  requires_grad = True) 
 
         ### SGD
         # params is a tensor with vectors (p -> node.vector and node childs c1,..,cN -> node_list), w_r, w_l and b
@@ -64,7 +69,26 @@ class First_neural_network():
         # Construct the optimizer
         # Stochastic gradient descent with momentum algorithm
         optimizer = torch.optim.SGD(params, lr = self.alpha, momentum = self.epsilon)
-        # TODO cambiar el número de iteraciones para que sea un parámetro que pasamos como input a la clase
+        '''
+        w_r_big = torch.gt(self.w_r, 1.0).sum()
+        w_r_small = torch.gt(torch.neg(self.w_r), 1.0).sum()
+        print('Matrix w_r:')
+        print('Number of elements bigger than 1: ', w_r_big)
+        print('Number of elements smaller than -1: ', w_r_small)
+        print('###############')
+        w_l_big = torch.gt(self.w_l, 1.0).sum()
+        w_l_small = torch.gt(torch.neg(self.w_l), 1.0).sum()
+        print('Matrix w_l:')
+        print('Number of elements bigger than 1: ', w_l_big)
+        print('Number of elements smaller than -1: ', w_l_small)
+        print('###############')
+        b_big = torch.gt(self.b, 1.0).sum()
+        b_small = torch.gt(torch.neg(self.b), 1.0).sum()
+        print('Matrix b:')
+        print('Number of elements bigger than 1: ', b_big)
+        print('Number of elements smaller than -1: ', b_small)
+        print('###############')
+        '''
         for step in range(self.total_epochs):
             # Training loop (forward step)
             output_J = self.training_iterations()
@@ -81,11 +105,35 @@ class First_neural_network():
             # Zero gradients
             optimizer.zero_grad()
 
-            if (step+1) % 5 == 0:
-                print('Epoch: ', step+1, ' Loss: ', loss)
-        
+            #if (step+1) % 5 == 0:
+                #print('Epoch: ', step+1, ' Loss: ', loss)
+        '''
+        print('Matrix w_r:')
+        print('Number of elements bigger than 1: ', w_r_big)
+        print('Number of elements smaller than -1: ', w_r_small)
+        print('###############')
+        w_l_big = torch.gt(self.w_l, 1.0).sum()
+        w_l_small = torch.gt(torch.neg(self.w_l), 1.0).sum()
+        print('Matrix w_l:')
+        print('Number of elements bigger than 1: ', w_l_big)
+        print('Number of elements smaller than -1: ', w_l_small)
+        print('###############')
+        b_big = torch.gt(self.b, 1.0).sum()
+        b_small = torch.gt(torch.neg(self.b), 1.0).sum()
+        print('Matrix b:')
+        print('Number of elements bigger than 1: ', b_big)
+        print('Number of elements smaller than -1: ', b_small)
+        print('###############')
+        '''
+        #bigg_elements = 0
+        #small_elements = 0
         for node in self.ls:
             node.vector.detach()
+            #bigg_elements = bigg_elements + torch.gt(node.vector, 1.0).sum()
+            #small_elements = small_elements + torch.gt(torch.neg(node.vector), 1.0).sum()
+
+        #print('Number of elements bigger than 1: ', bigg_elements)
+        #print('Number of elements smaller than -1: ', small_elements)
 
         return self.ls, self.w_l.detach(), self.w_r.detach(), self.b.detach()
 
