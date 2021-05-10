@@ -12,7 +12,7 @@ l2_penalty_ls = [0]
 epoch_first = 45
 
 # Second neural network parameters
-feature_size_ls = [10, 30, 100]
+feature_size_ls = [100, 200, 300]
 learning_rate2_ls = [0.1, 0.01, 0.001]
 epoch = 40
 pooling = 'one-way pooling'

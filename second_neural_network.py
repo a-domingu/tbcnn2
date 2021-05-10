@@ -30,8 +30,6 @@ class SecondNeuralNetwork():
         self.feature_size = m
         # parameters
         # Create uniform random numbers in half-open interval [-1.0, 1.0)
-        r1 = -1.0
-        r2 = 1.0
         self.w_comb1 = torch.diag(torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.vector_size, 1)), 1)).requires_grad_()
         #self.w_comb1 = torch.diag(torch.rand(self.vector_size, dtype=torch.float32)).requires_grad_()
         self.w_comb2 = torch.diag(torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.vector_size, 1)), 1)).requires_grad_()
@@ -47,8 +45,8 @@ class SecondNeuralNetwork():
         # pooling method
         self.pooling = pooling
         if self.pooling == 'three-way pooling':
-            self.w_hidden = torch.rand(3, requires_grad = True)
-            self.b_hidden = torch.rand(1, requires_grad = True)
+            self.w_hidden = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((3, 1))).requires_grad_()
+            self.b_hidden = torch.squeeze(torch.distributions.Uniform(-1, +1).sample()).requires_grad_()
             self.dynamic = Dynamic_pooling_layer()
             self.max_pool = Max_pooling_layer()
         else:

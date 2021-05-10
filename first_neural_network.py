@@ -51,8 +51,6 @@ class First_neural_network():
     def vector_representation(self):
         # Parameters initialization
         # Create uniform random numbers in half-open interval [-1.0, 1.0)
-        r1 = -1.0
-        r2 = 1.0
         self.w_l = torch.distributions.Uniform(-1, +1).sample((self.features_size, self.features_size)).requires_grad_()
         #self.w_l = torch.rand(self.features_size, self.features_size, requires_grad = True)
         self.w_r = torch.distributions.Uniform(-1, +1).sample((self.features_size, self.features_size)).requires_grad_()
@@ -69,26 +67,7 @@ class First_neural_network():
         # Construct the optimizer
         # Stochastic gradient descent with momentum algorithm
         optimizer = torch.optim.SGD(params, lr = self.alpha, momentum = self.epsilon)
-        '''
-        w_r_big = torch.gt(self.w_r, 1.0).sum()
-        w_r_small = torch.gt(torch.neg(self.w_r), 1.0).sum()
-        print('Matrix w_r:')
-        print('Number of elements bigger than 1: ', w_r_big)
-        print('Number of elements smaller than -1: ', w_r_small)
-        print('###############')
-        w_l_big = torch.gt(self.w_l, 1.0).sum()
-        w_l_small = torch.gt(torch.neg(self.w_l), 1.0).sum()
-        print('Matrix w_l:')
-        print('Number of elements bigger than 1: ', w_l_big)
-        print('Number of elements smaller than -1: ', w_l_small)
-        print('###############')
-        b_big = torch.gt(self.b, 1.0).sum()
-        b_small = torch.gt(torch.neg(self.b), 1.0).sum()
-        print('Matrix b:')
-        print('Number of elements bigger than 1: ', b_big)
-        print('Number of elements smaller than -1: ', b_small)
-        print('###############')
-        '''
+
         for step in range(self.total_epochs):
             # Training loop (forward step)
             output_J = self.training_iterations()

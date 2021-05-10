@@ -86,10 +86,10 @@ def set_up_coding_layer():
     ls_nodes = embed.node_embedding()[:]
     vector_representation = First_neural_network(ls_nodes, dict_ast_to_Node, 20, 0.1, 0.001, 0, 5)
     ls_nodes, w_l, w_r, b_code = vector_representation.vector_representation()
-    w_comb1 = torch.diag(torch.randn(20, dtype=torch.float32)).requires_grad_()
-    w_comb2 = torch.diag(torch.randn(20, dtype=torch.float32)).requires_grad_()
-    coding_layer = Coding_layer(20, w_comb1, w_comb2)
-    ls_nodes = coding_layer.coding_layer(ls_nodes, dict_ast_to_Node, w_l, w_r, b_code)
+    w_comb1 = torch.diag(torch.squeeze(torch.distributions.Uniform(-1, +1).sample((20, 1)), 1)).requires_grad_()
+    w_comb2 = torch.diag(torch.squeeze(torch.distributions.Uniform(-1, +1).sample((20, 1)), 1)).requires_grad_()
+    coding_layer = Coding_layer(20)
+    ls_nodes = coding_layer.coding_layer(ls_nodes, dict_ast_to_Node, w_l, w_r, b_code, w_comb1, w_comb2)
     return ls_nodes, w_comb1, w_comb2
 
 @pytest.fixture
@@ -105,16 +105,16 @@ def set_up_convolutional_layer():
     ls_nodes = embed.node_embedding()[:]
     vector_representation = First_neural_network(ls_nodes, dict_ast_to_Node, 20, 0.1, 0.001, 0, 5)
     ls_nodes, w_l, w_r, b_code = vector_representation.vector_representation()
-    w_comb1 = torch.diag(torch.randn(20, dtype=torch.float32)).requires_grad_()
-    w_comb2 = torch.diag(torch.randn(20, dtype=torch.float32)).requires_grad_()
-    coding_layer = Coding_layer(20, w_comb1, w_comb2)
-    ls_nodes = coding_layer.coding_layer(ls_nodes, dict_ast_to_Node, w_l, w_r, b_code)
-    w_t = torch.randn(4, 20, requires_grad = True)
-    w_r = torch.randn(4, 20, requires_grad = True)
-    w_l = torch.randn(4, 20, requires_grad = True)
-    b_conv = torch.randn(4, requires_grad = True)
-    convolutional_layer = Convolutional_layer(20, w_t, w_r, w_l, b_conv, features_size=4)
-    ls_nodes = convolutional_layer.convolutional_layer(ls_nodes, dict_ast_to_Node)
+    w_comb1 = torch.diag(torch.squeeze(torch.distributions.Uniform(-1, +1).sample((20, 1)), 1)).requires_grad_()
+    w_comb2 = torch.diag(torch.squeeze(torch.distributions.Uniform(-1, +1).sample((20, 1)), 1)).requires_grad_()
+    coding_layer = Coding_layer(20)
+    ls_nodes = coding_layer.coding_layer(ls_nodes, dict_ast_to_Node, w_l, w_r, b_code, w_comb1, w_comb2)
+    w_t = torch.distributions.Uniform(-1, +1).sample((4, 20)).requires_grad_()
+    w_r = torch.distributions.Uniform(-1, +1).sample((4, 20)).requires_grad_()
+    w_l = torch.distributions.Uniform(-1, +1).sample((4, 20)).requires_grad_()
+    b_conv = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((4, 1))).requires_grad_()
+    convolutional_layer = Convolutional_layer(20, features_size=4)
+    ls_nodes = convolutional_layer.convolutional_layer(ls_nodes, dict_ast_to_Node, w_t, w_r, w_l, b_conv)
 
     return ls_nodes, w_t, w_l, w_r, b_conv
 
@@ -132,16 +132,16 @@ def set_up_one_max_pooling_layer():
     ls_nodes = embed.node_embedding()[:]
     vector_representation = First_neural_network(ls_nodes, dict_ast_to_Node, 20, 0.1, 0.001, 0, 5)
     ls_nodes, w_l, w_r, b_code = vector_representation.vector_representation()
-    w_comb1 = torch.diag(torch.randn(20, dtype=torch.float32)).requires_grad_()
-    w_comb2 = torch.diag(torch.randn(20, dtype=torch.float32)).requires_grad_()
-    coding_layer = Coding_layer(20, w_comb1, w_comb2)
-    ls_nodes = coding_layer.coding_layer(ls_nodes, dict_ast_to_Node, w_l, w_r, b_code)
-    w_t = torch.randn(4, 20, requires_grad = True)
-    w_r = torch.randn(4, 20, requires_grad = True)
-    w_l = torch.randn(4, 20, requires_grad = True)
-    b_conv = torch.randn(4, requires_grad = True)
-    convolutional_layer = Convolutional_layer(20, w_t, w_r, w_l, b_conv, features_size=4)
-    ls_nodes = convolutional_layer.convolutional_layer(ls_nodes, dict_ast_to_Node)
+    w_comb1 = torch.diag(torch.squeeze(torch.distributions.Uniform(-1, +1).sample((20, 1)), 1)).requires_grad_()
+    w_comb2 = torch.diag(torch.squeeze(torch.distributions.Uniform(-1, +1).sample((20, 1)), 1)).requires_grad_()
+    coding_layer = Coding_layer(20)
+    ls_nodes = coding_layer.coding_layer(ls_nodes, dict_ast_to_Node, w_l, w_r, b_code, w_comb1, w_comb2)
+    w_t = torch.distributions.Uniform(-1, +1).sample((4, 20)).requires_grad_()
+    w_r = torch.distributions.Uniform(-1, +1).sample((4, 20)).requires_grad_()
+    w_l = torch.distributions.Uniform(-1, +1).sample((4, 20)).requires_grad_()
+    b_conv = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((4, 1))).requires_grad_()
+    convolutional_layer = Convolutional_layer(20, features_size=4)
+    ls_nodes = convolutional_layer.convolutional_layer(ls_nodes, dict_ast_to_Node, w_t, w_r, w_l, b_conv)
     pooling_layer = Pooling_layer()
     pooled_tensor = pooling_layer.pooling_layer(ls_nodes)
 
@@ -160,16 +160,16 @@ def set_up_dynamic_pooling_layer():
     ls_nodes = embed.node_embedding()[:]
     vector_representation = First_neural_network(ls_nodes, dict_ast_to_Node, 20, 0.1, 0.001, 0, 5)
     ls_nodes, w_l, w_r, b_code = vector_representation.vector_representation()
-    w_comb1 = torch.diag(torch.randn(20, dtype=torch.float32)).requires_grad_()
-    w_comb2 = torch.diag(torch.randn(20, dtype=torch.float32)).requires_grad_()
-    coding_layer = Coding_layer(20, w_comb1, w_comb2)
-    ls_nodes = coding_layer.coding_layer(ls_nodes, dict_ast_to_Node, w_l, w_r, b_code)
-    w_t = torch.randn(4, 20, requires_grad = True)
-    w_r = torch.randn(4, 20, requires_grad = True)
-    w_l = torch.randn(4, 20, requires_grad = True)
-    b_conv = torch.randn(4, requires_grad = True)
-    convolutional_layer = Convolutional_layer(20, w_t, w_r, w_l, b_conv, features_size=4)
-    ls_nodes = convolutional_layer.convolutional_layer(ls_nodes, dict_ast_to_Node)
+    w_comb1 = torch.diag(torch.squeeze(torch.distributions.Uniform(-1, +1).sample((20, 1)), 1)).requires_grad_()
+    w_comb2 = torch.diag(torch.squeeze(torch.distributions.Uniform(-1, +1).sample((20, 1)), 1)).requires_grad_()
+    coding_layer = Coding_layer(20)
+    ls_nodes = coding_layer.coding_layer(ls_nodes, dict_ast_to_Node, w_l, w_r, b_code, w_comb1, w_comb2)
+    w_t = torch.distributions.Uniform(-1, +1).sample((4, 20)).requires_grad_()
+    w_r = torch.distributions.Uniform(-1, +1).sample((4, 20)).requires_grad_()
+    w_l = torch.distributions.Uniform(-1, +1).sample((4, 20)).requires_grad_()
+    b_conv = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((4, 1))).requires_grad_()
+    convolutional_layer = Convolutional_layer(20, features_size=4)
+    ls_nodes = convolutional_layer.convolutional_layer(ls_nodes, dict_ast_to_Node, w_t, w_r, w_l, b_conv)
     max_pooling_layer = Max_pooling_layer()
     max_pooling_layer.max_pooling(ls_nodes)
     dynamic_pooling = Dynamic_pooling_layer()
@@ -190,24 +190,22 @@ def set_up_hidden_layer():
     ls_nodes = embed.node_embedding()[:]
     vector_representation = First_neural_network(ls_nodes, dict_ast_to_Node, 20, 0.1, 0.001, 0, 5)
     ls_nodes, w_l, w_r, b_code = vector_representation.vector_representation()
-    w_comb1 = torch.diag(torch.randn(20, dtype=torch.float32)).requires_grad_()
-    w_comb2 = torch.diag(torch.randn(20, dtype=torch.float32)).requires_grad_()
-    coding_layer = Coding_layer(20, w_comb1, w_comb2)
-    ls_nodes = coding_layer.coding_layer(ls_nodes, dict_ast_to_Node, w_l, w_r, b_code)
-    w_t = torch.randn(4, 20, requires_grad = True)
-    w_r = torch.randn(4, 20, requires_grad = True)
-    w_l = torch.randn(4, 20, requires_grad = True)
-    b_conv = torch.randn(4, requires_grad = True)
-    convolutional_layer = Convolutional_layer(20, w_t, w_r, w_l, b_conv, features_size=4)
-    ls_nodes = convolutional_layer.convolutional_layer(ls_nodes, dict_ast_to_Node)
-    max_pooling_layer = Max_pooling_layer()
-    max_pooling_layer.max_pooling(ls_nodes)
-    dynamic_pooling = Dynamic_pooling_layer()
-    hidden_input = dynamic_pooling.three_way_pooling(ls_nodes, dict_sibling)
-    w_hidden = torch.randn(3, requires_grad = True)
-    b_hidden = torch.randn(1, requires_grad = True)
-    hidden = Hidden_layer(w_hidden, b_hidden)
-    output_hidden  = hidden.hidden_layer(hidden_input)
+    w_comb1 = torch.diag(torch.squeeze(torch.distributions.Uniform(-1, +1).sample((20, 1)), 1)).requires_grad_()
+    w_comb2 = torch.diag(torch.squeeze(torch.distributions.Uniform(-1, +1).sample((20, 1)), 1)).requires_grad_()
+    coding_layer = Coding_layer(20)
+    ls_nodes = coding_layer.coding_layer(ls_nodes, dict_ast_to_Node, w_l, w_r, b_code, w_comb1, w_comb2)
+    w_t = torch.distributions.Uniform(-1, +1).sample((4, 20)).requires_grad_()
+    w_r = torch.distributions.Uniform(-1, +1).sample((4, 20)).requires_grad_()
+    w_l = torch.distributions.Uniform(-1, +1).sample((4, 20)).requires_grad_()
+    b_conv = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((4, 1))).requires_grad_()
+    convolutional_layer = Convolutional_layer(20, features_size=4)
+    ls_nodes = convolutional_layer.convolutional_layer(ls_nodes, dict_ast_to_Node, w_t, w_r, w_l, b_conv)
+    pooling = Pooling_layer()
+    hidden_input = pooling.pooling_layer(ls_nodes)
+    w_hidden = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((4, 1))).requires_grad_()
+    b_hidden = torch.rand(1, requires_grad = True)
+    hidden = Hidden_layer()
+    output_hidden  = hidden.hidden_layer(hidden_input, w_hidden, b_hidden)
 
     return output_hidden, w_hidden, b_hidden
 
@@ -230,7 +228,7 @@ def setup_validation_neural_network():
     secnn = SecondNeuralNetwork(20, 4)
     secnn.train(targets_training, training_dict)
     val = Validation_neural_network(20, 4)
-    predicts = val.prediction(validation_dict)
+    predicts = val.prediction(validation_dict, 0.3, 0, 0, 5)
     accuracy = val.accuracy(predicts, targets_validation)
     return predicts, accuracy
 
@@ -374,7 +372,7 @@ def test_hidden_layer(set_up_hidden_layer):
     assert len(output_hidden) == 1
     output_hidden = output_hidden.detach().numpy()
     assert np.count_nonzero(output_hidden) != 0
-    assert len(w_hidden) == 3
+    assert len(w_hidden) == 4
     w_hidden = w_hidden.detach().numpy()
     assert np.count_nonzero(w_hidden) != 0
     assert  len(b_hidden) == 1
@@ -386,7 +384,9 @@ def test_second_neural_network(setup_second_neural_network):
 
     assert isinstance(outputs, torch.Tensor)
     assert len(outputs) == 2
-    assert 0 <= outputs[0] <= 1
+    assert isinstance(outputs[0], torch.FloatTensor)
+    assert outputs[0].dim() == 0
+    #assert 0 <= outputs[0] <= 1
 
 
 def test_validation(setup_validation_neural_network):
@@ -394,7 +394,7 @@ def test_validation(setup_validation_neural_network):
     predicts, accuracy = setup_validation_neural_network
 
     assert isinstance(predicts, torch.Tensor)
-    assert len(predicts) == 1
-    assert 0 <= predicts <= 1
+    assert len(predicts) == 2
+    assert 0 <= predicts[0] <= 1
     assert isinstance(accuracy, torch.Tensor)
     assert 0 <= accuracy <= 1
