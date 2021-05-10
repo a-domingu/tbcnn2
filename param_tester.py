@@ -5,7 +5,7 @@ import os
 
 
 # TODO asignar los valores que queramos para cada caso
-
+# First neural network parameters
 vector_size_ls = [30]
 learning_rate_ls = [0.3]
 momentum_ls = [0]
@@ -40,7 +40,7 @@ feature_size = {feature_size}
 number of epochs for second neural network: {epoch}
 
 
-                    '''
+                        '''
                         # We append the results in a results.txt file
                         writer(message)
                         main(vector_size, learning_rate, momentum, epoch_first, learning_rate2,\

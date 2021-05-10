@@ -39,7 +39,6 @@ def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix'
 def writer(message):
     with open('results.txt', 'a') as f:
         f.write(message)
-        f.close()
 
 
 def remover():
