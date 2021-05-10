@@ -65,8 +65,11 @@ class SecondNeuralNetwork():
         for epoch in range(total_epochs):
             # Time
             start = time()
-            outputs = self.forward(training_dict)
+            outputs, no_sig = self.forward(training_dict)
 
+
+            print('\nEl resultado antes del sigmoid es: ', no_sig)
+            print('\nEl resultado despues del sigmoid es: ', outputs)
             try:
                 loss = criterion(outputs, targets)
             except AttributeError:
@@ -107,10 +110,12 @@ The loss we have for the training network is: {loss}
             # output append
             if outputs == []:
                 outputs = softmax(output)
+                no_sig = output
             else:
                 outputs = torch.cat((outputs, softmax(output)), 0)
+                no_sig = torch.cat((no_sig, output),0)
 
-        return outputs
+        return outputs, no_sig
 
 
     def layers(self, vector_representation_params):

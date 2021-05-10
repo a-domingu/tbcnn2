@@ -29,7 +29,7 @@ def main(vector_size, learning_rate, momentum, epoch_first, learning_rate2, feat
 
 
     ### Creation of the training set and validation set
-    path = os.path.join('sets_short', 'generators')
+    path = os.path.join('..', 'sets_sigmod')
     training_dict, validation_dict, targets_training, targets_validation = training_and_validation_sets_creation(path) 
 
     # We now do the first neural network for every file:
