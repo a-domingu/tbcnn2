@@ -80,7 +80,7 @@ class Validation_neural_network():
         conf_matrix = self.conf_matrix(predicts, targets)
         print('Confusión matrix: ')
         print(conf_matrix)
-        #plot_confusion_matrix(conf_matrix, ['no generator', 'generator'])
+        plot_confusion_matrix(conf_matrix, ['no generator', 'generator'])
 
 
         message = f'''

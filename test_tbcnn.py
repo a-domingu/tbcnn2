@@ -6,7 +6,7 @@ import torch
 from gensim.models import Word2Vec
 
 from embeddings import Embedding
-from main_tester import training_and_validation_sets_creation, tensor_creation, first_neural_network
+from main_tester import training_and_validation_sets_creation, tensor_creation, first_neural_network_dict_creation, vector_representation_all_files
 from node import Node
 from matrix_generator import MatrixGenerator
 from node_object_creator import *
@@ -24,15 +24,16 @@ from validation_neural_network import Validation_neural_network
 @pytest.fixture
 def setup_training_validation_sets_creation():
     path = os.path.join('test', 'generators')
-    training_dict, validation_dict, targets_training, targets_validation = training_and_validation_sets_creation(path) 
+    data_dict = first_neural_network_dict_creation(path)
+    training_dict, validation_dict, targets_training, targets_validation = training_and_validation_sets_creation(path, data_dict) 
     return training_dict, validation_dict, targets_training, targets_validation
 
 @pytest.fixture
 def setup_first_neural_network():
     path = os.path.join('test', 'generators')
-    training_dict, validation_dict, targets_training, targets_validation = training_and_validation_sets_creation(path)
-    training_dict = first_neural_network(training_dict, 20, 0.1, 0.001, 5)
-    return training_dict
+    data_dict = first_neural_network_dict_creation(path)
+    data_dict = vector_representation_all_files(data_dict, 20, 0.1, 0.001, 5)
+    return data_dict
 
 @pytest.fixture
 def set_up_dictionary():
@@ -213,8 +214,9 @@ def set_up_hidden_layer():
 @pytest.fixture
 def setup_second_neural_network():
     path = os.path.join('test', 'generators')
-    training_dict, validation_dict, targets_training, targets_validation = training_and_validation_sets_creation(path) 
-    training_dict = first_neural_network(training_dict, 20)
+    data_dict = first_neural_network_dict_creation(path)
+    data_dict = vector_representation_all_files(data_dict, 20, 0.1, 0.001, 5)
+    training_dict, validation_dict, targets_training, targets_validation = training_and_validation_sets_creation(path, data_dict) 
     secnn = SecondNeuralNetwork(20, 4)
     outputs = secnn.forward(training_dict)
     return outputs
@@ -223,12 +225,13 @@ def setup_second_neural_network():
 @pytest.fixture
 def setup_validation_neural_network():
     path = os.path.join('test', 'generators')
-    training_dict, validation_dict, targets_training, targets_validation = training_and_validation_sets_creation(path) 
-    training_dict = first_neural_network(training_dict, 20)
+    data_dict = first_neural_network_dict_creation(path)
+    data_dict = vector_representation_all_files(data_dict, 20, 0.1, 0.001, 5)
+    training_dict, validation_dict, targets_training, targets_validation = training_and_validation_sets_creation(path, data_dict) 
     secnn = SecondNeuralNetwork(20, 4)
     secnn.train(targets_training, training_dict)
     val = Validation_neural_network(20, 4)
-    predicts = val.prediction(validation_dict, 0.3, 0, 0, 5)
+    predicts = val.prediction(validation_dict)
     accuracy = val.accuracy(predicts, targets_validation)
     return predicts, accuracy
 
@@ -246,11 +249,11 @@ def test_training_validation_sets_creation(setup_training_validation_sets_creati
 
 
 def test_first_neural_network(setup_first_neural_network):
-    training_dict = setup_first_neural_network
-    assert isinstance(training_dict, dict)
-    assert training_dict != {}
-    for data in training_dict:
-        data = training_dict[data]
+    data_dict = setup_first_neural_network
+    assert isinstance(data_dict, dict)
+    assert data_dict != {}
+    for data in data_dict:
+        data = data_dict[data]
         break
     assert isinstance(data, list)
     assert len(data) == 6
