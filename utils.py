@@ -32,7 +32,9 @@ def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix'
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
 
-    plt.show()
+    plt.savefig('confusion_matrix.png', dpi=300, bbox_inches='tight')
+
+    #plt.show() #Instead of showing, we will save the plot as a .png.
 
 
 
