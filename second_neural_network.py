@@ -80,7 +80,7 @@ class SecondNeuralNetwork():
 
             # forward
             outputs = self.forward(training_dict)
-            print('Outputs: \n', outputs)
+            #print('Outputs: \n', outputs)
 
             # Computes the loss function
             try:
@@ -92,6 +92,7 @@ class SecondNeuralNetwork():
 
             # Backward = calculates the derivative
             loss.backward() # w_r.grad = dloss/dw_r
+            print('Gradients values: ')
             for i in range(8):
                 print(params[i].grad.sum())
 

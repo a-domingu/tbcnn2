@@ -34,10 +34,12 @@ The parameters we're using are the following:
 vector_size = {vector_size}
 learning_rate = {learning_rate}
 momentum = {momentum}
+l2_penalty = {l2_penalty}
+number of epochs for first neural network: {epoch_first}
 learning_rate2 = {learning_rate2}
 feature_size = {feature_size}
 number of epochs for second neural network: {epoch}
-
+pooling method = {pooling}
 
                         '''
                         # We append the results in a results.txt file
