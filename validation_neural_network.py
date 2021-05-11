@@ -78,8 +78,9 @@ class Validation_neural_network():
         # TODO Build the accuracy evaluation method for each file
         # Confusion matrix
         conf_matrix = self.conf_matrix(predicts, targets)
+        print('Confusión matrix: ')
         print(conf_matrix)
-        plot_confusion_matrix(conf_matrix, ['no generator', 'generator'])
+        #plot_confusion_matrix(conf_matrix, ['no generator', 'generator'])
 
 
         message = f'''

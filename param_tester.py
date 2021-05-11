@@ -5,7 +5,7 @@ import os
 
 # TODO asignar los valores que queramos para cada caso
 # Folder path
-path = os.path.join('sets_short', 'generators')
+path = os.path.join('sets', 'generators')
 
 # First neural network parameters
 vector_size_ls = [30]
@@ -15,8 +15,8 @@ l2_penalty_ls = [0]
 epoch_first = 45
 
 # Second neural network parameters
-feature_size_ls = [100]
-learning_rate2_ls = [0.01]
+feature_size_ls = [100, 200, 300]
+learning_rate2_ls = [0.01, 0.001]
 epoch = 40
 pooling = 'one-way pooling'
 
@@ -46,7 +46,6 @@ number of epochs for second neural network: {epoch}
 pooling method = {pooling}
 
                         '''
-                        print(message)
                         # We append the results in a results.txt file
                         writer(message)
                         main(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling)

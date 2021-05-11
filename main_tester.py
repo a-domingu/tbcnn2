@@ -28,7 +28,6 @@ from validation_neural_network import Validation_neural_network
 def first_neural_network(path, vector_size = 20, learning_rate = 0.1, momentum = 0.01, l2_penalty = 0, epoch = 45):
     # we create the data dict with all the information about vector representation
     data_dict = first_neural_network_dict_creation(path)
-    print('Data_dict: ', data_dict)
     # We now do the first neural network (vector representation) for every file:
     data_dict = vector_representation_all_files(data_dict, vector_size, learning_rate, momentum, l2_penalty, epoch)
     return data_dict
