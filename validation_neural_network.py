@@ -59,7 +59,7 @@ class Validation_neural_network():
         self.hidden = Hidden_layer()
 
 
-    def validation(self, targets, validation_dict, learning_rate = 0.3, momentum = 0, l2_penalty = 0, epoch_first = 45):
+    def validation(self, targets, validation_dict):
         """Create the validation loop"""
         print('########################################')
         print('\n\n\nFinished training process. Entering validation process\n\n\n')
@@ -67,7 +67,7 @@ class Validation_neural_network():
 
 
         # We calculate the predictions
-        predicts = self.prediction(validation_dict, learning_rate, momentum, l2_penalty, epoch_first)
+        predicts = self.prediction(validation_dict)
         # print the predictions
         print('predictions: \n', predicts)
 
@@ -96,16 +96,10 @@ confusion_matrix:
         print('accuracy: ', accuracy)
 
 
-    def prediction(self, validation_dict, learning_rate, momentum, l2_penalty, epoch_first):
+    def prediction(self, validation_dict):
         outputs = []
         softmax = nn.Sigmoid()
-        total = len(validation_dict)
-        i = 1
         for filepath in validation_dict:
-            # first neural network
-            validation_dict[filepath] = self.first_neural_network(filepath, learning_rate, momentum, l2_penalty, epoch_first)
-            print(f"finished vector representation of file: {filepath} ({i}/{total}) \n")
-            i += 1
             ## forward (second neural network)
             output = self.second_neural_network(validation_dict[filepath])
 
@@ -116,28 +110,6 @@ confusion_matrix:
                 outputs = torch.cat((outputs, torch.tensor([softmax(output)])), 0)
 
         return outputs
-    
-
-    def first_neural_network(self, file, learning_rate, momentum, l2_penalty, epoch):
-        '''Initializing node list, dict list and dict sibling'''
-        # we parse the data of the file into a tree
-        tree = file_parser(file)
-        # convert its nodes into the Node class we have, and assign their attributes
-        ls_nodes, dict_ast_to_Node = node_object_creator(tree)
-        ls_nodes = node_position_assign(ls_nodes)
-        ls_nodes, dict_sibling = node_sibling_assign(ls_nodes)
-        ls_nodes = leaves_nodes_assign(ls_nodes, dict_ast_to_Node)
-
-        # Initializing vector embeddings
-        embed = Embedding(self.vector_size, ls_nodes, dict_ast_to_Node)
-        ls_nodes = embed.node_embedding()
-
-        # Calculate the vector representation for each node
-        vector_representation = First_neural_network(ls_nodes, dict_ast_to_Node, self.vector_size, learning_rate, momentum, l2_penalty, epoch)
-        ls_nodes, w_l_code, w_r_code, b_code = vector_representation.vector_representation()
-
-        
-        return [ls_nodes, dict_ast_to_Node, dict_sibling, w_l_code, w_r_code, b_code]
 
 
     def second_neural_network(self, vector_representation_params):
