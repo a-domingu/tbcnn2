@@ -8,7 +8,7 @@ os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 
 
-def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
+def plot_confusion_matrix(cm, classes, lr2, feature_size, epoch, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
     if normalize:
         cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
         print("Normalized confusion matrix")
@@ -18,6 +18,8 @@ def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix'
     print(cm)
     plt.imshow(cm, interpolation='nearest', cmap=cmap)
     plt.title(title)
+    title_string = 'LR:'+str(lr2)+';  FS:'+str(feature_size)+';   Epoch:'+str(epoch)
+    plt.suptitle(title_string)#, y=1.05, fontsize=18)
     plt.colorbar()
     tick_marks = np.arange(len(classes))
     plt.xticks(tick_marks, classes, rotation=45)
@@ -32,7 +34,8 @@ def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix'
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
 
-    plt.savefig('confusion_matrix.png', dpi=300, bbox_inches='tight')
+    namefile = 'CM_'+str(lr2)+'_'+str(feature_size)+'_'+str(epoch)+'.png'
+    plt.savefig(namefile, dpi=300, bbox_inches='tight')
 
     #plt.show() #Instead of showing, we will save the plot as a .png.
 

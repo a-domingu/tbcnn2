@@ -42,7 +42,7 @@ def main(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pool
     secnn.train(targets_training, training_dict, epoch, learning_rate2)
 
     # Validation
-    val = Validation_neural_network(vector_size, feature_size, pooling)
+    val = Validation_neural_network(vector_size, feature_size, pooling, learning_rate2, feature_size, epoch)
     val.validation(targets_validation, validation_dict)
 
 
@@ -161,7 +161,7 @@ if __name__ == '__main__':
     learning_rate = 0.3
     momentum = 0
     l2_penalty = 0
-    epoch_first = 45
+    epoch_first = 5
     # Second neural network parameters
     learning_rate2 = 0.01
     feature_size = 100
