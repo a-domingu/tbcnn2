@@ -100,9 +100,9 @@ class Coding_layer():
 
     # Calculate the weighted matrix for each node as a linear combination of matrices w_l and w_r
     def weight_matrix(self, n, i):
-        left_matrix = ((n-i)/(n-1))* self.w_l
-        right_matrix = ((i-1)/(n-1))*self.w_r
-        return (left_matrix + right_matrix) 
+        #left_matrix = ((n-i)/(n-1))*self.w_l
+        #right_matrix = ((i-1)/(n-1))*self.w_r
+        return (((n-i)/(n-1))*self.w_l) + (((i-1)/(n-1))*self.w_r)
 
 
     def node_coding_special_case(self, node):

@@ -24,11 +24,10 @@ from utils import plot_confusion_matrix, writer
 
 class Validation_neural_network():
 
-    def __init__(self, n = 30, m = 100, pooling = 'one-way pooling', learning_rate2 = 0.01, feature_size = 40, epoch = 20):
+    def __init__(self, n = 30, m = 100, pooling = 'one-way pooling', learning_rate2 = 0.01, epoch = 20):
         self.vector_size = n
         self.feature_size = m
         self.lr2 = learning_rate2
-        self.fs = feature_size
         self.epoch = epoch
         # parameters
         w_comb1 = numpy.genfromtxt("params\\w_comb1.csv", delimiter = ",")
@@ -83,7 +82,7 @@ class Validation_neural_network():
         conf_matrix = self.conf_matrix(predicts, targets)
         print('Confusión matrix: ')
         print(conf_matrix)
-        plot_confusion_matrix(conf_matrix, ['no generator', 'generator'], lr2 = self.lr2, feature_size = self.fs, epoch = self.epoch)
+        plot_confusion_matrix(conf_matrix, ['no generator', 'generator'], lr2 = self.lr2, feature_size = self.feature_size, epoch = self.epoch)
 
 
         message = f'''

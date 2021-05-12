@@ -56,6 +56,25 @@ Once the program has finished, the `params` folder (initially empty) will contai
 *In the future, we will have a program that is capable of receiving this folder and be able to recognize patterns, i.e, we should have a trained neural network using these parameters*.
 
 
+## How is the program organize?
+
+The program has three independent networks that we call: `first neural network`, `second neural network` and `validation neural network`.
+
+The `first neural network` does the vector representation for all files. Once the neural network is trained, we will have as output a dictionary with the following information: one vector for each node (we will represent the features of each node in a vector), two weighted matrices and one vector bias. It will train the first neural network based on the data you have in the `sets` folder.
+
+*In the furure, we will save all the outputs into a file or similar.*
+
+The `second neural network` received the output of the first neural network as input. The neural network splits the files into two sets: `training set` and `validation set`. The training set has the 70% of the files and is used to train the Convolutional Neural Network (CNN). The output of this neural network is the folder `params` that contains each of the matrices and vectors that are necessary to detect patterns in code. 
+
+*In the furure, we will be able to run each network without running the others networks.*
+
+The way to run each network is using `main.py` or `main_tester.py`. Both scripts contains a function named `main` where the three neural networks are called. To run just one of the neural networks you just have to write its name in the `main` function and run:
+
+```
+python main.py
+```
+
+
 ## Looking for parameters
 
 To train the neural network, we need to try select different parameters. Since we don't know which parameters work better, we need to try them to see which of them provide lower loss function. 

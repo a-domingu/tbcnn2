@@ -25,6 +25,19 @@ from validation_neural_network import Validation_neural_network
     
 #####################################
 # SCRIPT
+def main(path, vector_size , learning_rate, momentum, l2_penalty, epoch_first, learning_rate2, feature_size, epoch, pooling):
+    # Training the first neural network
+    data_dict = first_neural_network(path, vector_size, learning_rate, momentum, l2_penalty, epoch_first)
+
+    # Training the second neural network
+    targets_validation, validation_dict = second_neural_network(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling)
+
+    # Test the accuracy of our neural network by using a validation set
+    validation_neural_network(targets_validation, validation_dict, vector_size, feature_size, pooling)
+
+
+#####################################
+# FUNCTIONS
 def first_neural_network(path, vector_size = 20, learning_rate = 0.1, momentum = 0.01, l2_penalty = 0, epoch = 45):
     # we create the data dict with all the information about vector representation
     data_dict = first_neural_network_dict_creation(path)
@@ -33,21 +46,6 @@ def first_neural_network(path, vector_size = 20, learning_rate = 0.1, momentum =
     return data_dict
 
 
-def main(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling):
-    ### Creation of the training set and validation set
-    training_dict, validation_dict, targets_training, targets_validation = training_and_validation_sets_creation(path, data_dict) 
-
-    # Training
-    secnn = SecondNeuralNetwork(vector_size, feature_size, pooling)
-    secnn.train(targets_training, training_dict, epoch, learning_rate2)
-
-    # Validation
-    val = Validation_neural_network(vector_size, feature_size, pooling, learning_rate2, feature_size, epoch)
-    val.validation(targets_validation, validation_dict)
-
-
-#####################################
-# FUNCTIONS
 def first_neural_network_dict_creation(path):
     # we create the data dict with all the information about vector representation
     data_dict = {}
@@ -103,6 +101,16 @@ def vector_representation_all_files(data_dict, vector_size = 20, learning_rate =
     return data_dict
 
 
+def second_neural_network(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling):
+    ### Creation of the training set and validation set
+    training_dict, validation_dict, targets_training, targets_validation = training_and_validation_sets_creation(path, data_dict) 
+
+    # Training
+    secnn = SecondNeuralNetwork(vector_size, feature_size, pooling)
+    secnn.train(targets_training, training_dict, validation_dict, targets_validation, epoch, learning_rate2)
+    return targets_validation, validation_dict
+
+
 def training_and_validation_sets_creation(path, data_dict):
     # we create the training set and the validation set
     training_set = {}
@@ -151,6 +159,11 @@ def tensor_creation(data_dict, folder_path, training_set, validation_set, target
         i += 1
     return training_set, validation_set, targets_training, targets_validation
 
+
+def validation_neural_network(targets_validation, validation_dict, vector_size, feature_size, pooling):
+    # Validation
+    val = Validation_neural_network(vector_size, feature_size, pooling)
+    val.validation(targets_validation, validation_dict)
 ########################################
 
 if __name__ == '__main__':
@@ -161,13 +174,11 @@ if __name__ == '__main__':
     learning_rate = 0.3
     momentum = 0
     l2_penalty = 0
-    epoch_first = 5
+    epoch_first = 45
     # Second neural network parameters
     learning_rate2 = 0.01
     feature_size = 100
     epoch = 40
     pooling = 'one-way pooling'
 
-    data_dict = first_neural_network(path, vector_size, learning_rate, momentum, l2_penalty, epoch_first)
-
-    main(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling)
+    main(path, vector_size, learning_rate, momentum, l2_penalty, epoch_first, learning_rate2, feature_size, epoch, pooling)

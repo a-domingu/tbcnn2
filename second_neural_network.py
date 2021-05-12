@@ -20,7 +20,8 @@ from pooling_layer import Pooling_layer
 from dynamic_pooling import Max_pooling_layer, Dynamic_pooling_layer
 from hidden_layer import Hidden_layer
 from get_targets import GetTargets
-from utils import writer
+from utils import writer, plot_confusion_matrix, conf_matrix, accuracy
+
 
 
 class SecondNeuralNetwork():
@@ -62,13 +63,13 @@ class SecondNeuralNetwork():
 
     
 
-    def train(self, targets, training_dict, total_epochs = 40, learning_rate = 0.01):
+    def train(self, targets, training_dict, validation_dict, validation_targets, total_epochs = 40, learning_rate = 0.01):
         """Create the training loop"""
         # Construct the optimizer
         params = [self.w_comb1, self.w_comb2, self.w_t, self.w_l, self.w_r, self.b_conv, self.w_hidden, self.b_hidden]
         optimizer = torch.optim.SGD(params, lr = learning_rate)
-        #criterion = nn.BCELoss()
         criterion = nn.BCEWithLogitsLoss()
+        validation_criterion = nn.BCELoss()
         print('The correct value of the files is: ', targets)
 
         for epoch in range(total_epochs):
@@ -102,7 +103,20 @@ class SecondNeuralNetwork():
             #Time
             end = time()
 
-            print('Epoch: ', epoch, ', Time: ', end-start, ', Loss: ', loss)
+            #print('Epoch: ', epoch, ', Time: ', end-start, ', Loss: ', loss)
+
+            # Test the accuracy of the updates parameters by using a validation set
+            predicts = self.validation(validation_dict)
+            loss_validation = validation_criterion(predicts, validation_targets)
+            print('Epoch: ', epoch, ', Time: ', end-start, ', Loss: ', loss, ', Validation Loss: ', loss_validation)
+            accuracy_value = accuracy(predicts, validation_targets)
+            print('Validation accuracy: ', accuracy_value)
+           
+            # Confusion matrix
+            confusion_matrix = conf_matrix(predicts, validation_targets)
+            print('Confusión matrix: ')
+            print(confusion_matrix)
+            plot_confusion_matrix(confusion_matrix, ['no generator', 'generator'], lr2 = learning_rate, feature_size = self.feature_size, epoch = epoch)
             print('############### \n')
 
         message = f'''
@@ -128,6 +142,26 @@ The loss we have for the training network is: {loss}
             else:
                 #outputs = torch.cat((outputs, softmax(output)), 0)
                 outputs = torch.cat((outputs, output), 0)
+
+        return outputs
+
+    
+    def validation(self, validation_dict):
+        outputs = []
+        softmax = nn.Sigmoid()
+        for filepath in validation_dict.keys():
+            data = filepath
+            
+            ## forward (layers calculations)
+            output = self.layers(validation_dict[data])
+
+            # output append
+            if outputs == []:
+                #outputs = softmax(output)
+                outputs = softmax(output)
+            else:
+                #outputs = torch.cat((outputs, softmax(output)), 0)
+                outputs = torch.cat((outputs, softmax(output)), 0)
 
         return outputs
 

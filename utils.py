@@ -2,6 +2,7 @@ import itertools
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+import torch
 
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
@@ -49,3 +50,45 @@ def writer(message):
 def remover():
     if os.path.exists('results.txt'):
         os.remove('results.txt')
+
+
+def accuracy(predicts, targets):
+    with torch.no_grad():
+        rounded_prediction = torch.round(predicts)
+
+    # 1 if false negative
+    # -1 if false positive
+    difference = targets - rounded_prediction
+    errors = torch.abs(difference).sum()
+
+    accuracy = (len(difference) - errors)/len(difference)
+
+    return accuracy
+
+    
+def conf_matrix(predicts, targets):
+    with torch.no_grad():
+        rounded_prediction = torch.round(predicts)
+
+    # 1 if false negative
+    # -1 if false positive
+    difference = targets - rounded_prediction
+
+    # 0 if true negative
+    # 2 if true positive
+    addition = targets + rounded_prediction
+
+    conf_matrix = torch.zeros(2,2, dtype=torch.int64)
+    # x axis are true values, and y axis are predictions
+    for i in range(len(addition)):
+        if difference[i] == 1:
+            conf_matrix[1,0] += 1
+        elif difference[i] == -1:
+            conf_matrix[0,1] += 1
+        elif addition[i] == 0:
+            conf_matrix[0,0] +=1
+        else:
+            assert addition[i] == 2
+            conf_matrix[1,1] += 1
+        
+    return conf_matrix.numpy()
