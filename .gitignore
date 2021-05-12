@@ -7,4 +7,5 @@ sets
 sets_short
 results.txt
 params
+confusion_matrix
 confusion_matrix.png
