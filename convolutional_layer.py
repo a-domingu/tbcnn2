@@ -94,16 +94,16 @@ class Convolutional_layer():
                 final_vector = torch.squeeze(final_vector, 1)
 
                 # When all the "weighted vectors" are added, we add on the b_conv.
-                argument = final_vector + self.b_conv
+                #argument = final_vector + self.b_conv
 
                 # We used relu as the activation function in TBCNN mainly because we hope to 
                 # encode features to a same semantic space during coding.
-                node.set_y(F.leaky_relu(argument))
+                node.set_y(F.leaky_relu(final_vector + self.b_conv))
 
             else:
                 # The convolutional matrix for each node is a linear combination of matrices w_t, w_l and w_r
-                convolutional_matrix = self.w_t
-                argument = torch.matmul(convolutional_matrix, node.combined_vector) + self.b_conv
+                #convolutional_matrix = self.w_t
+                argument = torch.matmul(self.w_t, node.combined_vector) + self.b_conv
                 node.set_y(F.leaky_relu(argument))
 
 

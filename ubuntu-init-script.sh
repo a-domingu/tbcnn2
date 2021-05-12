@@ -19,11 +19,11 @@ sudo apt install python3-pip
 
 sudo apt install unzip
 
-mkdir tbcnn2
-mv ./tbcnn2.zip ./tbcnn2/tbcnn2.zip
-cd tbcnn2
-unzip ./tbcnn2.zip 
-rm tbcnn2.zip
+mkdir tbcnn
+mv ./tbcnn.zip ./tbcnn/tbcnn.zip
+cd tbcnn
+unzip ./tbcnn.zip 
+rm tbcnn.zip
 
 
 # Step 3: Install pip dependencies for project:

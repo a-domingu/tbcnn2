@@ -62,7 +62,7 @@ class SecondNeuralNetwork():
 
     
 
-    def train(self, targets, training_dict, total_epochs = 10, learning_rate = 0.1):
+    def train(self, targets, training_dict, total_epochs = 40, learning_rate = 0.01):
         """Create the training loop"""
         # Construct the optimizer
         params = [self.w_comb1, self.w_comb2, self.w_t, self.w_l, self.w_r, self.b_conv, self.w_hidden, self.b_hidden]

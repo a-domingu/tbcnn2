@@ -161,11 +161,11 @@ if __name__ == '__main__':
     learning_rate = 0.3
     momentum = 0
     l2_penalty = 0
-    epoch_first = 45
+    epoch_first = 2
     # Second neural network parameters
     learning_rate2 = 0.01
     feature_size = 100
-    epoch = 40
+    epoch = 5
     pooling = 'one-way pooling'
 
     data_dict = first_neural_network(path, vector_size, learning_rate, momentum, l2_penalty, epoch_first)

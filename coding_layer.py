@@ -82,16 +82,16 @@ class Coding_layer():
         # Calculate the second term of the coding layer based on its child nodes
         for child in node.children:
             # We convert the AST object to a Node object
-            child_node = self.dict_ast_to_Node[child] 
+            #child_node = self.dict_ast_to_Node[child] 
             # number of leaves nodes under child node
-            l_c = child_node.leaves_nodes
-            l = (l_c/l_p)
+            #l_c = child_node.leaves_nodes
+            #l = (self.dict_ast_to_Node[child].leaves_nodes/l_p)
             # Calculate the code matrix
-            code_matrix = self.weight_matrix(n, i)
+            #code_matrix = self.weight_matrix(n, i)
             # The code matrix is weighted by the number of leaves nodes under child node
-            matrix = l*code_matrix
+            matrix = ((self.dict_ast_to_Node[child].leaves_nodes/l_p))*self.weight_matrix(n, i)
             # Sum the weighted values over vec(child)
-            sum = sum + torch.matmul(matrix, child_node.vector)
+            sum = sum + torch.matmul(matrix, self.dict_ast_to_Node[child].vector)
             i += 1
         children_part = F.leaky_relu(sum + self.b)
         second_term = torch.matmul(self.w_comb2, children_part)

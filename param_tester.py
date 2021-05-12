@@ -5,7 +5,7 @@ import os
 
 # TODO asignar los valores que queramos para cada caso
 # Folder path
-path = os.path.join('sets', 'generators')
+path = os.path.join('sets1', 'generators')
 
 # First neural network parameters
 vector_size_ls = [30]
