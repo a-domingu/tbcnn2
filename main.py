@@ -146,17 +146,17 @@ def tensor_creation(data_dict, folder_path, training_set, validation_set, target
 
 if __name__ == '__main__':
     # Folder path
-    path = os.path.join('sets_short', 'generators')
+    path = os.path.join('sets', 'generators')
     # First neural network parameters
     vector_size = 30
     learning_rate = 0.3
     momentum = 0
     l2_penalty = 0
-    epoch_first = 2
+    epoch_first = 45
     # Second neural network parameters
     learning_rate2 = 0.01
     feature_size = 100
-    epoch = 2
+    epoch = 40
     pooling = 'one-way pooling'
 
     main(path, vector_size, learning_rate, momentum, l2_penalty, epoch_first, learning_rate2, feature_size, epoch, pooling)

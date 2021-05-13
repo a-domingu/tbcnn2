@@ -1,22 +1,11 @@
-import sys
 import os
-import shutil
-import gensim
 import random
 import torch as torch
-import torch.nn as nn
-import torch.nn.functional as F
 from time import time
 
 from node_object_creator import *
 from embeddings import Embedding
-from node import Node
 from first_neural_network import First_neural_network
-from coding_layer import Coding_layer
-from convolutional_layer import Convolutional_layer
-from pooling_layer import Pooling_layer
-from dynamic_pooling import Max_pooling_layer, Dynamic_pooling_layer
-from hidden_layer import Hidden_layer
 from second_neural_network import SecondNeuralNetwork
 
     
@@ -27,10 +16,7 @@ def main(path, vector_size , learning_rate, momentum, l2_penalty, epoch_first, l
     data_dict = first_neural_network(path, vector_size, learning_rate, momentum, l2_penalty, epoch_first)
 
     # Training the second neural network
-    targets_validation, validation_dict = second_neural_network(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling)
-
-    # Test the accuracy of our neural network by using a validation set
-    validation_neural_network(targets_validation, validation_dict, vector_size, feature_size, pooling)
+    second_neural_network(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling)
 
 
 #####################################
@@ -105,7 +91,6 @@ def second_neural_network(path, data_dict, vector_size, learning_rate2, feature_
     # Training
     secnn = SecondNeuralNetwork(vector_size, feature_size, pooling)
     secnn.train(targets_training, training_dict, validation_dict, targets_validation, epoch, learning_rate2)
-    return targets_validation, validation_dict
 
 
 def training_and_validation_sets_creation(path, data_dict):
@@ -157,12 +142,6 @@ def tensor_creation(data_dict, folder_path, training_set, validation_set, target
     return training_set, validation_set, targets_training, targets_validation
 
 
-def validation_neural_network(targets_validation, validation_dict, vector_size, feature_size, pooling):
-    # Validation
-    val = Validation_neural_network(vector_size, feature_size, pooling)
-    val.validation(targets_validation, validation_dict)
-
-
 ########################################
 
 if __name__ == '__main__':
@@ -173,11 +152,11 @@ if __name__ == '__main__':
     learning_rate = 0.3
     momentum = 0
     l2_penalty = 0
-    epoch_first = 45
+    epoch_first = 2
     # Second neural network parameters
     learning_rate2 = 0.01
     feature_size = 100
-    epoch = 40
+    epoch = 2
     pooling = 'one-way pooling'
 
     main(path, vector_size, learning_rate, momentum, l2_penalty, epoch_first, learning_rate2, feature_size, epoch, pooling)
