@@ -1,12 +1,8 @@
-import numpy as np
-import random
 import torch 
 import torch.nn as nn
 import torch.nn.functional as F
 
 from node import Node
-from matrix_generator import MatrixGenerator
-from relu import relu
 
 class Coding_layer():
     '''
@@ -27,18 +23,18 @@ class Coding_layer():
     w_comb2 [matrix[features_size x features_size]]: Parameter 2 for combination
     '''
 
-    def __init__(self, features_size, w1, w2):
+    def __init__(self, features_size):
         self.ls = []
         self.dict_ast_to_Node = {}
         self.features_size = features_size
         self.w_l = None
         self.w_r = None
         self.b = None
-        self.w_comb1 = w1
-        self.w_comb2 = w2
+        self.w_comb1 = None
+        self.w_comb2 = None
 
 
-    def coding_layer(self, ls_nodes, dict_ast_to_Node, w_l, w_r, b):
+    def coding_layer(self, ls_nodes, dict_ast_to_Node, w_l, w_r, b, w1, w2):
         # Initialize the node list and the dict node
         self.ls = ls_nodes
         self.dict_ast_to_Node = dict_ast_to_Node
@@ -46,6 +42,8 @@ class Coding_layer():
         self.w_l = w_l
         self.w_r = w_r
         self.b = b
+        self.w_comb1 = w1
+        self.w_comb2 = w2
 
         self.coding_iterations()
 
@@ -57,11 +55,9 @@ class Coding_layer():
         for node in self.ls:
             if len(node.children) > 1:
                 combined_vector = self.node_coding(node)
-                #print(combined_vector)
                 node.set_combined_vector(combined_vector)
             elif len(node.children) == 1:
                 combined_vector = self.node_coding_special_case(node)
-                #print(combined_vector)
                 node.set_combined_vector(combined_vector)
             else:
                 combined_vector = torch.matmul(self.w_comb1, node.vector)
@@ -82,32 +78,32 @@ class Coding_layer():
         # Calculate the second term of the coding layer based on its child nodes
         for child in node.children:
             # We convert the AST object to a Node object
-            child_node = self.dict_ast_to_Node[child] 
+            #child_node = self.dict_ast_to_Node[child] 
             # number of leaves nodes under child node
-            l_c = child_node.leaves_nodes
-            l = (l_c/l_p)
+            #l_c = child_node.leaves_nodes
+            #l = (self.dict_ast_to_Node[child].leaves_nodes/l_p)
             # Calculate the code matrix
-            code_matrix = self.weight_matrix(n, i)
+            #code_matrix = self.weight_matrix(n, i)
             # The code matrix is weighted by the number of leaves nodes under child node
-            matrix = l*code_matrix
+            matrix = ((self.dict_ast_to_Node[child].leaves_nodes/l_p))*self.weight_matrix(n, i)
             # Sum the weighted values over vec(child)
-            sum = sum + torch.matmul(matrix, child_node.vector)
+            sum = sum + torch.matmul(matrix, self.dict_ast_to_Node[child].vector)
             i += 1
-        children_part = F.relu(sum + self.b)
+        children_part = F.leaky_relu(sum + self.b)
         second_term = torch.matmul(self.w_comb2, children_part)
         return (first_term + second_term)
 
 
     # Calculate the weighted matrix for each node as a linear combination of matrices w_l and w_r
     def weight_matrix(self, n, i):
-        left_matrix = ((n-i)/(n-1))* self.w_l
-        right_matrix = ((i-1)/(n-1))*self.w_r
-        return (left_matrix + right_matrix) 
+        #left_matrix = ((n-i)/(n-1))*self.w_l
+        #right_matrix = ((i-1)/(n-1))*self.w_r
+        return (((n-i)/(n-1))*self.w_l) + (((i-1)/(n-1))*self.w_r)
 
 
     def node_coding_special_case(self, node):
         first_term = torch.matmul(self.w_comb1, node.vector)
         code_matrix = ((1/2)*self.w_l) + ((1/2)*self.w_r)
         matrix = (self.dict_ast_to_Node[node.children[0]].leaves_nodes/node.leaves_nodes)*code_matrix
-        second_term = torch.matmul(self.w_comb2, F.relu(torch.matmul(matrix, self.dict_ast_to_Node[node.children[0]].vector) + self.b))
+        second_term = torch.matmul(self.w_comb2, F.leaky_relu(torch.matmul(matrix, self.dict_ast_to_Node[node.children[0]].vector) + self.b))
         return (first_term + second_term)

@@ -6,13 +6,13 @@ class Clase1_1:
         def firstn(self, n):
             num = 0
             while num < n:
-                yield num
+                return num
                 num += 1
     class Clase1_3:
         def firstn(self, n):
             num = 0
             while num < n:
-                yield num
+                return num
                 num += 1
 
 class Clase2_1:
@@ -20,7 +20,7 @@ class Clase2_1:
         def firstn(self, n):
             num = n**2
             while num > n:
-                yield num
+                return num
                 num -= 1
 
 
@@ -31,11 +31,11 @@ def primera():
             #print(res)
                 num = 0
                 while num < n:
-                    yield num
+                    return num
                     num += 1
 
 def generator():
-    yield 'hola'
+    return 'hola'
 
 
 next(generator())

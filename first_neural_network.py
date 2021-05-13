@@ -1,12 +1,9 @@
-import numpy as np
 import random
 import torch as torch
 import torch.nn as nn
 import torch.nn.functional as F
 
 from node import Node
-from matrix_generator import MatrixGenerator
-from relu import relu
 
 class First_neural_network():
     '''
@@ -15,7 +12,6 @@ class First_neural_network():
     "Building Program Vector Representations for Deep Learning" report.
     First we compute the cost function J by using the coding criterion d and then we applied the back
     propagation algorithm
-
     Inputs:
     ls_nodes [list <class Node>]: list with all nodes in the AST
     dict_ast_to_Node[dict[ast_object] = <class Node>]: dictionary that relates class ast objects to class Node objects
@@ -51,9 +47,13 @@ class First_neural_network():
 
     def vector_representation(self):
         # Parameters initialization
-        self.w_l = torch.randn(self.features_size, self.features_size, requires_grad = True)
-        self.w_r = torch.randn(self.features_size, self.features_size, requires_grad = True)
-        self.b = torch.randn(self.features_size,  requires_grad = True) 
+        # Create uniform random numbers in half-open interval [-1.0, 1.0)
+        self.w_l = torch.distributions.Uniform(-1, +1).sample((self.features_size, self.features_size)).requires_grad_()
+        #self.w_l = torch.rand(self.features_size, self.features_size, requires_grad = True)
+        self.w_r = torch.distributions.Uniform(-1, +1).sample((self.features_size, self.features_size)).requires_grad_()
+        #self.w_r = torch.rand(self.features_size, self.features_size, requires_grad = True)
+        self.b = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.features_size, 1))).requires_grad_()
+        #self.b = torch.rand(self.features_size,  requires_grad = True) 
 
         ### SGD
         # params is a tensor with vectors (p -> node.vector and node childs c1,..,cN -> node_list), w_r, w_l and b
@@ -64,7 +64,7 @@ class First_neural_network():
         # Construct the optimizer
         # Stochastic gradient descent with momentum algorithm
         optimizer = torch.optim.SGD(params, lr = self.alpha, momentum = self.epsilon)
-        # TODO cambiar el número de iteraciones para que sea un parámetro que pasamos como input a la clase
+
         for step in range(self.total_epochs):
             # Training loop (forward step)
             output_J = self.training_iterations()
@@ -81,9 +81,6 @@ class First_neural_network():
             # Zero gradients
             optimizer.zero_grad()
 
-            #if (step+1) % 5 == 0:
-                #print('Epoch: ', step+1, ' Loss: ', loss)
-        
         for node in self.ls:
             node.vector.detach()
 

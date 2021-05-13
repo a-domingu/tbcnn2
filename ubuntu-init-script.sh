@@ -19,11 +19,11 @@ sudo apt install python3-pip
 
 sudo apt install unzip
 
-mkdir tbcnn2
-mv ./tbcnn2.zip ./tbcnn2/tbcnn2.zip
-cd tbcnn2
-unzip ./tbcnn2.zip 
-rm tbcnn2.zip
+mkdir tbcnn
+mv ./tbcnn.zip ./tbcnn/tbcnn.zip
+cd tbcnn
+unzip ./tbcnn.zip 
+rm tbcnn.zip
 
 
 # Step 3: Install pip dependencies for project:
@@ -32,14 +32,17 @@ pip3 install -r requirements.txt
 
 # Step 4: Add dependencies to path
 
-export PATH=/home/igallegosagastume/.local/bin:$PATH
+export PATH=/home/igallegosagastume_gmail_com/.local/bin:$PATH
 
 # Control value of PATH variable:
 # echo $PATH
 
 # Step 5: Run the param tester application:
+#python3 param_tester.py
 
-python3 param_tester.py
+# For detached mode run (stderr & stdout are redirected to the file):
+
+nohup python3 ./param_tester.py &> 2021-05-07_14-00_output.log &
 
 # Step 6: (Optionally) Run the main application:
 # python3 main.py

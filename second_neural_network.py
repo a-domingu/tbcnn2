@@ -1,26 +1,17 @@
-import sys
-import os
-import gensim
-import random
 import numpy
-import pandas as pd
 import torch as torch
 import torch.nn as nn
 import torch.nn.functional as F
 from time import time
 
 from node_object_creator import *
-from embeddings import Embedding
-from node import Node
-from matrix_generator import MatrixGenerator
-from first_neural_network import First_neural_network
 from coding_layer import Coding_layer
 from convolutional_layer import Convolutional_layer
 from pooling_layer import Pooling_layer
 from dynamic_pooling import Max_pooling_layer, Dynamic_pooling_layer
 from hidden_layer import Hidden_layer
-from get_targets import GetTargets
-from utils import writer
+from utils import writer, plot_confusion_matrix, conf_matrix, accuracy
+
 
 
 class SecondNeuralNetwork():
@@ -29,59 +20,71 @@ class SecondNeuralNetwork():
         self.vector_size = n
         self.feature_size = m
         # parameters
-        self.w_comb1 = torch.diag(torch.randn(self.vector_size, dtype=torch.float32)).requires_grad_()
-        self.w_comb2 = torch.diag(torch.randn(self.vector_size, dtype=torch.float32)).requires_grad_()
-        self.w_t = torch.randn(self.feature_size, self.vector_size, requires_grad = True)
-        self.w_r = torch.randn(self.feature_size, self.vector_size, requires_grad = True)
-        self.w_l = torch.randn(self.feature_size, self.vector_size, requires_grad = True)
-        self.b_conv = torch.randn(self.feature_size, requires_grad = True)
+        # Create uniform random numbers in half-open interval [-1.0, 1.0)
+        self.w_comb1 = torch.diag(torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.vector_size, 1)), 1)).requires_grad_()
+        #self.w_comb1 = torch.diag(torch.rand(self.vector_size, dtype=torch.float32)).requires_grad_()
+        self.w_comb2 = torch.diag(torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.vector_size, 1)), 1)).requires_grad_()
+        #self.w_comb2 = torch.diag(torch.rand(self.vector_size, dtype=torch.float32)).requires_grad_()
+        self.w_t = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_()
+        #self.w_t = torch.rand(self.feature_size, self.vector_size, requires_grad = True)
+        self.w_r = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_()
+        #self.w_r = torch.rand(self.feature_size, self.vector_size, requires_grad = True)
+        self.w_l = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_()
+        #self.w_l = torch.rand(self.feature_size, self.vector_size, requires_grad = True)
+        self.b_conv = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.feature_size, 1))).requires_grad_()
+        #self.b_conv = torch.rand(self.feature_size, requires_grad = True)
         # pooling method
         self.pooling = pooling
         if self.pooling == 'three-way pooling':
-            self.w_hidden = torch.randn(3, requires_grad = True)
-            self.b_hidden = torch.randn(1, requires_grad = True)
+            self.w_hidden = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((3, 1))).requires_grad_()
+            self.b_hidden = torch.squeeze(torch.distributions.Uniform(-1, +1).sample()).requires_grad_()
             self.dynamic = Dynamic_pooling_layer()
             self.max_pool = Max_pooling_layer()
         else:
-            self.w_hidden = torch.randn(self.feature_size, requires_grad = True)
-            self.b_hidden = torch.randn(1, requires_grad = True)
+            self.w_hidden = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.feature_size, 1))).requires_grad_()
+            #self.w_hidden = torch.rand(self.feature_size, requires_grad = True)
+            self.b_hidden = torch.rand(1, requires_grad = True)
             self.pooling = Pooling_layer()
         # layers
-        self.cod = Coding_layer(self.vector_size, self.w_comb1, self.w_comb2)
-        self.conv = Convolutional_layer(self.vector_size, self.w_t, self.w_r, self.w_l, self.b_conv, features_size=self.feature_size)
-        self.hidden = Hidden_layer(self.w_hidden, self.b_hidden)
+        self.cod = Coding_layer(self.vector_size)
+        self.conv = Convolutional_layer(self.vector_size, features_size=self.feature_size)
+        self.hidden = Hidden_layer()
 
 
     
 
-    def train(self, targets, training_dict, total_epochs = 10, learning_rate = 0.1):
+    def train(self, targets, training_dict, validation_dict, validation_targets, total_epochs = 40, learning_rate = 0.01):
         """Create the training loop"""
         # Construct the optimizer
         params = [self.w_comb1, self.w_comb2, self.w_t, self.w_l, self.w_r, self.b_conv, self.w_hidden, self.b_hidden]
         optimizer = torch.optim.SGD(params, lr = learning_rate)
-        criterion = nn.BCELoss()
+        criterion = nn.BCEWithLogitsLoss()
         print('The correct value of the files is: ', targets)
 
         for epoch in range(total_epochs):
             # Time
             start = time()
-            outputs, no_sig = self.forward(training_dict)
 
+            # zero the parameter gradients
+            optimizer.zero_grad()
 
-            print('\nEl resultado antes del sigmoid es: ', no_sig)
-            print('\nEl resultado despues del sigmoid es: ', outputs)
+            # forward
+            outputs = self.forward(training_dict)
+            #print('Outputs: \n', outputs)
+
+            # Computes the loss function
             try:
                 loss = criterion(outputs, targets)
             except AttributeError:
                 print(f'The size of outputs is {len(outputs)} and is of type {type(outputs)}')
                 print('Check that the path is a folder and not a file')
                 raise AttributeError
-            
-            # zero the parameter gradients
-            optimizer.zero_grad()
 
-            # Calculates the derivative
-            loss.backward(retain_graph = True)
+            # Backward = calculates the derivative
+            loss.backward() # w_r.grad = dloss/dw_r
+            print('Gradients values: ')
+            for i in range(8):
+                print(params[i].grad.sum())
 
             # Update parameters
             optimizer.step() #w_r = w_r - lr * w_r.grad
@@ -89,7 +92,10 @@ class SecondNeuralNetwork():
             #Time
             end = time()
 
-            print('Epoch: ', epoch, ', Time: ', end-start, ', Loss: ', loss)
+            # Validation
+            loss_validation = self.validation(validation_dict, validation_targets, learning_rate, epoch)
+
+            print('Epoch: ', epoch, ', Time: ', end-start, ', Loss: ', loss, ', Validation Loss: ', loss_validation)
 
         message = f'''
 The loss we have for the training network is: {loss}
@@ -100,7 +106,7 @@ The loss we have for the training network is: {loss}
 
     def forward(self, training_dict):
         outputs = []
-        softmax = nn.Sigmoid()
+        #softmax = nn.Sigmoid()
         for filepath in training_dict.keys():
             data = filepath
             
@@ -109,13 +115,52 @@ The loss we have for the training network is: {loss}
 
             # output append
             if outputs == []:
-                outputs = softmax(output)
-                no_sig = output
+                #outputs = softmax(output)
+                outputs = output
             else:
-                outputs = torch.cat((outputs, softmax(output)), 0)
-                no_sig = torch.cat((no_sig, output),0)
+                #outputs = torch.cat((outputs, softmax(output)), 0)
+                outputs = torch.cat((outputs, output), 0)
 
-        return outputs, no_sig
+        return outputs
+
+    
+    def validation(self, validation_dict, validation_targets, learning_rate, epoch):
+        # Test the accuracy of the updates parameters by using a validation set
+        predicts = self.forward_validation(validation_dict)
+        criterion = nn.BCELoss()
+        loss_validation = criterion(predicts, validation_targets)
+
+        accuracy_value = accuracy(predicts, validation_targets)
+        print('Validation accuracy: ', accuracy_value)
+        
+        # Confusion matrix
+        confusion_matrix = conf_matrix(predicts, validation_targets)
+        print('Confusión matrix: ')
+        print(confusion_matrix)
+        plot_confusion_matrix(confusion_matrix, ['no generator', 'generator'], lr2 = learning_rate, feature_size = self.feature_size, epoch = epoch)
+        print('############### \n')
+
+        return loss_validation
+
+    
+    def forward_validation(self, validation_dict):
+        outputs = []
+        softmax = nn.Sigmoid()
+        for filepath in validation_dict.keys():
+            data = filepath
+            
+            ## forward (layers calculations)
+            output = self.layers(validation_dict[data])
+
+            # output append
+            if outputs == []:
+                #outputs = softmax(output)
+                outputs = softmax(output)
+            else:
+                #outputs = torch.cat((outputs, softmax(output)), 0)
+                outputs = torch.cat((outputs, softmax(output)), 0)
+
+        return outputs
 
 
     def layers(self, vector_representation_params):
@@ -125,14 +170,14 @@ The loss we have for the training network is: {loss}
         w_l_code = vector_representation_params[3]
         w_r_code = vector_representation_params[4]
         b_code = vector_representation_params[5]
-        ls_nodes = self.cod.coding_layer(ls_nodes, dict_ast_to_Node, w_l_code, w_r_code, b_code)
-        ls_nodes = self.conv.convolutional_layer(ls_nodes, dict_ast_to_Node)
+        ls_nodes = self.cod.coding_layer(ls_nodes, dict_ast_to_Node, w_l_code, w_r_code, b_code, self.w_comb1, self.w_comb2)
+        ls_nodes = self.conv.convolutional_layer(ls_nodes, dict_ast_to_Node, self.w_t, self.w_r, self.w_l, self.b_conv)
         if self.pooling == 'three-way pooling':
             self.max_pool.max_pooling(ls_nodes)
             vector = self.dynamic.three_way_pooling(ls_nodes, dict_sibling)
         else:
             vector = self.pooling.pooling_layer(ls_nodes)
-        output = self.hidden.hidden_layer(vector)
+        output = self.hidden.hidden_layer(vector, self.w_hidden, self.b_hidden)
 
         return output
 
