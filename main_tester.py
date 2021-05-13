@@ -53,9 +53,9 @@ def vector_representation_all_files(data_dict, vector_size = 20, learning_rate =
         # we parse the data of the file into a tree
         tree = file_parser(data)
         # convert its nodes into the Node class we have, and assign their attributes
-        ls_nodes, dict_ast_to_Node = node_object_creator(tree)
-        ls_nodes = node_position_assign(ls_nodes)
-        ls_nodes, dict_sibling = node_sibling_assign(ls_nodes)
+        main_node = node_object_creator(tree)
+        
+        # TODO mirar si esta linea de abajo aun es necesaria
         ls_nodes = leaves_nodes_assign(ls_nodes, dict_ast_to_Node)
 
         # Initializing vector embeddings

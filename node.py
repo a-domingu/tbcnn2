@@ -4,6 +4,11 @@ import torch as torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+def get_descendants(node):
+    for child in node.children:
+        yield child
+        get_descendants(child)
+
 
 class Node():
     '''
@@ -12,7 +17,7 @@ class Node():
     '''
     def __init__(self, node, depth, parent = None):
         self.node = node
-        self.children = self.get_children()
+        self.children = []
         self.parent = parent
         self.type = self.node.__class__.__name__
         self.vector = []
@@ -34,6 +39,9 @@ class Node():
             #nodeChild = Node(child, self)
             ls.append(child)
         return ls
+
+    def descendants(self):
+        return get_descendants(self)
 
     # Assigns the vector embedding to each node
     def set_vector(self, vector):
@@ -60,3 +68,6 @@ class Node():
 
     def set_pool(self, pool):
         self.pool = pool
+
+    def set_children(self, child):
+        self.children.append(child)
