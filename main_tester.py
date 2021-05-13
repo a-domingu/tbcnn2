@@ -11,16 +11,13 @@ from time import time
 from node_object_creator import *
 from embeddings import Embedding
 from node import Node
-from matrix_generator import MatrixGenerator
 from first_neural_network import First_neural_network
 from coding_layer import Coding_layer
 from convolutional_layer import Convolutional_layer
 from pooling_layer import Pooling_layer
 from dynamic_pooling import Max_pooling_layer, Dynamic_pooling_layer
 from hidden_layer import Hidden_layer
-from get_targets import GetTargets
 from second_neural_network import SecondNeuralNetwork
-from validation_neural_network import Validation_neural_network
 
     
 #####################################

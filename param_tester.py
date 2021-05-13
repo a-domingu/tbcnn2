@@ -1,4 +1,4 @@
-from main import first_neural_network, second_neural_network, validation_neural_network
+from main import first_neural_network, second_neural_network
 from utils import writer, remover
 import os
 
@@ -48,8 +48,7 @@ pooling method = {pooling}
                         '''
                         # We append the results in a results.txt file
                         writer(message)
-                        targets_validation, validation_dict = second_neural_network(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling)
-                        validation_neural_network(targets_validation, validation_dict, vector_size, feature_size, pooling)
+                        second_neural_network(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling)
 
 
 

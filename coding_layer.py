@@ -1,12 +1,8 @@
-import numpy as np
-import random
 import torch 
 import torch.nn as nn
 import torch.nn.functional as F
 
 from node import Node
-from matrix_generator import MatrixGenerator
-from relu import relu
 
 class Coding_layer():
     '''

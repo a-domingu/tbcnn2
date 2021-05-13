@@ -58,7 +58,7 @@ Once the program has finished, the `params` folder (initially empty) will contai
 
 ## How is the program organize?
 
-The program has three independent networks that we call: `first neural network`, `second neural network` and `validation neural network`.
+The program has two independent networks that we call: `first neural network` and `second neural network`
 
 The `first neural network` does the vector representation for all files. Once the neural network is trained, we will have as output a dictionary with the following information: one vector for each node (we will represent the features of each node in a vector), two weighted matrices and one vector bias. It will train the first neural network based on the data you have in the `sets` folder.
 

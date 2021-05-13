@@ -8,7 +8,6 @@ from gensim.models import Word2Vec
 from embeddings import Embedding
 from main_tester import training_and_validation_sets_creation, tensor_creation, first_neural_network_dict_creation, vector_representation_all_files
 from node import Node
-from matrix_generator import MatrixGenerator
 from node_object_creator import *
 from first_neural_network import First_neural_network
 from coding_layer import Coding_layer
@@ -16,9 +15,7 @@ from convolutional_layer import Convolutional_layer
 from pooling_layer import Pooling_layer
 from dynamic_pooling import Max_pooling_layer, Dynamic_pooling_layer
 from hidden_layer import Hidden_layer
-from get_targets import GetTargets
 from second_neural_network import SecondNeuralNetwork
-from validation_neural_network import Validation_neural_network
 
 
 @pytest.fixture

@@ -1,25 +1,15 @@
-import sys
-import os
-import gensim
-import random
 import numpy
-import pandas as pd
 import torch as torch
 import torch.nn as nn
 import torch.nn.functional as F
 from time import time
 
 from node_object_creator import *
-from embeddings import Embedding
-from node import Node
-from matrix_generator import MatrixGenerator
-from first_neural_network import First_neural_network
 from coding_layer import Coding_layer
 from convolutional_layer import Convolutional_layer
 from pooling_layer import Pooling_layer
 from dynamic_pooling import Max_pooling_layer, Dynamic_pooling_layer
 from hidden_layer import Hidden_layer
-from get_targets import GetTargets
 from utils import writer, plot_confusion_matrix, conf_matrix, accuracy
 
 
@@ -69,7 +59,6 @@ class SecondNeuralNetwork():
         params = [self.w_comb1, self.w_comb2, self.w_t, self.w_l, self.w_r, self.b_conv, self.w_hidden, self.b_hidden]
         optimizer = torch.optim.SGD(params, lr = learning_rate)
         criterion = nn.BCEWithLogitsLoss()
-        validation_criterion = nn.BCELoss()
         print('The correct value of the files is: ', targets)
 
         for epoch in range(total_epochs):
@@ -103,21 +92,10 @@ class SecondNeuralNetwork():
             #Time
             end = time()
 
-            #print('Epoch: ', epoch, ', Time: ', end-start, ', Loss: ', loss)
+            # Validation
+            loss_validation = self.validation(validation_dict, validation_targets, learning_rate, epoch)
 
-            # Test the accuracy of the updates parameters by using a validation set
-            predicts = self.validation(validation_dict)
-            loss_validation = validation_criterion(predicts, validation_targets)
             print('Epoch: ', epoch, ', Time: ', end-start, ', Loss: ', loss, ', Validation Loss: ', loss_validation)
-            accuracy_value = accuracy(predicts, validation_targets)
-            print('Validation accuracy: ', accuracy_value)
-           
-            # Confusion matrix
-            confusion_matrix = conf_matrix(predicts, validation_targets)
-            print('Confusión matrix: ')
-            print(confusion_matrix)
-            plot_confusion_matrix(confusion_matrix, ['no generator', 'generator'], lr2 = learning_rate, feature_size = self.feature_size, epoch = epoch)
-            print('############### \n')
 
         message = f'''
 The loss we have for the training network is: {loss}
@@ -128,7 +106,7 @@ The loss we have for the training network is: {loss}
 
     def forward(self, training_dict):
         outputs = []
-        #softmax = nn.Hardsigmoid()
+        #softmax = nn.Sigmoid()
         for filepath in training_dict.keys():
             data = filepath
             
@@ -146,7 +124,26 @@ The loss we have for the training network is: {loss}
         return outputs
 
     
-    def validation(self, validation_dict):
+    def validation(self, validation_dict, validation_targets, learning_rate, epoch):
+        # Test the accuracy of the updates parameters by using a validation set
+        predicts = self.forward_validation(validation_dict)
+        criterion = nn.BCELoss()
+        loss_validation = criterion(predicts, validation_targets)
+
+        accuracy_value = accuracy(predicts, validation_targets)
+        print('Validation accuracy: ', accuracy_value)
+        
+        # Confusion matrix
+        confusion_matrix = conf_matrix(predicts, validation_targets)
+        print('Confusión matrix: ')
+        print(confusion_matrix)
+        plot_confusion_matrix(confusion_matrix, ['no generator', 'generator'], lr2 = learning_rate, feature_size = self.feature_size, epoch = epoch)
+        print('############### \n')
+
+        return loss_validation
+
+    
+    def forward_validation(self, validation_dict):
         outputs = []
         softmax = nn.Sigmoid()
         for filepath in validation_dict.keys():
