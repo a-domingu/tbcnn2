@@ -33,22 +33,13 @@ def first_neural_network_dict_creation(path):
     # we create the data dict with all the information about vector representation
     data_dict = {}
     # iterates through the generators directory, identifies the folders and enter in them
-    for (dirpath, dirnames, filenames) in os.walk(path):
-        path = dirpath
-        for folder in dirnames:
-            folder_path = os.path.join(path, folder)
-            if folder == 'withgen':
-                for (dirpath, dirnames, filenames) in os.walk(folder_path):
-                    for filename in filenames:
-                        if filename.endswith('.py'):
-                            filepath = os.path.join(folder_path, filename)
-                            data_dict[filepath] = None
-            elif folder == 'nogen':
-                for (dirpath, dirnames, filenames) in os.walk(folder_path):
-                    for filename in filenames:
-                        if filename.endswith('.py'):
-                            filepath = os.path.join(folder_path, filename)
-                            data_dict[filepath] = None        
+    for (dirpath, _dirnames, filenames) in os.walk(path):
+        if dirpath.endswith('withgen') or dirpath.endswith('nogen'):
+            for filename in filenames:
+                if filename.endswith('.py'):
+                    filepath = os.path.join(dirpath, filename)
+                    data_dict[filepath] = None
+
     return data_dict
 
 
