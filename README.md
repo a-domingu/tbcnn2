@@ -66,14 +66,15 @@ The `first neural network` does the vector representation for all files. Once th
 
 The `second neural network` received the output of the first neural network as input. The neural network splits the files into two sets: `training set` and `validation set`. The training set has the 70% of the files and is used to train the Convolutional Neural Network (CNN). The output of this neural network is the folder `params` that contains each of the matrices and vectors that are necessary to detect patterns in code. 
 
-*In the furure, we will be able to run each network without running the others networks.*
+You also need to have the following in your directory: a folder called `confusion_matrix`. After each iteration, the neural network will test the accuracy of its parameters by using the `validation set` and it will record its confusion matrix in the folder called `confusion_matrix`.
 
-The way to run each network is using `main.py` or `main_tester.py`. Both scripts contains a function named `main` where the three neural networks are called. To run just one of the neural networks you just have to write its name in the `main` function and run:
+The way to run each network is using `main.py` or `main_tester.py`. Both scripts contains a function named `main` where both neural networks are called. To run just one of the neural networks you just have to write its name in the `main` function and run:
 
 ```
 python main.py
 ```
 
+*In the furure, we will be able to run each network without running the others networks.*
 
 ## Looking for parameters
 
