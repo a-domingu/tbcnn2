@@ -50,17 +50,6 @@ def set_up_embeddings():
     return embed
 
 @pytest.fixture
-def set_up_matrix():
-    path = os.path.join('test', 'generators')
-    data = os.path.join(path, 'prueba.py')
-    tree = file_parser(data)
-    ls_nodes, dict_ast_to_Node = node_object_creator(tree)
-    embed = Embedding(20, ls_nodes, dict_ast_to_Node)
-    ls_nodes = embed.node_embedding()[:]
-    matrices = MatrixGenerator(20, 10)
-    return matrices
-
-@pytest.fixture
 def set_up_vector_representation():
     path = os.path.join('test', 'generators')
     data = os.path.join(path, 'prueba.py')
@@ -219,20 +208,6 @@ def setup_second_neural_network():
     return outputs
 
 
-@pytest.fixture
-def setup_validation_neural_network():
-    path = os.path.join('test', 'generators')
-    data_dict = first_neural_network_dict_creation(path)
-    data_dict = vector_representation_all_files(data_dict, 20, 0.1, 0.001, 5)
-    training_dict, validation_dict, targets_training, targets_validation = training_and_validation_sets_creation(path, data_dict) 
-    secnn = SecondNeuralNetwork(20, 4)
-    secnn.train(targets_training, training_dict)
-    val = Validation_neural_network(20, 4)
-    predicts = val.prediction(validation_dict)
-    accuracy = val.accuracy(predicts, targets_validation)
-    return predicts, accuracy
-
-
 def test_training_validation_sets_creation(setup_training_validation_sets_creation):
     training_dict, validation_dict, targets_training, targets_validation = setup_training_validation_sets_creation
     assert isinstance(training_dict, dict)
@@ -281,13 +256,6 @@ def test_node_embedding(set_up_embeddings):
 
     for el in result:
         assert len(el.vector) == length_expected
-                        
-def test_matrix_length(set_up_matrix):
-    
-    w, b = set_up_matrix.w, set_up_matrix.b
-
-    assert w.shape == (20, 10)
-    assert len(b) == 20
 
 
 def test_vector_representation(set_up_vector_representation):
@@ -387,14 +355,3 @@ def test_second_neural_network(setup_second_neural_network):
     assert isinstance(outputs[0], torch.FloatTensor)
     assert outputs[0].dim() == 0
     #assert 0 <= outputs[0] <= 1
-
-
-def test_validation(setup_validation_neural_network):
-    
-    predicts, accuracy = setup_validation_neural_network
-
-    assert isinstance(predicts, torch.Tensor)
-    assert len(predicts) == 2
-    assert 0 <= predicts[0] <= 1
-    assert isinstance(accuracy, torch.Tensor)
-    assert 0 <= accuracy <= 1
