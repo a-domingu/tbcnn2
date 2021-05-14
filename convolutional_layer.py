@@ -51,10 +51,9 @@ class Convolutional_layer():
         self.kernel_depth = kernel_depth
 
 
-    def convolutional_layer(self, ls_nodes, dict_ast_to_Node, w_t, w_r, w_l, b):
+    def convolutional_layer(self, ls_nodes, w_t, w_r, w_l, b):
         # Initialize the node list and the dict node
         self.ls = ls_nodes
-        self.dict_ast_to_Node = dict_ast_to_Node
         # Initialize matrices and bias
         self.w_t = w_t
         self.w_r = w_r
@@ -128,7 +127,7 @@ class Convolutional_layer():
             w_l_list.append((1-w_t_list[i])*(1-w_r_list[i]))
             i += 1
             # We save the combined vector of each node
-            vectors.append(self.dict_ast_to_Node[child].combined_vector)
+            vectors.append(child.combined_vector)
 
         # We create a matrix with all the vectors
         self.vector_matrix = torch.stack(tuple(vectors), 0)

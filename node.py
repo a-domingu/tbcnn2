@@ -4,10 +4,11 @@ import torch as torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-def get_descendants(node):
+def get_descendants(node, ls):
     for child in node.children:
-        yield child
-        get_descendants(child)
+        ls.append(child)
+        get_descendants(child, ls)
+    return ls
 
 
 class Node():
@@ -22,7 +23,7 @@ class Node():
         self.type = self.node.__class__.__name__
         self.vector = []
         self.combined_vector = []
-        self.leaves_nodes = None
+        self.leaves = None
         self.depth = depth
         self.position = None
         self.siblings = None
@@ -41,7 +42,13 @@ class Node():
         return ls
 
     def descendants(self):
-        return get_descendants(self)
+        '''
+        This function will return all of the nodes under the node itself.
+        Note: the node itself is considered a descendant. This is done because it's useful when obtaining
+        all of the nodes (otherwise we would miss the 'Module' node)
+        '''
+        ls = [self]
+        return get_descendants(self, ls)
 
     # Assigns the vector embedding to each node
     def set_vector(self, vector):
@@ -52,19 +59,27 @@ class Node():
     
     def set_combined_vector(self, vector):
         self.combined_vector = vector
-
+    '''
     # Assigns the number of leaves nodes under each node
     def set_l(self, leaves_nodes):
         self.leaves_nodes = leaves_nodes
+    '''
+    def get_leaves(self):
+    # TODO determinar cuándo hace falta hacer esto
+        leaves = []
+        descendants = self.descendants()
+        for descendant in descendants:
+            if descendant.children == []:
+                leaves.append(descendant)
+        return leaves
 
-    def set_position(self, position):
-        self.position = position
-    
-    def set_sibling(self, sibling):
-        self.siblings = sibling
+    def set_leaves(self):
+        self.leaves = self.get_leaves()
+
 
     def set_y(self, y):
         self.y = y
+
 
     def set_pool(self, pool):
         self.pool = pool

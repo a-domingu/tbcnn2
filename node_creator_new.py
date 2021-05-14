@@ -34,20 +34,17 @@ def asserter(path):
 #borar al final
 
 
-main_node = node_creator('sets\\generators\\withgen\\auth.py')
+main_node = node_creator('prueba.py')
 
 print(main_node)
 
 print(main_node.children)
 
-for child in main_node.children:
-    print('###############33')
-    print(child)
-    print(child.children)
-    print(child.parent)
+print(main_node.descendants())
 
-print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
-print('Y ahora vienen los descendientes:')
-
-for descendant in main_node.descendants():
-    print(descendant)
+for node in main_node.descendants():
+    print('####################')
+    print(node)
+    print(node.children)
+    node.set_leaves()
+    print(node.leaves)

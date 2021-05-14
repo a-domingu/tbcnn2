@@ -14,18 +14,16 @@ def node_object_creator(path):
     depth = 1
     main_node = Node(module, depth)
     depth+=1
-    ls = [main_node]
-    node_creator_recursive(module, depth, main_node, ls)
+    node_creator_recursive(module, depth, main_node)
     return main_node
 
 
 
-def node_creator_recursive(parent_ast, depth, parent_node, ls):
+def node_creator_recursive(parent_ast, depth, parent_node):
     for child in ast.iter_child_nodes(parent_ast):
         node = Node(child, depth, parent_node)
         parent_node.set_children(node)
         depth+=1
-        ls.append(child)
         node_creator_recursive(child, depth, node)
 
 
@@ -36,9 +34,6 @@ def module_asserter(path):
         print(path.__class__.__name__)
         print(path)
         raise AssertionError
-
-def ls_nodes_creator(main_node):
-    pass
 
 '''
 
@@ -71,10 +66,9 @@ def node_object_creator_recursive(parent, node, ls_nodes, dict_ast_to_Node, dept
 
 '''
 
-def nodes_vector_update(ls_nodes, w, b):
-    for node in ls_nodes:
-        node.update_vector(w, b)
 
+
+'''
 
 # We assign the number of leaves nodes under each node
 def leaves_nodes_assign(ls_nodes, dict_ast_to_Node):
@@ -86,9 +80,6 @@ def leaves_nodes_assign(ls_nodes, dict_ast_to_Node):
 
 # Calculate the number of leaves nodes under each node
 def get_l(node, dict_ast_to_Node):
-    '''
-    This function's output is the number of leaf nodes under each node
-    '''
     leaves_under_node = 0
     if len(node.children) == 0:
         return leaves_under_node
@@ -107,3 +98,6 @@ def calculate_l(node, leaves_under_node, dict_ast_to_Node):
         else:
             leaves_under_node = calculate_l(child_node, leaves_under_node, dict_ast_to_Node)
     return leaves_under_node
+
+
+'''

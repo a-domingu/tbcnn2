@@ -164,15 +164,19 @@ The loss we have for the training network is: {loss}
 
 
     def layers(self, vector_representation_params):
+        ls_nodes, w_l_code, w_r_code, b_code = vector_representation_params
+        '''
         ls_nodes = vector_representation_params[0]
-        dict_ast_to_Node = vector_representation_params[1]
-        dict_sibling = vector_representation_params[2]
-        w_l_code = vector_representation_params[3]
-        w_r_code = vector_representation_params[4]
-        b_code = vector_representation_params[5]
-        ls_nodes = self.cod.coding_layer(ls_nodes, dict_ast_to_Node, w_l_code, w_r_code, b_code, self.w_comb1, self.w_comb2)
-        ls_nodes = self.conv.convolutional_layer(ls_nodes, dict_ast_to_Node, self.w_t, self.w_r, self.w_l, self.b_conv)
+        #dict_ast_to_Node = vector_representation_params[1]
+        dict_sibling = vector_representation_params[1]
+        w_l_code = vector_representation_params[2]
+        w_r_code = vector_representation_params[3]
+        b_code = vector_representation_params[4]
+        '''
+        ls_nodes = self.cod.coding_layer(ls_nodes, w_l_code, w_r_code, b_code, self.w_comb1, self.w_comb2)
+        ls_nodes = self.conv.convolutional_layer(ls_nodes, self.w_t, self.w_r, self.w_l, self.b_conv)
         if self.pooling == 'three-way pooling':
+            dict_sibling = None
             self.max_pool.max_pooling(ls_nodes)
             vector = self.dynamic.three_way_pooling(ls_nodes, dict_sibling)
         else:

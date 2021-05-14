@@ -34,10 +34,10 @@ class Coding_layer():
         self.w_comb2 = None
 
 
-    def coding_layer(self, ls_nodes, dict_ast_to_Node, w_l, w_r, b, w1, w2):
+    def coding_layer(self, ls_nodes, w_l, w_r, b, w1, w2):
         # Initialize the node list and the dict node
         self.ls = ls_nodes
-        self.dict_ast_to_Node = dict_ast_to_Node
+        #self.dict_ast_to_Node = dict_ast_to_Node
         # Initialize matrices and bias
         self.w_l = w_l
         self.w_r = w_r
@@ -74,20 +74,13 @@ class Coding_layer():
         n = len(node.children)
         i=1
         # number of leaves nodes under node p
-        l_p = node.leaves_nodes
+        l_p = len(node.leaves)
         # Calculate the second term of the coding layer based on its child nodes
         for child in node.children:
-            # We convert the AST object to a Node object
-            #child_node = self.dict_ast_to_Node[child] 
-            # number of leaves nodes under child node
-            #l_c = child_node.leaves_nodes
-            #l = (self.dict_ast_to_Node[child].leaves_nodes/l_p)
-            # Calculate the code matrix
-            #code_matrix = self.weight_matrix(n, i)
             # The code matrix is weighted by the number of leaves nodes under child node
-            matrix = ((self.dict_ast_to_Node[child].leaves_nodes/l_p))*self.weight_matrix(n, i)
+            matrix = ((len(child.leaves)/l_p))*self.weight_matrix(n, i)
             # Sum the weighted values over vec(child)
-            sum = sum + torch.matmul(matrix, self.dict_ast_to_Node[child].vector)
+            sum = sum + torch.matmul(matrix, child.vector)
             i += 1
         children_part = F.leaky_relu(sum + self.b)
         second_term = torch.matmul(self.w_comb2, children_part)
@@ -104,6 +97,6 @@ class Coding_layer():
     def node_coding_special_case(self, node):
         first_term = torch.matmul(self.w_comb1, node.vector)
         code_matrix = ((1/2)*self.w_l) + ((1/2)*self.w_r)
-        matrix = (self.dict_ast_to_Node[node.children[0]].leaves_nodes/node.leaves_nodes)*code_matrix
-        second_term = torch.matmul(self.w_comb2, F.leaky_relu(torch.matmul(matrix, self.dict_ast_to_Node[node.children[0]].vector) + self.b))
+        matrix = (len(node.children[0].leaves)/len(node.leaves))*code_matrix
+        second_term = torch.matmul(self.w_comb2, F.leaky_relu(torch.matmul(matrix, node.children[0].vector) + self.b))
         return (first_term + second_term)
