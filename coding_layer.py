@@ -37,7 +37,6 @@ class Coding_layer():
     def coding_layer(self, ls_nodes, w_l, w_r, b, w1, w2):
         # Initialize the node list and the dict node
         self.ls = ls_nodes
-        #self.dict_ast_to_Node = dict_ast_to_Node
         # Initialize matrices and bias
         self.w_l = w_l
         self.w_r = w_r
@@ -89,8 +88,6 @@ class Coding_layer():
 
     # Calculate the weighted matrix for each node as a linear combination of matrices w_l and w_r
     def weight_matrix(self, n, i):
-        #left_matrix = ((n-i)/(n-1))*self.w_l
-        #right_matrix = ((i-1)/(n-1))*self.w_r
         return (((n-i)/(n-1))*self.w_l) + (((i-1)/(n-1))*self.w_r)
 
 

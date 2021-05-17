@@ -48,16 +48,13 @@ def vector_representation_all_files(data_dict, vector_size = 20, learning_rate =
 
         # convert its nodes into the Node class we have, and assign their attributes
         main_node = node_object_creator(tree)
-        
+    
 
-        # TODO mirar si esta linea de abajo aun es necesaria
-        #ls_nodes = leaves_nodes_assign(ls_nodes, dict_ast_to_Node)
         ls_nodes = main_node.descendants()
         set_leaves(ls_nodes)
 
         # Initializing vector embeddings
         embed = Embedding(vector_size, ls_nodes)
-        #ls_nodes = embed.node_embedding()
         embed.node_embedding()
 
         # Calculate the vector representation for each node

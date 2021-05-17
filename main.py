@@ -9,8 +9,7 @@ from first_neural_network import First_neural_network
 from second_neural_network import SecondNeuralNetwork
 
     
-#####################################
-# SCRIPT
+
 def main(path, vector_size , learning_rate, momentum, l2_penalty, epoch_first, learning_rate2, feature_size, epoch, pooling):
     # Training the first neural network
     data_dict = first_neural_network(path, vector_size, learning_rate, momentum, l2_penalty, epoch_first)
@@ -19,8 +18,6 @@ def main(path, vector_size , learning_rate, momentum, l2_penalty, epoch_first, l
     second_neural_network(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling)
 
 
-#####################################
-# FUNCTIONS
 def first_neural_network(path, vector_size = 20, learning_rate = 0.1, momentum = 0.01, l2_penalty = 0, epoch = 45):
     # we create the data dict with all the information about vector representation
     data_dict = first_neural_network_dict_creation(path)
@@ -33,53 +30,42 @@ def first_neural_network_dict_creation(path):
     # we create the data dict with all the information about vector representation
     data_dict = {}
     # iterates through the generators directory, identifies the folders and enter in them
-    for (dirpath, dirnames, filenames) in os.walk(path):
-        path = dirpath
-        for folder in dirnames:
-            folder_path = os.path.join(path, folder)
-            if folder == 'withgen':
-                for (dirpath, dirnames, filenames) in os.walk(folder_path):
-                    for filename in filenames:
-                        if filename.endswith('.py'):
-                            filepath = os.path.join(folder_path, filename)
-                            data_dict[filepath] = None
-            elif folder == 'nogen':
-                for (dirpath, dirnames, filenames) in os.walk(folder_path):
-                    for filename in filenames:
-                        if filename.endswith('.py'):
-                            filepath = os.path.join(folder_path, filename)
-                            data_dict[filepath] = None        
+    for (dirpath, _dirnames, filenames) in os.walk(path):
+        if dirpath.endswith('withgen') or dirpath.endswith('nogen'):
+            for filename in filenames:
+                if filename.endswith('.py'):
+                    filepath = os.path.join(dirpath, filename)
+                    data_dict[filepath] = None
+
     return data_dict
 
 
 def vector_representation_all_files(data_dict, vector_size = 20, learning_rate = 0.1, momentum = 0.01, l2_penalty = 0, epoch = 45):
     total = len(data_dict)
     i = 1
-    for data in data_dict:
+    for tree in data_dict:
         time1 = time()
-        # Initializing node list, dict list and dict sibling
 
-        # we parse the data of the file into a tree
-        tree = file_parser(data)
         # convert its nodes into the Node class we have, and assign their attributes
-        ls_nodes, dict_ast_to_Node = node_object_creator(tree)
-        ls_nodes = node_position_assign(ls_nodes)
-        ls_nodes, dict_sibling = node_sibling_assign(ls_nodes)
-        ls_nodes = leaves_nodes_assign(ls_nodes, dict_ast_to_Node)
+        main_node = node_object_creator(tree)
+    
+
+        ls_nodes = main_node.descendants()
+        set_leaves(ls_nodes)
 
         # Initializing vector embeddings
-        embed = Embedding(vector_size, ls_nodes, dict_ast_to_Node)
-        ls_nodes = embed.node_embedding()
+        embed = Embedding(vector_size, ls_nodes)
+        embed.node_embedding()
 
         # Calculate the vector representation for each node
-        vector_representation = First_neural_network(ls_nodes, dict_ast_to_Node, vector_size, learning_rate, momentum, l2_penalty, epoch)
+        vector_representation = First_neural_network(ls_nodes, vector_size, learning_rate, momentum, l2_penalty, epoch)
         ls_nodes, w_l_code, w_r_code, b_code = vector_representation.vector_representation()
 
         time2= time()
         dtime = time2 - time1
 
-        data_dict[data] = [ls_nodes, dict_ast_to_Node, dict_sibling, w_l_code, w_r_code, b_code]
-        print(f"Vector rep. of file: {data} ({i}/{total}) in ", dtime//60, 'min and', dtime%60, 'sec.')
+        data_dict[tree] = [ls_nodes, w_l_code, w_r_code, b_code]
+        print(f"Vector rep. of file: {tree} ({i}/{total}) in ", dtime//60, 'min and', dtime%60, 'sec.')
         i += 1
     return data_dict
 
@@ -141,6 +127,10 @@ def tensor_creation(data_dict, folder_path, training_set, validation_set, target
         i += 1
     return training_set, validation_set, targets_training, targets_validation
 
+def set_leaves(ls_nodes):
+    for node in ls_nodes:
+        node.set_leaves()
+
 
 ########################################
 
@@ -152,11 +142,11 @@ if __name__ == '__main__':
     learning_rate = 0.3
     momentum = 0
     l2_penalty = 0
-    epoch_first = 45
+    epoch_first = 2
     # Second neural network parameters
     learning_rate2 = 0.01
     feature_size = 100
-    epoch = 40
+    epoch = 2
     pooling = 'one-way pooling'
 
     main(path, vector_size, learning_rate, momentum, l2_penalty, epoch_first, learning_rate2, feature_size, epoch, pooling)

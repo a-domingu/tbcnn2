@@ -41,7 +41,6 @@ class Convolutional_layer():
 
     def __init__(self, vector_size, kernel_depth = 2, features_size = 4):
         self.ls = []
-        self.dict_ast_to_Node = {}
         self.vector_size = vector_size
         self.w_t = None
         self.w_r = None

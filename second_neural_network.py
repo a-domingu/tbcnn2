@@ -22,17 +22,11 @@ class SecondNeuralNetwork():
         # parameters
         # Create uniform random numbers in half-open interval [-1.0, 1.0)
         self.w_comb1 = torch.diag(torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.vector_size, 1)), 1)).requires_grad_()
-        #self.w_comb1 = torch.diag(torch.rand(self.vector_size, dtype=torch.float32)).requires_grad_()
         self.w_comb2 = torch.diag(torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.vector_size, 1)), 1)).requires_grad_()
-        #self.w_comb2 = torch.diag(torch.rand(self.vector_size, dtype=torch.float32)).requires_grad_()
         self.w_t = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_()
-        #self.w_t = torch.rand(self.feature_size, self.vector_size, requires_grad = True)
         self.w_r = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_()
-        #self.w_r = torch.rand(self.feature_size, self.vector_size, requires_grad = True)
         self.w_l = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_()
-        #self.w_l = torch.rand(self.feature_size, self.vector_size, requires_grad = True)
         self.b_conv = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.feature_size, 1))).requires_grad_()
-        #self.b_conv = torch.rand(self.feature_size, requires_grad = True)
         # pooling method
         self.pooling = pooling
         if self.pooling == 'three-way pooling':
@@ -42,7 +36,6 @@ class SecondNeuralNetwork():
             self.max_pool = Max_pooling_layer()
         else:
             self.w_hidden = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.feature_size, 1))).requires_grad_()
-            #self.w_hidden = torch.rand(self.feature_size, requires_grad = True)
             self.b_hidden = torch.rand(1, requires_grad = True)
             self.pooling = Pooling_layer()
         # layers
@@ -70,7 +63,6 @@ class SecondNeuralNetwork():
 
             # forward
             outputs = self.forward(training_dict)
-            #print('Outputs: \n', outputs)
 
             # Computes the loss function
             try:
@@ -165,14 +157,6 @@ The loss we have for the training network is: {loss}
 
     def layers(self, vector_representation_params):
         ls_nodes, w_l_code, w_r_code, b_code = vector_representation_params
-        '''
-        ls_nodes = vector_representation_params[0]
-        #dict_ast_to_Node = vector_representation_params[1]
-        dict_sibling = vector_representation_params[1]
-        w_l_code = vector_representation_params[2]
-        w_r_code = vector_representation_params[3]
-        b_code = vector_representation_params[4]
-        '''
         ls_nodes = self.cod.coding_layer(ls_nodes, w_l_code, w_r_code, b_code, self.w_comb1, self.w_comb2)
         ls_nodes = self.conv.convolutional_layer(ls_nodes, self.w_t, self.w_r, self.w_l, self.b_conv)
         if self.pooling == 'three-way pooling':
@@ -188,7 +172,6 @@ The loss we have for the training network is: {loss}
 
     def save(self):
         '''Save all the trained parameters into a csv file'''
-        #parameters = pd.DataFrame({'w_comb1': self.w_comb1.detach().numpy(), 'w_comb2': self.w_comb2.detach().numpy(), 'w_t': self.w_t.detach().numpy(), 'w_l': self.w_l.detach().numpy(), 'w_r': self.w_r.detach().numpy(), 'b_conv': self.b_conv.detach().numpy(), 'w_hidden': self.w_hidden.detach().numpy(), 'b_hidden': self.b_hidden.detach().numpy()})
         # save w_comb1 into csv file
         w_comb1 = self.w_comb1.detach().numpy()
         numpy.savetxt("params\\w_comb1.csv", w_comb1, delimiter = ",")
