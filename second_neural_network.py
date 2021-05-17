@@ -45,7 +45,7 @@ class SecondNeuralNetwork():
 
 
     
-    def train(self, targets, training_dict, validation_dict, validation_targets, total_epochs = 40, learning_rate = 0.01):
+    def train(self, targets, training_dict, validation_dict, validation_targets, total_epochs = 40, learning_rate = 0.01, batch_size = 20):
         """Create the training loop"""
         # Construct the optimizer
         params = [self.w_comb1, self.w_comb2, self.w_t, self.w_l, self.w_r, self.b_conv, self.w_hidden, self.b_hidden]
@@ -57,29 +57,33 @@ class SecondNeuralNetwork():
             # Time
             start = time()
 
-            # zero the parameter gradients
-            optimizer.zero_grad()
+            for (batch, target) in self.batch_creator(batch_size, training_dict, targets):
 
-            # forward
-            outputs = self.forward(training_dict)
+                #print('Size of the batch: ', len(batch))
+                #print('Size of the targets: ', len(target))
+                # zero the parameter gradients
+                optimizer.zero_grad()
 
-            # Computes the loss function
-            try:
-                loss = criterion(outputs, targets)
-            except AttributeError:
-                print(f'The size of outputs is {len(outputs)} and is of type {type(outputs)}')
-                print('Check that the path is a folder and not a file')
-                raise AttributeError
+                # forward
+                outputs = self.forward(batch)
 
-            # Backward = calculates the derivative
-            loss.backward() # w_r.grad = dloss/dw_r
-            '''
-            print('Gradients values: ')
-            for i in range(8):
-                print(params[i].grad.sum())
-            '''
-            # Update parameters
-            optimizer.step() #w_r = w_r - lr * w_r.grad
+                # Computes the loss function
+                try:
+                    loss = criterion(outputs, target)
+                except AttributeError:
+                    print(f'The size of outputs is {len(outputs)} and is of type {type(outputs)}')
+                    print('Check that the path is a folder and not a file')
+                    raise AttributeError
+
+                # Backward = calculates the derivative
+                loss.backward() # w_r.grad = dloss/dw_r
+                '''
+                print('Gradients values: ')
+                for i in range(8):
+                    print(params[i].grad.sum())
+                '''
+                # Update parameters
+                optimizer.step() #w_r = w_r - lr * w_r.grad
 
             #Time
             end = time()
@@ -203,3 +207,23 @@ The loss we have for the training network is: {loss}
         # save b_conv into csv file
         b_hidden = self.b_hidden.detach().numpy()
         numpy.savetxt("params\\b_hidden.csv", b_hidden, delimiter = ",")
+
+
+    def batch_creator(self, batch_size, training_dict, targets):
+        batch = {}
+        i = 0
+        j = 0
+        for data in training_dict.keys():
+            if i < batch_size:
+                batch[data] = training_dict[data]
+                i += 1
+            else:
+                target = torch.narrow(targets, 0, j*batch_size, batch_size)
+                yield batch, target
+                batch = {}
+                i = 0
+                j += 1
+
+        if bool(batch):
+            target = torch.narrow(targets, 0, j*batch_size, len(batch))
+            yield batch, target

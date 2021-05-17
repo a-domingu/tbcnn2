@@ -5,7 +5,7 @@ import os
 
 # TODO asignar los valores que queramos para cada caso
 # Folder path
-path = os.path.join('sets', 'generators')
+path = os.path.join('sets100', 'generators')
  
 # First neural network parameters
 vector_size_ls = [30]
@@ -17,7 +17,7 @@ epoch_first = 45
 # Second neural network parameters
 feature_size_ls = [200, 300, 400]
 learning_rate2_ls = [0.01, 0.001]
-epoch = 100
+epoch = 30
 pooling = 'one-way pooling'
 
 # If exists a results.txt file, then we remove it

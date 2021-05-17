@@ -10,12 +10,12 @@ from second_neural_network import SecondNeuralNetwork
 
     
 
-def main(path, vector_size , learning_rate, momentum, l2_penalty, epoch_first, learning_rate2, feature_size, epoch, pooling):
+def main(path, vector_size , learning_rate, momentum, l2_penalty, epoch_first, learning_rate2, feature_size, epoch, pooling, batch_size):
     # Training the first neural network
     data_dict = first_neural_network(path, vector_size, learning_rate, momentum, l2_penalty, epoch_first)
 
     # Training the second neural network
-    second_neural_network(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling)
+    second_neural_network(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling, batch_size)
 
 
 def first_neural_network(path, vector_size = 20, learning_rate = 0.1, momentum = 0.01, l2_penalty = 0, epoch = 45):
@@ -70,13 +70,13 @@ def vector_representation_all_files(data_dict, vector_size = 20, learning_rate =
     return data_dict
 
 
-def second_neural_network(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling):
+def second_neural_network(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling, batch_size):
     ### Creation of the training set and validation set
     training_dict, validation_dict, targets_training, targets_validation = training_and_validation_sets_creation(path, data_dict) 
 
     # Training
     secnn = SecondNeuralNetwork(vector_size, feature_size, pooling)
-    secnn.train(targets_training, training_dict, validation_dict, targets_validation, epoch, learning_rate2)
+    secnn.train(targets_training, training_dict, validation_dict, targets_validation, epoch, learning_rate2, batch_size)
 
 
 def training_and_validation_sets_creation(path, data_dict):
@@ -142,11 +142,12 @@ if __name__ == '__main__':
     learning_rate = 0.3
     momentum = 0
     l2_penalty = 0
-    epoch_first = 2
+    epoch_first = 45
     # Second neural network parameters
     learning_rate2 = 0.01
-    feature_size = 100
-    epoch = 2
+    feature_size = 50
+    epoch = 30
+    batch_size = 20
     pooling = 'one-way pooling'
 
-    main(path, vector_size, learning_rate, momentum, l2_penalty, epoch_first, learning_rate2, feature_size, epoch, pooling)
+    main(path, vector_size, learning_rate, momentum, l2_penalty, epoch_first, learning_rate2, feature_size, epoch, pooling, batch_size)
