@@ -9,7 +9,7 @@ def file_parser(path):
     return ast.parse(open(path, encoding='utf-8').read())
 
 def node_object_creator(path):
-    module = ast.parse(open(path).read())
+    module = ast.parse(open(path, encoding='utf-8').read())
     module_asserter(module)
     depth = 1
     main_node = Node(module, depth)

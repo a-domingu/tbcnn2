@@ -32,7 +32,7 @@ pip3 install -r requirements.txt
 
 # Step 4: Add dependencies to path
 
-export PATH=/home/igallegosagastume_gmail_com/.local/bin:$PATH
+export PATH=/home/estherplai96_gmail_com/.local/bin:$PATH
 
 # Control value of PATH variable:
 # echo $PATH
@@ -42,7 +42,7 @@ export PATH=/home/igallegosagastume_gmail_com/.local/bin:$PATH
 
 # For detached mode run (stderr & stdout are redirected to the file):
 
-nohup python3 ./param_tester.py &> 2021-05-07_14-00_output.log &
+nohup python3 ./param_tester.py &> 2021-05-17_10-00_output.log &
 
 # Step 6: (Optionally) Run the main application:
 # python3 main.py

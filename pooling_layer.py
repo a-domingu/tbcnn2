@@ -11,6 +11,7 @@ class Pooling_layer():
     def __init__(self):
         self.ls = []
 
+
     def pooling_layer(self, ls_nodes):
         # Initialize the node list
         self.ls = ls_nodes

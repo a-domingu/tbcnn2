@@ -45,7 +45,6 @@ class SecondNeuralNetwork():
 
 
     
-
     def train(self, targets, training_dict, validation_dict, validation_targets, total_epochs = 40, learning_rate = 0.01):
         """Create the training loop"""
         # Construct the optimizer
@@ -74,10 +73,11 @@ class SecondNeuralNetwork():
 
             # Backward = calculates the derivative
             loss.backward() # w_r.grad = dloss/dw_r
+            '''
             print('Gradients values: ')
             for i in range(8):
                 print(params[i].grad.sum())
-
+            '''
             # Update parameters
             optimizer.step() #w_r = w_r - lr * w_r.grad
 

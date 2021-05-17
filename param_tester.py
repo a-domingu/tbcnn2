@@ -6,18 +6,18 @@ import os
 # TODO asignar los valores que queramos para cada caso
 # Folder path
 path = os.path.join('sets', 'generators')
-
+ 
 # First neural network parameters
 vector_size_ls = [30]
 learning_rate_ls = [0.3]
 momentum_ls = [0]
 l2_penalty_ls = [0]
 epoch_first = 45
-
+ 
 # Second neural network parameters
-feature_size_ls = [100, 200, 300]
+feature_size_ls = [200, 300, 400]
 learning_rate2_ls = [0.01, 0.001]
-epoch = 40
+epoch = 100
 pooling = 'one-way pooling'
 
 # If exists a results.txt file, then we remove it

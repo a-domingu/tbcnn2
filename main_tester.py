@@ -142,10 +142,10 @@ if __name__ == '__main__':
     learning_rate = 0.3
     momentum = 0
     l2_penalty = 0
-    epoch_first = 2
+    epoch_first = 1
     # Second neural network parameters
     learning_rate2 = 0.01
-    feature_size = 100
+    feature_size = 50
     epoch = 2
     pooling = 'one-way pooling'
 

@@ -64,6 +64,7 @@ class Convolutional_layer():
 
         return self.ls
 
+
     def calculate_y(self):
         for node in self.ls:
             ''' 

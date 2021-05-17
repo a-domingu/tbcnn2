@@ -1,6 +1,5 @@
 import torch
 
-
 class Hidden_layer():
     
     def __init__(self):
