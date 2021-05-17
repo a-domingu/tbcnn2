@@ -7,7 +7,6 @@ class Hidden_layer():
         self.input = []
         self.w = None
         self.b = None
-        #self.Nc = output_size
         # The size of n is based on the dynamic pooling method.
         # In one-way pooling the size of n is equal to the output_size / feature_detectors
         # In three-way pooling the size of n is equal to 3
@@ -21,10 +20,8 @@ class Hidden_layer():
         # Initialize the node list and the vector
         self.input = vector
         output = self.get_output()
-        #print('The input of the sigmoid function is: ', output)
         return output
 
     def get_output(self):
-        #aux = torch.matmul(self.w,self.input)
         output = torch.matmul(self.w,self.input) + self.b
         return output

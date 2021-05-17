@@ -27,17 +27,17 @@ class First_neural_network():
     b [array[features_size]]: bias term
     '''
 
-    def __init__(self, ls_nodes, dict_ast_to_Node, features_size, learning_rate, momentum, l2_penalty, epoch):
+    def __init__(self, ls_nodes, features_size, learning_rate, momentum, l2_penalty, epoch):
         self.ls = ls_nodes
-        self.dict_ast_to_Node = dict_ast_to_Node
+        #self.dict_ast_to_Node = dict_ast_to_Node
         self.features_size = features_size
         self.alpha = learning_rate
         self.epsilon = momentum
         self.l2_penalty = l2_penalty
         self.total_epochs = epoch
-        self.w_l = None
-        self.w_r = None
-        self.b = None
+        self.w_l = torch.distributions.Uniform(-1, +1).sample((self.features_size, self.features_size)).requires_grad_()
+        self.w_r = torch.distributions.Uniform(-1, +1).sample((self.features_size, self.features_size)).requires_grad_()
+        self.b = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.features_size, 1))).requires_grad_()
         self.vector_matrix = None
         self.vector_p = None
         self.l_vector = None
@@ -46,15 +46,6 @@ class First_neural_network():
 
 
     def vector_representation(self):
-        # Parameters initialization
-        # Create uniform random numbers in half-open interval [-1.0, 1.0)
-        self.w_l = torch.distributions.Uniform(-1, +1).sample((self.features_size, self.features_size)).requires_grad_()
-        #self.w_l = torch.rand(self.features_size, self.features_size, requires_grad = True)
-        self.w_r = torch.distributions.Uniform(-1, +1).sample((self.features_size, self.features_size)).requires_grad_()
-        #self.w_r = torch.rand(self.features_size, self.features_size, requires_grad = True)
-        self.b = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.features_size, 1))).requires_grad_()
-        #self.b = torch.rand(self.features_size,  requires_grad = True) 
-
         ### SGD
         # params is a tensor with vectors (p -> node.vector and node childs c1,..,cN -> node_list), w_r, w_l and b
         params = [node.vector for node in self.ls]
@@ -67,10 +58,10 @@ class First_neural_network():
 
         for step in range(self.total_epochs):
             # Training loop (forward step)
-            output_J = self.training_iterations()
+            output = self.training_iterations()
 
             # Computes the cost function (loss)
-            loss = self.cost_function_calculation(output_J)
+            loss = self.cost_function_calculation(output)
 
             # Calculates the derivative
             loss.backward() #self.w_l.grad = dloss/dself.w_l
@@ -93,17 +84,18 @@ class First_neural_network():
         for node in self.ls:
             if len(node.children) > 0:
                 # Generates training sample and computes d 
-                self.training_sample_d(node)
-                d = self.coding_criterion_d(node)
+                self.param_initializer(node)
+                d = self.compute_distance(node)
                 # Generates a negative sample and computes d_c
                 self.negative_sample_d_c(node)
-                d_c = self.coding_criterion_d(node)
+                d_c = self.compute_distance(node)
                 # Computes the error function J(d,d_c) for each node and computes the sum
-                sum_error_function = sum_error_function + self.error_function_J(d_c, d)       
+                sum_error_function = sum_error_function + self.error_function(d_c, d)       
         return sum_error_function
 
     
-    def training_sample_d(self, node):
+    def param_initializer(self, node):
+        # TODO esto no es necesario realizarlo en cada epoch
         # We save the vector p
         self.vector_p = node.vector
         # We create a list with all vectors and a list with all l_i values
@@ -116,8 +108,9 @@ class First_neural_network():
         i = 1
         # child is an AST object and we convert the AST object to a Node object
         for child in node.children:
-            vectors.append(self.dict_ast_to_Node[child].vector)
-            vector_l.append((self.dict_ast_to_Node[child].leaves_nodes/node.leaves_nodes))
+            vectors.append(child.vector)
+            # TODO solucionar esto de aqui abajo (obtener las hojas)
+            vector_l.append((len(child.leaves)/len (node.leaves)))
             if n>1:
                 w_l_list.append((n-i)/(n-1))
                 w_r_list.append((i-1)/(n-1))
@@ -165,7 +158,7 @@ class First_neural_network():
             index = torch.tensor([index])
             self.vector_matrix = torch.index_copy(self.vector_matrix, 0, index-1, vector)
             # We replace the l_i associted to the new symbol
-            leaves_nodes = torch.tensor([symbol.leaves_nodes])
+            leaves_nodes = torch.tensor([len(symbol.leaves)])
             leaves_nodes = torch.unsqueeze(leaves_nodes, 1)
             leaves_nodes = torch.unsqueeze(leaves_nodes, 1)
             self.l_vector = torch.index_copy(self.l_vector, 0, index-1, leaves_nodes.float()) 
@@ -185,14 +178,14 @@ class First_neural_network():
 
 
     # Calculate the error function J(d,d_c)
-    def error_function_J(self, d_c, d):
+    def error_function(self, d_c, d):
         margin = torch.tensor([1])
         error_function = margin + d - d_c
         return max(torch.tensor([0]), error_function)
 
 
     # Calculate the square of the Euclidean distance between the real vector and the target value.
-    def coding_criterion_d(self, node):
+    def compute_distance(self, node):
         # Calculate the target value
         if self.vector_matrix.shape[0] > 1:
             calculated_vector = self.calculate_vector(node)

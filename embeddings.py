@@ -20,21 +20,18 @@ class Embedding():
     ls_nodes [list <class Node>]: We assign a vector embedding to each node
     '''
 
-    def __init__(self, size, ls_nodes, dict_ast_to_Node, walkLength = 10, windowSize = 5, minCount = 1):
+    def __init__(self, size, ls_nodes, walkLength = 10, windowSize = 5, minCount = 1):
         self.walkLength = walkLength
         self.window = windowSize
         self.size = size
         self.minCount = minCount
         self.ls = ls_nodes
-        self.dict_ast_to_Node = dict_ast_to_Node
-        # self.embedding = self.node_embedding()
 
     #We apply word2vec that returns a vector associated to a node type
     def node_embedding(self):
         matrix = self.generateWalkFile()
         model = Word2Vec(matrix, vector_size = self.size, min_count = self.minCount, window = self.window)
         self.saveVectors(model)
-        return self.ls
 
     #We create a list where each element is a random walk
     def generateWalkFile(self):
@@ -54,8 +51,6 @@ class Embedding():
             if node.children: 
                 #We choose randomly an ast object
                 node = random.choice(node.children)
-                #We convert the ast object to an Node object
-                node = self.dict_ast_to_Node[node]
             else:
                 break
         return walkList
@@ -65,4 +60,3 @@ class Embedding():
         for node in self.ls:
             vector = model.wv[node.type]
             node.set_vector(vector)
-            #print(model.wv[node.type])

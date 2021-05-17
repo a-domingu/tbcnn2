@@ -38,8 +38,6 @@ def plot_confusion_matrix(cm, classes, lr2, feature_size, epoch, normalize=False
     namefile = 'confusion_matrix\\CM_'+str(lr2)+'_'+str(feature_size)+'_'+str(epoch)+'.png'
     plt.savefig(namefile, dpi=300, bbox_inches='tight')
 
-    #plt.show() #Instead of showing, we will save the plot as a .png.
-
 
 
 def writer(message):
