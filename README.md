@@ -90,3 +90,15 @@ python param_tester.py
 
 
 **Note**: every time we run this program, it will check if `results.txt` exists (in case we have run the program before and it's saved in our directory). Bear in mind that we will lose this information, since we override the previous results when we call `param_tester.py` again.
+
+
+## How to check if a python file has generators?
+
+Once you have your neural network trained, you should simply call:
+```
+python generator_detector.py
+```
+
+You should specify as input the path of a file (or a folder) you are interested in. It also will use the folder `params` as input to be able to detect generators in code. 
+
+Once the program has finished, it will return as output if there is a generator in a particular file or not.
