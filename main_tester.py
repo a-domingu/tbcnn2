@@ -14,8 +14,20 @@ def main(path, vector_size , learning_rate, momentum, l2_penalty, epoch_first, l
     # Training the first neural network
     data_dict = first_neural_network(path, vector_size, learning_rate, momentum, l2_penalty, epoch_first)
 
+    save_files(data_dict)
     # Training the second neural network
-    second_neural_network(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling)
+    #second_neural_network(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling)
+
+def save_files(dc):
+    with open('yield.txt', 'w') as f:
+        for file in dc:
+            ls_nodes = dc[file][0]
+            f.write('####################################\n\n ')
+            f.write(file)
+            for node in ls_nodes:
+                if node.type == 'Yield':
+                    str_to_save = f'Node type: {node.type} ------- vector: {node.vector}\n'
+                    f.write(str_to_save)
 
 
 def first_neural_network(path, vector_size = 20, learning_rate = 0.1, momentum = 0.01, l2_penalty = 0, epoch = 45):
@@ -136,7 +148,7 @@ def set_leaves(ls_nodes):
 
 if __name__ == '__main__':
     # Folder path
-    path = os.path.join('sets_short', 'generators')
+    path = os.path.join('sets_short2', 'generators')
     # First neural network parameters
     vector_size = 30
     learning_rate = 0.3
