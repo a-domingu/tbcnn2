@@ -19,6 +19,7 @@ def main(path, vector_size , learning_rate, momentum, l2_penalty, epoch_first, l
     #second_neural_network(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling)
 
 def save_files(dc):
+    path = os.path.join('yield_results', 'yield.txt')
     with open('yield.txt', 'w') as f:
         for file in dc:
             ls_nodes = dc[file][0]
@@ -154,7 +155,7 @@ if __name__ == '__main__':
     learning_rate = 0.3
     momentum = 0
     l2_penalty = 0
-    epoch_first = 2
+    epoch_first = 15
     # Second neural network parameters
     learning_rate2 = 0.01
     feature_size = 100
