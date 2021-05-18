@@ -14,9 +14,20 @@ def main(path, vector_size , learning_rate, momentum, l2_penalty, epoch_first, l
     # Training the first neural network
     data_dict = first_neural_network(path, vector_size, learning_rate, momentum, l2_penalty, epoch_first)
 
+    save_files(data_dict)
     # Training the second neural network
     #second_neural_network(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling)
 
+def save_files(dc):
+    path = os.path.join('yield_results', 'yield.txt')
+    with open('yield.txt', 'w') as f:
+        for file in dc:
+            ls_nodes = dc[file][0]
+            f.write('####################################\n\n ')
+            f.write(file)
+            for node in ls_nodes:
+                str_to_save = f'Node type: {node.type} ------- vector: {node.vector}\n'
+                f.write(str_to_save)
 
 def first_neural_network(path, vector_size = 20, learning_rate = 0.1, momentum = 0.01, l2_penalty = 0, epoch = 45):
     # we create the data dict with all the information about vector representation
@@ -50,8 +61,8 @@ def vector_representation_all_files(data_dict, vector_size = 20, learning_rate =
         # convert its nodes into the Node class we have, and assign their attributes
         main_node = node_object_creator(tree)
     
-
-        ls_nodes_all.append(main_node.descendants())
+        for node in main_node.descendants():
+            ls_nodes_all.append(node)
         set_leaves(ls_nodes_all)
 
     # Initializing vector embeddings
@@ -59,19 +70,18 @@ def vector_representation_all_files(data_dict, vector_size = 20, learning_rate =
     embed.node_embedding()
 
 
-    for tree in data_dict:
-        # Calculate the vector representation for each node
-        vector_representation = First_neural_network(ls_nodes, vector_size, learning_rate, momentum, l2_penalty, epoch)
+    # Calculate the vector representation for each node
+    vector_representation = First_neural_network(ls_nodes_all, vector_size, learning_rate, momentum, l2_penalty, epoch)
 
-        ls_nodes, w_l_code, w_r_code, b_code = vector_representation.vector_representation()
+    ls_nodes, w_l_code, w_r_code, b_code = vector_representation.vector_representation()
 
-        time2= time()
-        dtime = time2 - time1
+    time2= time()
+    dtime = time2 - time1
 
-        data_dict[tree] = [ls_nodes, w_l_code, w_r_code, b_code]
-        print(f"Vector rep. of file: {tree} ({i}/{total}) in ", dtime//60, 'min and', dtime%60, 'sec.')
-        i += 1
-    return data_dict
+    #data_dict[tree] = [ls_nodes, w_l_code, w_r_code, b_code
+    dc = {}
+    dc['everything'] = [ls_nodes, w_l_code, w_r_code, b_code]
+    return dc
 
 
 def second_neural_network(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling):
@@ -140,7 +150,7 @@ def set_leaves(ls_nodes):
 
 if __name__ == '__main__':
     # Folder path
-    path = os.path.join('sets_short', 'generators')
+    path = os.path.join('sets_short2', 'generators')
     # First neural network parameters
     vector_size = 30
     learning_rate = 0.3
