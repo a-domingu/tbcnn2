@@ -146,7 +146,7 @@ if __name__ == '__main__':
     # Second neural network parameters
     learning_rate2 = 0.01
     feature_size = 50
-    epoch = 2
+    epoch = 5
     batch_size = 20
     pooling = 'one-way pooling'
 

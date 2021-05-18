@@ -92,7 +92,7 @@ class SecondNeuralNetwork():
             loss_validation = self.validation(validation_dict, validation_targets, learning_rate, epoch)
 
             print('Epoch: ', epoch, ', Time: ', end-start, ', Loss: ', loss, ', Validation Loss: ', loss_validation)
-
+            print('############### \n')
         message = f'''
 The loss we have for the training network is: {loss}
         '''
@@ -124,7 +124,13 @@ The loss we have for the training network is: {loss}
         # Test the accuracy of the updates parameters by using a validation set
         predicts = self.forward_validation(validation_dict)
         criterion = nn.BCELoss()
-        loss_validation = criterion(predicts, validation_targets)
+
+        try:
+            loss_validation = criterion(predicts, validation_targets)
+        except RuntimeError:
+            print(f'The type of predicts is nan')
+            loss_validation = torch.tensor(numpy.nan)
+            raise RuntimeError
 
         accuracy_value = accuracy(predicts, validation_targets)
         print('Validation accuracy: ', accuracy_value)
@@ -134,7 +140,6 @@ The loss we have for the training network is: {loss}
         print('Confusión matrix: ')
         print(confusion_matrix)
         plot_confusion_matrix(confusion_matrix, ['no generator', 'generator'], lr2 = learning_rate, feature_size = self.feature_size, epoch = epoch)
-        print('############### \n')
 
         return loss_validation
 
@@ -150,10 +155,8 @@ The loss we have for the training network is: {loss}
 
             # output append
             if outputs == []:
-                #outputs = softmax(output)
                 outputs = softmax(output)
             else:
-                #outputs = torch.cat((outputs, softmax(output)), 0)
                 outputs = torch.cat((outputs, softmax(output)), 0)
 
         return outputs

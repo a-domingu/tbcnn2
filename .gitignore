@@ -4,6 +4,7 @@ __pycache__
 .vscode
 *.csv
 sets
+sets100
 sets_short
 results.txt
 params

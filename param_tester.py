@@ -18,6 +18,7 @@ epoch_first = 45
 feature_size_ls = [200, 300, 400]
 learning_rate2_ls = [0.01, 0.001]
 epoch = 30
+batch_size = 20
 pooling = 'one-way pooling'
 
 # If exists a results.txt file, then we remove it
@@ -43,12 +44,13 @@ number of epochs for first neural network: {epoch_first}
 learning_rate2 = {learning_rate2}
 feature_size = {feature_size}
 number of epochs for second neural network: {epoch}
+batch size = {batch_size}
 pooling method = {pooling}
 
                         '''
                         # We append the results in a results.txt file
                         writer(message)
-                        second_neural_network(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling)
+                        second_neural_network(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling, batch_size)
 
 
 
