@@ -15,7 +15,7 @@ def main(path, vector_size , learning_rate, momentum, l2_penalty, epoch_first, l
     data_dict = first_neural_network(path, vector_size, learning_rate, momentum, l2_penalty, epoch_first)
 
     # Training the second neural network
-    second_neural_network(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling)
+    #second_neural_network(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling)
 
 
 def first_neural_network(path, vector_size = 20, learning_rate = 0.1, momentum = 0.01, l2_penalty = 0, epoch = 45):
@@ -43,6 +43,7 @@ def first_neural_network_dict_creation(path):
 def vector_representation_all_files(data_dict, vector_size = 20, learning_rate = 0.1, momentum = 0.01, l2_penalty = 0, epoch = 45):
     total = len(data_dict)
     i = 1
+    ls_nodes_all = []
     for tree in data_dict:
         time1 = time()
 
@@ -50,15 +51,18 @@ def vector_representation_all_files(data_dict, vector_size = 20, learning_rate =
         main_node = node_object_creator(tree)
     
 
-        ls_nodes = main_node.descendants()
-        set_leaves(ls_nodes)
+        ls_nodes_all.append(main_node.descendants())
+        set_leaves(ls_nodes_all)
 
-        # Initializing vector embeddings
-        embed = Embedding(vector_size, ls_nodes)
-        embed.node_embedding()
+    # Initializing vector embeddings
+    embed = Embedding(vector_size, ls_nodes_all)
+    embed.node_embedding()
 
+
+    for tree in data_dict:
         # Calculate the vector representation for each node
         vector_representation = First_neural_network(ls_nodes, vector_size, learning_rate, momentum, l2_penalty, epoch)
+
         ls_nodes, w_l_code, w_r_code, b_code = vector_representation.vector_representation()
 
         time2= time()
@@ -142,7 +146,7 @@ if __name__ == '__main__':
     learning_rate = 0.3
     momentum = 0
     l2_penalty = 0
-    epoch_first = 2
+    epoch_first = 1
     # Second neural network parameters
     learning_rate2 = 0.01
     feature_size = 100
