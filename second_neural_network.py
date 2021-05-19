@@ -130,7 +130,6 @@ The loss we have for the training network is: {loss}
         except RuntimeError:
             print(f'The type of predicts is nan')
             loss_validation = torch.tensor(numpy.nan)
-            raise RuntimeError
 
         accuracy_value = accuracy(predicts, validation_targets)
         print('Validation accuracy: ', accuracy_value)
