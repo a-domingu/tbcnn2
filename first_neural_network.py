@@ -29,7 +29,6 @@ class First_neural_network():
 
     def __init__(self, ls_nodes, features_size, learning_rate, momentum, l2_penalty, epoch):
         self.ls = ls_nodes
-        #self.dict_ast_to_Node = dict_ast_to_Node
         self.features_size = features_size
         self.alpha = learning_rate
         self.epsilon = momentum

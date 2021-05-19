@@ -31,7 +31,8 @@ class Embedding():
     def node_embedding(self):
         matrix = self.generateWalkFile()
         model = Word2Vec(matrix, vector_size = self.size, min_count = self.minCount, window = self.window)
-        self.saveVectors(model)
+        vectors_dict = self.find_vectors(model)
+        return vectors_dict
 
     #We create a list where each element is a random walk
     def generateWalkFile(self):
@@ -56,7 +57,10 @@ class Embedding():
         return walkList
         
     #We assign its vector embedding based on the node type to each node   
-    def saveVectors(self, model):
-        for node in self.ls:
-            vector = model.wv[node.type]
-            node.set_vector(vector)
+    def find_vectors(self, model):
+        ls_nodes = [node.type for node in self.ls]
+        ls_type_nodes = list(set(ls_nodes))
+        dc =  {}
+        for node_type in ls_type_nodes:
+            dc[node_type] = model.wv[node_type]
+        return dc
