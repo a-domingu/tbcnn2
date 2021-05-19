@@ -5,14 +5,14 @@ import os
 
 # TODO asignar los valores que queramos para cada caso
 # Folder path
-path = os.path.join('sets100', 'generators')
+path = os.path.join('sets200', 'generators')
  
 # First neural network parameters
 vector_size_ls = [30]
 learning_rate_ls = [0.3]
 momentum_ls = [0]
 l2_penalty_ls = [0]
-epoch_first = 45
+epoch_first = 1
  
 # Second neural network parameters
 feature_size_ls = [200, 300, 400]

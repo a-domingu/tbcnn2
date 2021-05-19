@@ -8,5 +8,6 @@ sets100
 sets_short
 results.txt
 params
-confusion_matrix
 *.png
+sets_short2
+yield_results

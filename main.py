@@ -2,6 +2,7 @@ import os
 import random
 import torch as torch
 from time import time
+import pandas as pd
 
 from node_object_creator import *
 from embeddings import Embedding
@@ -14,9 +15,20 @@ def main(path, vector_size , learning_rate, momentum, l2_penalty, epoch_first, l
     # Training the first neural network
     data_dict = first_neural_network(path, vector_size, learning_rate, momentum, l2_penalty, epoch_first)
 
+    save_files(data_dict)
     # Training the second neural network
     second_neural_network(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling, batch_size)
 
+def save_files(dc):
+    path = os.path.join('yield_results', 'yield.txt')
+    with open('yield.txt', 'w') as f:
+        for file in dc:
+            ls_nodes = dc[file][0]
+            f.write('####################################\n\n ')
+            f.write(file)
+            for node in ls_nodes:
+                str_to_save = f'Node type: {node.type} ------- vector: {node.vector}\n'
+                f.write(str_to_save)
 
 def first_neural_network(path, vector_size = 20, learning_rate = 0.1, momentum = 0.01, l2_penalty = 0, epoch = 45):
     # we create the data dict with all the information about vector representation
@@ -40,6 +52,7 @@ def first_neural_network_dict_creation(path):
     return data_dict
 
 
+
 def vector_representation_all_files(data_dict, vector_size = 20, learning_rate = 0.1, momentum = 0.01, l2_penalty = 0, epoch = 45):
     total = len(data_dict)
     i = 1
@@ -54,8 +67,7 @@ def vector_representation_all_files(data_dict, vector_size = 20, learning_rate =
         set_leaves(ls_nodes)
 
         # Initializing vector embeddings
-        embed = Embedding(vector_size, ls_nodes)
-        embed.node_embedding()
+        set_vector(ls_nodes)
 
         # Calculate the vector representation for each node
         vector_representation = First_neural_network(ls_nodes, vector_size, learning_rate, momentum, l2_penalty, epoch)
@@ -68,6 +80,8 @@ def vector_representation_all_files(data_dict, vector_size = 20, learning_rate =
         print(f"Vector rep. of file: {tree} ({i}/{total}) in ", dtime//60, 'min and', dtime%60, 'sec.')
         i += 1
     return data_dict
+
+
 
 
 def second_neural_network(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling, batch_size):
@@ -131,6 +145,11 @@ def set_leaves(ls_nodes):
     for node in ls_nodes:
         node.set_leaves()
 
+def set_vector(ls_nodes):
+    df = pd.read_csv('initial_vector_representation.csv')
+    for node in ls_nodes:
+        node.set_vector(df)
+
 
 ########################################
 
@@ -142,7 +161,7 @@ if __name__ == '__main__':
     learning_rate = 0.3
     momentum = 0
     l2_penalty = 0
-    epoch_first = 45
+    epoch_first = 1
     # Second neural network parameters
     learning_rate2 = 0.01
     feature_size = 50
