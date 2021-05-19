@@ -13,20 +13,17 @@ from second_neural_network import SecondNeuralNetwork
 
 def main(path, vector_size , learning_rate, momentum, l2_penalty, epoch_first, learning_rate2, feature_size, epoch, pooling):
     # Training the first neural network
-    ls_nodes = first_neural_network(path, vector_size, learning_rate, momentum, l2_penalty, epoch_first)
+    vectors_dict = first_neural_network(path, vector_size, learning_rate, momentum, l2_penalty, epoch_first)
 
-    save_files(ls_nodes)
+    #save_files(ls_nodes)
+    save_vectors(vectors_dict)
+
     # Training the second neural network
 
 
-def save_files(ls_nodes):
-    dc = {}
-    for node in ls_nodes:
-        dc[node.type] = node.vector.tolist()
-    df = pd.DataFrame.from_dict(dc)
+def save_vectors(vectors_dict):
+    df = pd.DataFrame.from_dict(vectors_dict)
     df.to_csv('initial_vector_representation.csv')
-
-
 
 def first_neural_network(path, vector_size = 20, learning_rate = 0.1, momentum = 0.01, l2_penalty = 0, epoch = 45):
     # we create the data dict with all the information about vector representation
@@ -62,13 +59,13 @@ def vector_representation_all_files(data_dict, vector_size = 20, learning_rate =
     
         for node in main_node.descendants():
             ls_nodes_all.append(node)
-        set_leaves(ls_nodes_all)
 
     # Initializing vector embeddings
     embed = Embedding(vector_size, ls_nodes_all)
-    embed.node_embedding()
+    dc = embed.node_embedding()
+    return dc
 
-
+'''
     # Calculate the vector representation for each node
     vector_representation = First_neural_network(ls_nodes_all, vector_size, learning_rate, momentum, l2_penalty, epoch)
 
@@ -80,12 +77,9 @@ def vector_representation_all_files(data_dict, vector_size = 20, learning_rate =
     #data_dict[tree] = [ls_nodes, w_l_code, w_r_code, b_code
 
     return ls_nodes
+'''
 
 
-
-def set_leaves(ls_nodes):
-    for node in ls_nodes:
-        node.set_leaves()
 
 
 ########################################

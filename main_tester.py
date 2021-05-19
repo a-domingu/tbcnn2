@@ -2,6 +2,7 @@ import os
 import random
 import torch as torch
 from time import time
+import pandas as pd
 
 from node_object_creator import *
 from embeddings import Embedding
@@ -16,7 +17,7 @@ def main(path, vector_size , learning_rate, momentum, l2_penalty, epoch_first, l
 
     save_files(data_dict)
     # Training the second neural network
-    #second_neural_network(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling)
+    second_neural_network(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling)
 
 def save_files(dc):
     path = os.path.join('yield_results', 'yield.txt')
@@ -51,37 +52,36 @@ def first_neural_network_dict_creation(path):
     return data_dict
 
 
+
 def vector_representation_all_files(data_dict, vector_size = 20, learning_rate = 0.1, momentum = 0.01, l2_penalty = 0, epoch = 45):
     total = len(data_dict)
     i = 1
-    ls_nodes_all = []
     for tree in data_dict:
         time1 = time()
 
         # convert its nodes into the Node class we have, and assign their attributes
         main_node = node_object_creator(tree)
     
-        for node in main_node.descendants():
-            ls_nodes_all.append(node)
-        set_leaves(ls_nodes_all)
 
-    # Initializing vector embeddings
-    embed = Embedding(vector_size, ls_nodes_all)
-    embed.node_embedding()
+        ls_nodes = main_node.descendants()
+        set_leaves(ls_nodes)
+
+        # Initializing vector embeddings
+        set_vector(ls_nodes)
+
+        # Calculate the vector representation for each node
+        vector_representation = First_neural_network(ls_nodes, vector_size, learning_rate, momentum, l2_penalty, epoch)
+        ls_nodes, w_l_code, w_r_code, b_code = vector_representation.vector_representation()
+
+        time2= time()
+        dtime = time2 - time1
+
+        data_dict[tree] = [ls_nodes, w_l_code, w_r_code, b_code]
+        print(f"Vector rep. of file: {tree} ({i}/{total}) in ", dtime//60, 'min and', dtime%60, 'sec.')
+        i += 1
+    return data_dict
 
 
-    # Calculate the vector representation for each node
-    vector_representation = First_neural_network(ls_nodes_all, vector_size, learning_rate, momentum, l2_penalty, epoch)
-
-    ls_nodes, w_l_code, w_r_code, b_code = vector_representation.vector_representation()
-
-    time2= time()
-    dtime = time2 - time1
-
-    #data_dict[tree] = [ls_nodes, w_l_code, w_r_code, b_code
-    dc = {}
-    dc['everything'] = [ls_nodes, w_l_code, w_r_code, b_code]
-    return dc
 
 
 def second_neural_network(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling):
@@ -144,6 +144,11 @@ def tensor_creation(data_dict, folder_path, training_set, validation_set, target
 def set_leaves(ls_nodes):
     for node in ls_nodes:
         node.set_leaves()
+
+def set_vector(ls_nodes):
+    df = pd.read_csv('initial_vector_representation.csv')
+    for node in ls_nodes:
+        node.set_vector(df)
 
 
 ########################################

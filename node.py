@@ -51,11 +51,14 @@ class Node():
         return get_descendants(self, ls)
 
     # Assigns the vector embedding to each node
-    def set_vector(self, vector):
+    def set_vector(self, df):
+        assert self.type in df.columns
+        # TODO determinar qué hacer cuando nos encontramos un tipo de nodo del cual no tenemos representacion vectorial
+        vector =  df[self.type]
         if type(vector) == torch.Tensor:
             self.vector = vector
         else:
-            self.vector = torch.tensor(vector, requires_grad = True)
+            self.vector = torch.tensor(vector).float().requires_grad_()
     
     def set_combined_vector(self, vector):
         self.combined_vector = vector
