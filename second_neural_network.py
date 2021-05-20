@@ -127,18 +127,17 @@ The loss we have for the training network is: {loss}
 
         try:
             loss_validation = criterion(predicts, validation_targets)
+            accuracy_value = accuracy(predicts, validation_targets)
+            print('Validation accuracy: ', accuracy_value)
+            
+            # Confusion matrix
+            confusion_matrix = conf_matrix(predicts, validation_targets)
+            print('Confusión matrix: ')
+            print(confusion_matrix)
+            #plot_confusion_matrix(confusion_matrix, ['no generator', 'generator'], lr2 = learning_rate, feature_size = self.feature_size, epoch = epoch)
         except RuntimeError:
             print(f'The type of predicts is nan')
             loss_validation = torch.tensor(numpy.nan)
-
-        accuracy_value = accuracy(predicts, validation_targets)
-        print('Validation accuracy: ', accuracy_value)
-        
-        # Confusion matrix
-        confusion_matrix = conf_matrix(predicts, validation_targets)
-        print('Confusión matrix: ')
-        print(confusion_matrix)
-        plot_confusion_matrix(confusion_matrix, ['no generator', 'generator'], lr2 = learning_rate, feature_size = self.feature_size, epoch = epoch)
 
         return loss_validation
 

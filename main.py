@@ -15,7 +15,7 @@ def main(path, vector_size , learning_rate, momentum, l2_penalty, epoch_first, l
     # Training the first neural network
     data_dict = first_neural_network(path, vector_size, learning_rate, momentum, l2_penalty, epoch_first)
 
-    save_files(data_dict)
+    #save_files(data_dict)
     # Training the second neural network
     second_neural_network(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling, batch_size)
 
@@ -155,7 +155,7 @@ def set_vector(ls_nodes):
 
 if __name__ == '__main__':
     # Folder path
-    path = os.path.join('sets', 'generators')
+    path = os.path.join('sets200', 'generators')
     # First neural network parameters
     vector_size = 30
     learning_rate = 0.3
@@ -163,8 +163,8 @@ if __name__ == '__main__':
     l2_penalty = 0
     epoch_first = 1
     # Second neural network parameters
-    learning_rate2 = 0.01
-    feature_size = 50
+    learning_rate2 = 0.001
+    feature_size = 100
     epoch = 30
     batch_size = 20
     pooling = 'one-way pooling'
