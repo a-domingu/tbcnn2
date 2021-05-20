@@ -15,7 +15,7 @@ def main(path, vector_size , learning_rate, momentum, l2_penalty, epoch_first, l
     # Training the first neural network
     data_dict = first_neural_network(path, vector_size, learning_rate, momentum, l2_penalty, epoch_first)
 
-    save_files(data_dict)
+    #save_files(data_dict)
     # Training the second neural network
     second_neural_network(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling)
 
@@ -23,7 +23,7 @@ def save_files(dc):
     path = os.path.join('yield_results', 'yield.txt')
     with open('yield.txt', 'w') as f:
         for file in dc:
-            ls_nodes = dc[file][0]
+            ls_nodes = dc[file]
             f.write('####################################\n\n ')
             f.write(file)
             for node in ls_nodes:
@@ -71,12 +71,12 @@ def vector_representation_all_files(data_dict, vector_size = 20, learning_rate =
 
         # Calculate the vector representation for each node
         vector_representation = First_neural_network(ls_nodes, vector_size, learning_rate, momentum, l2_penalty, epoch)
-        ls_nodes, w_l_code, w_r_code, b_code = vector_representation.vector_representation()
+        ls_nodes = vector_representation.vector_representation()
 
         time2= time()
         dtime = time2 - time1
 
-        data_dict[tree] = [ls_nodes, w_l_code, w_r_code, b_code]
+        data_dict[tree] = ls_nodes
         print(f"Vector rep. of file: {tree} ({i}/{total}) in ", dtime//60, 'min and', dtime%60, 'sec.')
         i += 1
     return data_dict

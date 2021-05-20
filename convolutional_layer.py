@@ -40,33 +40,25 @@ class Convolutional_layer():
     '''
 
     def __init__(self, vector_size, kernel_depth = 2, features_size = 4):
-        self.ls = []
         self.vector_size = vector_size
-        self.w_t = None
-        self.w_r = None
-        self.w_l = None
-        self.b_conv = None
         self.Nc = features_size
         self.kernel_depth = kernel_depth
+        self.vector_matrix = None
+        self.w_t_params = None
+        self.w_l_params = None
+        self.w_r_params = None
 
 
     def convolutional_layer(self, ls_nodes, w_t, w_r, w_l, b):
-        # Initialize the node list and the dict node
-        self.ls = ls_nodes
-        # Initialize matrices and bias
-        self.w_t = w_t
-        self.w_r = w_r
-        self.w_l = w_l
-        self.b_conv = b
 
         # self.y is the output of the convolutional layer.
-        self.calculate_y()
+        ls_nodes = self.calculate_y(ls_nodes, w_t, w_r, w_l, b)
 
-        return self.ls
+        return ls_nodes
 
 
-    def calculate_y(self):
-        for node in self.ls:
+    def calculate_y(self, ls_nodes, w_t, w_r, w_l, b_conv):
+        for node in ls_nodes:
             ''' 
             We are going to create the sliding window. Taking as reference the book,
             we are going to set the kernel depth of our windows as 2. We consider into the window
@@ -82,7 +74,7 @@ class Convolutional_layer():
                 self.sliding_window_tensor(node)
 
                 # The convolutional matrix for each node is a linear combination of matrices w_t, w_l and w_r
-                convolutional_matrix = (self.w_t_params*self.w_t) + (self.w_l_params*self.w_l) + (self.w_r_params*self.w_r)
+                convolutional_matrix = (self.w_t_params*w_t) + (self.w_l_params*w_l) + (self.w_r_params*w_r)
 
                 final_matrix = torch.matmul(convolutional_matrix, self.vector_matrix)
                 final_vector = torch.sum(final_matrix, 0)
@@ -93,18 +85,20 @@ class Convolutional_layer():
 
                 # We used relu as the activation function in TBCNN mainly because we hope to 
                 # encode features to a same semantic space during coding.
-                node.set_y(F.leaky_relu(final_vector + self.b_conv))
+                node.set_y(F.leaky_relu(final_vector + b_conv))
 
             else:
                 # The convolutional matrix for each node is a linear combination of matrices w_t, w_l and w_r
                 #convolutional_matrix = self.w_t
-                argument = torch.matmul(self.w_t, node.combined_vector) + self.b_conv
+                argument = torch.matmul(w_t, node.vector) + b_conv
                 node.set_y(F.leaky_relu(argument))
+
+        return ls_nodes
 
 
     def sliding_window_tensor(self, node):
         # We create a list with all combined vectors
-        vectors = [node.combined_vector]
+        vectors = [node.vector]
         # Parameters used to calculate the convolutional matrix for each node
         n = len(node.children)
         # If there is only one child, then we set n = 2 because n cannot be 1 
@@ -127,7 +121,7 @@ class Convolutional_layer():
             w_l_list.append((1-w_t_list[i])*(1-w_r_list[i]))
             i += 1
             # We save the combined vector of each node
-            vectors.append(child.combined_vector)
+            vectors.append(child.vector)
 
         # We create a matrix with all the vectors
         self.vector_matrix = torch.stack(tuple(vectors), 0)

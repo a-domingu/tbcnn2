@@ -21,8 +21,6 @@ class SecondNeuralNetwork():
         self.feature_size = m
         # parameters
         # Create uniform random numbers in half-open interval [-1.0, 1.0)
-        self.w_comb1 = torch.diag(torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.vector_size, 1)), 1)).requires_grad_()
-        self.w_comb2 = torch.diag(torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.vector_size, 1)), 1)).requires_grad_()
         self.w_t = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_()
         self.w_r = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_()
         self.w_l = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_()
@@ -39,7 +37,6 @@ class SecondNeuralNetwork():
             self.b_hidden = torch.rand(1, requires_grad = True)
             self.pooling = Pooling_layer()
         # layers
-        self.cod = Coding_layer(self.vector_size)
         self.conv = Convolutional_layer(self.vector_size, features_size=self.feature_size)
         self.hidden = Hidden_layer()
 
@@ -48,7 +45,7 @@ class SecondNeuralNetwork():
     def train(self, targets, training_dict, validation_dict, validation_targets, total_epochs = 40, learning_rate = 0.01):
         """Create the training loop"""
         # Construct the optimizer
-        params = [self.w_comb1, self.w_comb2, self.w_t, self.w_l, self.w_r, self.b_conv, self.w_hidden, self.b_hidden]
+        params = [self.w_t, self.w_l, self.w_r, self.b_conv, self.w_hidden, self.b_hidden]
         optimizer = torch.optim.SGD(params, lr = learning_rate)
         criterion = nn.BCEWithLogitsLoss()
         print('The correct value of the files is: ', targets)
@@ -75,7 +72,7 @@ class SecondNeuralNetwork():
             loss.backward() # w_r.grad = dloss/dw_r
             '''
             print('Gradients values: ')
-            for i in range(8):
+            for i in range(6):
                 print(params[i].grad.sum())
             '''
             # Update parameters
@@ -158,8 +155,7 @@ The loss we have for the training network is: {loss}
 
 
     def layers(self, vector_representation_params):
-        ls_nodes, w_l_code, w_r_code, b_code = vector_representation_params
-        ls_nodes = self.cod.coding_layer(ls_nodes, w_l_code, w_r_code, b_code, self.w_comb1, self.w_comb2)
+        ls_nodes = vector_representation_params
         ls_nodes = self.conv.convolutional_layer(ls_nodes, self.w_t, self.w_r, self.w_l, self.b_conv)
         if self.pooling == 'three-way pooling':
             dict_sibling = None
@@ -174,6 +170,7 @@ The loss we have for the training network is: {loss}
 
     def save(self):
         '''Save all the trained parameters into a csv file'''
+        '''
         # save w_comb1 into csv file
         w_comb1 = self.w_comb1.detach().numpy()
         numpy.savetxt("params\\w_comb1.csv", w_comb1, delimiter = ",")
@@ -181,6 +178,7 @@ The loss we have for the training network is: {loss}
         # save w_comb2 into csv file
         w_comb2 = self.w_comb2.detach().numpy()
         numpy.savetxt("params\\w_comb2.csv", w_comb2, delimiter = ",")
+        '''
 
         # save w_t into csv file
         w_t = self.w_t.detach().numpy()

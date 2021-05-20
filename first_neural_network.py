@@ -74,7 +74,7 @@ class First_neural_network():
         for node in self.ls:
             node.vector.detach()
 
-        return self.ls, self.w_l.detach(), self.w_r.detach(), self.b.detach()
+        return self.ls
 
 
     # We applied the coding criterion for each non-leaf node p in AST
