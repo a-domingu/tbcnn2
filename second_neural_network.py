@@ -88,7 +88,7 @@ class SecondNeuralNetwork():
             loss_validation = self.validation(validation_dict, validation_targets, learning_rate, epoch)
 
             print('Epoch: ', epoch, ', Time: ', end-start, ', Loss: ', loss, ', Validation Loss: ', loss_validation)
-
+            print('############### \n')
         message = f'''
 The loss we have for the training network is: {loss}
         '''
@@ -120,18 +120,20 @@ The loss we have for the training network is: {loss}
         # Test the accuracy of the updates parameters by using a validation set
         predicts = self.forward_validation(validation_dict)
         criterion = nn.BCELoss()
-        loss_validation = criterion(predicts, validation_targets)
-
-        accuracy_value = accuracy(predicts, validation_targets)
-        print('Validation accuracy: ', accuracy_value)
-        
-        # Confusion matrix
-        confusion_matrix = conf_matrix(predicts, validation_targets)
-        print('Confusión matrix: ')
-        print(confusion_matrix)
-        plot_confusion_matrix(confusion_matrix, ['no generator', 'generator'], lr2 = learning_rate, feature_size = self.feature_size, epoch = epoch)
-        print('############### \n')
-
+        try:
+            loss_validation = criterion(predicts, validation_targets)
+            accuracy_value = accuracy(predicts, validation_targets)
+            print('Validation accuracy: ', accuracy_value)
+            
+            # Confusion matrix
+            confusion_matrix = conf_matrix(predicts, validation_targets)
+            print('Confusión matrix: ')
+            print(confusion_matrix)
+            #plot_confusion_matrix(confusion_matrix, ['no generator', 'generator'], lr2 = learning_rate, feature_size = self.feature_size, epoch = epoch)
+        except RuntimeError:
+            print(f'The type of predicts is nan')
+            loss_validation = torch.tensor(numpy.nan)
+       
         return loss_validation
 
     
