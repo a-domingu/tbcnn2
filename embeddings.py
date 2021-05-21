@@ -62,5 +62,5 @@ class Embedding():
         ls_type_nodes = list(set(ls_nodes))
         dc =  {}
         for node_type in ls_type_nodes:
-            dc[node_type] = model.wv[node_type]
+            dc[node_type] = model.wv[node_type]*100
         return dc

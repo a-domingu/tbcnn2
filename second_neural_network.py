@@ -60,10 +60,9 @@ class SecondNeuralNetwork():
             # Time
             start = time()
 
+            sum_loss = 0
+            nb_batch = 0
             for (batch, target) in self.batch_creator(batch_size, training_set, targets):
-
-                #print('Size of the batch: ', len(batch))
-                #print('Size of the targets: ', len(target))
                 # zero the parameter gradients
                 optimizer.zero_grad()
 
@@ -80,14 +79,13 @@ class SecondNeuralNetwork():
 
                 # Backward = calculates the derivative
                 loss.backward() # w_r.grad = dloss/dw_r
+                sum_loss += loss.detach()
                 del loss
-                '''
-                print('Gradients values: ')
-                for i in range(8):
-                    print(params[i].grad.sum())
-                '''
+
                 # Update parameters
                 optimizer.step() #w_r = w_r - lr * w_r.grad
+
+                nb_batch += 1
 
             #Time
             end = time()
@@ -95,10 +93,11 @@ class SecondNeuralNetwork():
             # Validation
             loss_validation = self.validation(validation_set, validation_targets, learning_rate, epoch)
 
-            print('Epoch: ', epoch, ', Time: ', end-start, ', Loss: ', loss, ', Validation Loss: ', loss_validation)
+            print('Epoch: ', epoch, ', Time: ', end-start, ', Mean Training Loss: ', sum_loss/nb_batch, ', Validation Loss: ', loss_validation)
             print('############### \n')
+
         message = f'''
-The loss we have for the training network is: {loss}
+The loss we have for the training network is: {sum_loss/nb_batch}
         '''
         writer(message)
         self.save()
@@ -125,7 +124,8 @@ The loss we have for the training network is: {loss}
                 outputs = torch.cat((outputs, output), 0)
 
             del output
-            gc.collect()
+
+        gc.collect()
         return outputs
 
     
@@ -133,6 +133,7 @@ The loss we have for the training network is: {loss}
         # Test the accuracy of the updates parameters by using a validation set
         predicts = self.forward_validation(validation_dict)
         criterion = nn.BCELoss()
+
         try:
             loss_validation = criterion(predicts, validation_targets)
             accuracy_value = accuracy(predicts, validation_targets)
@@ -143,9 +144,11 @@ The loss we have for the training network is: {loss}
             print('Confusión matrix: ')
             print(confusion_matrix)
             #plot_confusion_matrix(confusion_matrix, ['no generator', 'generator'], lr2 = learning_rate, feature_size = self.feature_size, epoch = epoch)
+        
         except RuntimeError:
             print(f'The type of predicts is nan')
             loss_validation = torch.tensor(numpy.nan)
+
         return loss_validation
 
     
@@ -168,6 +171,9 @@ The loss we have for the training network is: {loss}
             else:
                 outputs = torch.cat((outputs, softmax(output)), 0)
 
+            del output
+
+        gc.collect()
         return outputs
 
 

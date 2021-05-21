@@ -67,13 +67,13 @@ class Convolutional_layer():
             In case we change the depth of the window, we have to change the parameters of each tensor
             '''
             if node.children:
-                vector_matrix, w_t_params, w_l_params, w_r_params = self.sliding_window_tensor(node)
+                vector_matrix, w_t_coeffs, w_l_coeffs, w_r_coeffs = self.sliding_window_tensor(node)
 
                 # The convolutional matrix for each node is a linear combination of matrices w_t, w_l and w_r
-                convolutional_matrix = (w_t_params*w_t) + (w_l_params*w_l) + (w_r_params*w_r)
-                del w_t_params
-                del w_l_params
-                del w_r_params
+                convolutional_matrix = (w_t_coeffs*w_t) + (w_l_coeffs*w_l) + (w_r_coeffs*w_r)
+                del w_t_coeffs
+                del w_l_coeffs
+                del w_r_coeffs
 
                 final_matrix = torch.matmul(convolutional_matrix, vector_matrix)
                 del vector_matrix
@@ -91,13 +91,13 @@ class Convolutional_layer():
             else:
                 # The convolutional matrix for each node is a linear combination of matrices w_t, w_l and w_r
                 #convolutional_matrix = self.w_t
-                argument = torch.matmul(w_t, node.combined_vector) + b
+                argument = torch.matmul(w_t, node.vector) + b
                 node.set_y(F.leaky_relu(argument))
 
 
     def sliding_window_tensor(self, node):
         # We create a list with all combined vectors
-        vectors = [node.combined_vector]
+        vectors = [node.vector]
         # Parameters used to calculate the convolutional matrix for each node
         n = len(node.children)
         # If there is only one child, then we set n = 2 because n cannot be 1 
@@ -120,7 +120,7 @@ class Convolutional_layer():
             w_l_list.append((1-w_t_list[i])*(1-w_r_list[i]))
             i += 1
             # We save the combined vector of each node
-            vectors.append(child.combined_vector)
+            vectors.append(child.vector)
 
         # We create a matrix with all the vectors
         vector_matrix = torch.stack(tuple(vectors), 0)
