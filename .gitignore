@@ -11,4 +11,4 @@ params
 *.png
 sets_short2
 yield_results
-vector_representation
+vector_representation/*.txt
