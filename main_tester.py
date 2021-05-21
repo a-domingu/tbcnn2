@@ -3,6 +3,7 @@ import random
 import torch as torch
 from time import time
 import pandas as pd
+import pickle
 
 from node_object_creator import *
 from embeddings import Embedding
@@ -13,11 +14,11 @@ from second_neural_network import SecondNeuralNetwork
 
 def main(path, vector_size , learning_rate, momentum, l2_penalty, epoch_first, learning_rate2, feature_size, epoch, pooling, batch_size):
     # Training the first neural network
-    data_dict = first_neural_network(path, vector_size, learning_rate, momentum, l2_penalty, epoch_first)
+    first_neural_network(path, vector_size, learning_rate, momentum, l2_penalty, epoch_first)
 
     #save_files(data_dict)
     # Training the second neural network
-    second_neural_network(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling, batch_size)
+    second_neural_network(path, vector_size, learning_rate2, feature_size, epoch, pooling, batch_size)
 
 def save_files(dc):
     path = os.path.join('yield_results', 'yield.txt')
@@ -30,73 +31,107 @@ def save_files(dc):
                 str_to_save = f'Node type: {node.type} ------- vector: {node.vector}\n'
                 f.write(str_to_save)
 
-def first_neural_network(path, vector_size = 20, learning_rate = 0.1, momentum = 0.01, l2_penalty = 0, epoch = 45):
-    # we create the data dict with all the information about vector representation
-    data_dict = first_neural_network_dict_creation(path)
-    # We now do the first neural network (vector representation) for every file:
-    data_dict = vector_representation_all_files(data_dict, vector_size, learning_rate, momentum, l2_penalty, epoch)
-    return data_dict
 
-
-def first_neural_network_dict_creation(path):
-    # we create the data dict with all the information about vector representation
-    data_dict = {}
+def read_folder_data_set(path):
     # iterates through the generators directory, identifies the folders and enter in them
     for (dirpath, _dirnames, filenames) in os.walk(path):
         if dirpath.endswith('withgen') or dirpath.endswith('nogen'):
             for filename in filenames:
                 if filename.endswith('.py'):
                     filepath = os.path.join(dirpath, filename)
-                    data_dict[filepath] = None
-
-    return data_dict
+                    yield filepath
 
 
 
-def vector_representation_all_files(data_dict, vector_size = 20, learning_rate = 0.1, momentum = 0.01, l2_penalty = 0, epoch = 45):
-    total = len(data_dict)
+def first_neural_network(path, vector_size = 20, learning_rate = 0.1, momentum = 0.01, l2_penalty = 0, epoch = 45):
     i = 1
-    for tree in data_dict:
+    for tree in read_folder_data_set(path):
         time1 = time()
 
         # convert its nodes into the Node class we have, and assign their attributes
         main_node = node_object_creator(tree)
-    
-
         ls_nodes = main_node.descendants()
-        set_leaves(ls_nodes)
+        del main_node
 
+        set_leaves(ls_nodes)
         # Initializing vector embeddings
         set_vector(ls_nodes)
+        '''
+        print('Initial vectors: ')
 
+        for node in ls_nodes:
+            print(node.vector)
+            break
+
+        for node in main_node.descendants():
+            print(node.vector)
+            print('####################')
+            break
+        '''
         # Calculate the vector representation for each node
         vector_representation = First_neural_network(ls_nodes, vector_size, learning_rate, momentum, l2_penalty, epoch)
         ls_nodes, w_l_code, w_r_code, b_code = vector_representation.vector_representation()
+        '''
+        print('After first neural network: ')
+
+        for node in ls_nodes:
+            print(node.vector)
+            break
+
+        for node in main_node.descendants():
+            print(node.vector)
+            print('####################')
+            break
+        '''
+        filename = os.path.join('vector_representation', os.path.basename(tree) + '.txt')
+        params = [ls_nodes, w_l_code, w_r_code, b_code]
+        del ls_nodes
+        del  w_l_code
+        del w_r_code
+        del b_code
+
+        with open(filename, 'wb') as f:
+            pickle.dump(params, f)
+        
+        del params
 
         time2= time()
         dtime = time2 - time1
+        print(f"Vector rep. of file: {tree} {i} in ", dtime//60, 'min and', dtime%60, 'sec.')
+        '''
+        with open(filename, 'rb') as f:
+            params_2 = pickle.load(f) 
 
-        data_dict[tree] = [ls_nodes, w_l_code, w_r_code, b_code]
-        print(f"Vector rep. of file: {tree} ({i}/{total}) in ", dtime//60, 'min and', dtime%60, 'sec.')
+        ls_nodes_2 = params_2[0]
+
+        print('After save vectors with pickle: ')
+        
+        for node in ls_nodes_2:
+            print(node.vector)
+            break
+
+        main_node_2 = ls_nodes_2[0]
+        for node in main_node_2.descendants():
+            print(node.vector)
+            print('#################### \n')
+            break
+        '''
         i += 1
-    return data_dict
 
 
-
-
-def second_neural_network(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling, batch_size):
+def second_neural_network(path, vector_size, learning_rate2, feature_size, epoch, pooling, batch_size):
     ### Creation of the training set and validation set
-    training_dict, validation_dict, targets_training, targets_validation = training_and_validation_sets_creation(path, data_dict) 
+    training_set, validation_set, targets_training, targets_validation = training_and_validation_sets_creation(path) 
 
     # Training
     secnn = SecondNeuralNetwork(vector_size, feature_size, pooling)
-    secnn.train(targets_training, training_dict, validation_dict, targets_validation, epoch, learning_rate2, batch_size)
+    secnn.train(targets_training, training_set, validation_set, targets_validation, epoch, learning_rate2, batch_size)
 
 
-def training_and_validation_sets_creation(path, data_dict):
+def training_and_validation_sets_creation(path):
     # we create the training set and the validation set
-    training_set = {}
-    validation_set = {}
+    training_set = []
+    validation_set = []
     # We create a target training target tensor and a validation target tensor
     targets_training = [] 
     targets_validation = []
@@ -105,14 +140,14 @@ def training_and_validation_sets_creation(path, data_dict):
         for folder in dirnames:
             folder_path = os.path.join(dirpath, folder)
             if folder == 'withgen':
-                training_set, validation_set, targets_training, targets_validation = tensor_creation(data_dict, folder_path, training_set, validation_set, targets_training, targets_validation, 1)
+                training_set, validation_set, targets_training, targets_validation = tensor_creation(folder_path, training_set, validation_set, targets_training, targets_validation, 1)
             elif folder == 'nogen':
-                training_set, validation_set, targets_training, targets_validation = tensor_creation(data_dict, folder_path, training_set, validation_set, targets_training, targets_validation, 0)
+                training_set, validation_set, targets_training, targets_validation = tensor_creation(folder_path, training_set, validation_set, targets_training, targets_validation, 0)
             
     return training_set, validation_set, targets_training.float(), targets_validation.float()
 
 
-def tensor_creation(data_dict, folder_path, training_set, validation_set, targets_training, targets_validation, value):
+def tensor_creation(folder_path, training_set, validation_set, targets_training, targets_validation, value):
     # we list all files of each folder
     list_files = os.listdir(folder_path)
     # Having a list with only .py files
@@ -126,14 +161,14 @@ def tensor_creation(data_dict, folder_path, training_set, validation_set, target
         list_files_py.remove(file)
         if i <= N:
             filepath = os.path.join(folder_path, file)
-            training_set[filepath] = data_dict[filepath]
+            training_set.append(filepath)
             if targets_training == []:
                 targets_training = torch.tensor([value])
             else:
                 targets_training = torch.cat((targets_training, torch.tensor([value])), 0)
         else:
             filepath = os.path.join(folder_path, file)
-            validation_set[filepath] = data_dict[filepath]
+            validation_set.append(filepath)
             if targets_validation == []:
                 targets_validation = torch.tensor([value])
             else:

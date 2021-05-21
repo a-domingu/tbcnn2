@@ -86,7 +86,7 @@ def vector_representation_all_files(data_dict, vector_size = 20, learning_rate =
 
 if __name__ == '__main__':
     # Folder path
-    path = os.path.join('sets200', 'generators')
+    path = os.path.join('sets', 'generators')
     # First neural network parameters
     vector_size = 30
     learning_rate = 0.3
