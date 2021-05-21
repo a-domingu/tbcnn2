@@ -3,6 +3,7 @@ import random
 import torch as torch
 from time import time
 import pandas as pd
+import pickle
 
 from node_object_creator import *
 from embeddings import Embedding
@@ -11,13 +12,14 @@ from second_neural_network import SecondNeuralNetwork
 
     
 
-def main(path, vector_size , learning_rate, momentum, l2_penalty, epoch_first, learning_rate2, feature_size, epoch, pooling):
+def main(path, vector_size , learning_rate, momentum, l2_penalty, epoch_first, learning_rate2, feature_size, epoch, pooling, batch_size):
     # Training the first neural network
     data_dict = first_neural_network(path, vector_size, learning_rate, momentum, l2_penalty, epoch_first)
 
-    save_files(data_dict)
+    #save_files(data_dict)
     # Training the second neural network
-    second_neural_network(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling)
+    second_neural_network(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling, batch_size)
+
 
 def save_files(dc):
     path = os.path.join('yield_results', 'yield.txt')
@@ -52,7 +54,6 @@ def first_neural_network_dict_creation(path):
     return data_dict
 
 
-
 def vector_representation_all_files(data_dict, vector_size = 20, learning_rate = 0.1, momentum = 0.01, l2_penalty = 0, epoch = 45):
     total = len(data_dict)
     i = 1
@@ -73,6 +74,9 @@ def vector_representation_all_files(data_dict, vector_size = 20, learning_rate =
         vector_representation = First_neural_network(ls_nodes, vector_size, learning_rate, momentum, l2_penalty, epoch)
         ls_nodes, w_l_code, w_r_code, b_code = vector_representation.vector_representation()
 
+        print(ls_nodes[0].type)
+        print(ls_nodes[0].descendants)
+
         time2= time()
         dtime = time2 - time1
 
@@ -80,17 +84,17 @@ def vector_representation_all_files(data_dict, vector_size = 20, learning_rate =
         print(f"Vector rep. of file: {tree} ({i}/{total}) in ", dtime//60, 'min and', dtime%60, 'sec.')
         i += 1
     return data_dict
+    
 
 
 
-
-def second_neural_network(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling):
+def second_neural_network(path, data_dict, vector_size, learning_rate2, feature_size, epoch, pooling, batch_size):
     ### Creation of the training set and validation set
     training_dict, validation_dict, targets_training, targets_validation = training_and_validation_sets_creation(path, data_dict) 
 
     # Training
     secnn = SecondNeuralNetwork(vector_size, feature_size, pooling)
-    secnn.train(targets_training, training_dict, validation_dict, targets_validation, epoch, learning_rate2)
+    secnn.train(targets_training, training_dict, validation_dict, targets_validation, epoch, learning_rate2, batch_size)
 
 
 def training_and_validation_sets_creation(path, data_dict):
@@ -155,17 +159,18 @@ def set_vector(ls_nodes):
 
 if __name__ == '__main__':
     # Folder path
-    path = os.path.join('sets', 'generators')
+    path = os.path.join('sets_short', 'generators')
     # First neural network parameters
     vector_size = 30
     learning_rate = 0.3
     momentum = 0
     l2_penalty = 0
-    epoch_first = 1
+    epoch_first = 3
     # Second neural network parameters
-    learning_rate2 = 0.01
+    learning_rate2 = 0.001
     feature_size = 100
-    epoch = 2
+    epoch = 30
+    batch_size = 20
     pooling = 'one-way pooling'
 
-    main(path, vector_size, learning_rate, momentum, l2_penalty, epoch_first, learning_rate2, feature_size, epoch, pooling)
+    main(path, vector_size, learning_rate, momentum, l2_penalty, epoch_first, learning_rate2, feature_size, epoch, pooling, batch_size)

@@ -4,9 +4,11 @@ __pycache__
 .vscode
 *.csv
 sets
+sets100
 sets_short
 results.txt
 params
 *.png
 sets_short2
 yield_results
+vector_representation

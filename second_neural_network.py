@@ -1,8 +1,11 @@
 import numpy
+import os
 import torch as torch
 import torch.nn as nn
 import torch.nn.functional as F
 from time import time
+import pickle
+import gc
 
 from node_object_creator import *
 from coding_layer import Coding_layer
@@ -45,7 +48,7 @@ class SecondNeuralNetwork():
 
 
     
-    def train(self, targets, training_dict, validation_dict, validation_targets, total_epochs = 40, learning_rate = 0.01):
+    def train(self, targets, training_set, validation_set, validation_targets, total_epochs = 40, learning_rate = 0.01, batch_size = 20):
         """Create the training loop"""
         # Construct the optimizer
         params = [self.w_comb1, self.w_comb2, self.w_t, self.w_l, self.w_r, self.b_conv, self.w_hidden, self.b_hidden]
@@ -57,35 +60,40 @@ class SecondNeuralNetwork():
             # Time
             start = time()
 
-            # zero the parameter gradients
-            optimizer.zero_grad()
+            for (batch, target) in self.batch_creator(batch_size, training_set, targets):
 
-            # forward
-            outputs = self.forward(training_dict)
+                #print('Size of the batch: ', len(batch))
+                #print('Size of the targets: ', len(target))
+                # zero the parameter gradients
+                optimizer.zero_grad()
 
-            # Computes the loss function
-            try:
-                loss = criterion(outputs, targets)
-            except AttributeError:
-                print(f'The size of outputs is {len(outputs)} and is of type {type(outputs)}')
-                print('Check that the path is a folder and not a file')
-                raise AttributeError
+                # forward
+                outputs = self.forward(batch)
 
-            # Backward = calculates the derivative
-            loss.backward() # w_r.grad = dloss/dw_r
-            '''
-            print('Gradients values: ')
-            for i in range(8):
-                print(params[i].grad.sum())
-            '''
-            # Update parameters
-            optimizer.step() #w_r = w_r - lr * w_r.grad
+                # Computes the loss function
+                try:
+                    loss = criterion(outputs, target)
+                except AttributeError:
+                    print(f'The size of outputs is {len(outputs)} and is of type {type(outputs)}')
+                    print('Check that the path is a folder and not a file')
+                    raise AttributeError
+
+                # Backward = calculates the derivative
+                loss.backward() # w_r.grad = dloss/dw_r
+                del loss
+                '''
+                print('Gradients values: ')
+                for i in range(8):
+                    print(params[i].grad.sum())
+                '''
+                # Update parameters
+                optimizer.step() #w_r = w_r - lr * w_r.grad
 
             #Time
             end = time()
 
             # Validation
-            loss_validation = self.validation(validation_dict, validation_targets, learning_rate, epoch)
+            loss_validation = self.validation(validation_set, validation_targets, learning_rate, epoch)
 
             print('Epoch: ', epoch, ', Time: ', end-start, ', Loss: ', loss, ', Validation Loss: ', loss_validation)
             print('############### \n')
@@ -96,14 +104,17 @@ The loss we have for the training network is: {loss}
         self.save()
 
 
-    def forward(self, training_dict):
+    def forward(self, batch_set):
         outputs = []
         #softmax = nn.Sigmoid()
-        for filepath in training_dict.keys():
-            data = filepath
+        for data in batch_set:
+            filename = os.path.join('vector_representation', os.path.basename(data) + '.txt')
+            with open(filename, 'rb') as f:
+                params_first_neural_network = pickle.load(f)
             
             ## forward (layers calculations)
-            output = self.layers(training_dict[data])
+            output = self.layers(params_first_neural_network)
+            del params_first_neural_network
 
             # output append
             if outputs == []:
@@ -113,6 +124,8 @@ The loss we have for the training network is: {loss}
                 #outputs = torch.cat((outputs, softmax(output)), 0)
                 outputs = torch.cat((outputs, output), 0)
 
+            del output
+            gc.collect()
         return outputs
 
     
@@ -133,25 +146,26 @@ The loss we have for the training network is: {loss}
         except RuntimeError:
             print(f'The type of predicts is nan')
             loss_validation = torch.tensor(numpy.nan)
-       
         return loss_validation
 
     
-    def forward_validation(self, validation_dict):
+    def forward_validation(self, validation_set):
         outputs = []
         softmax = nn.Sigmoid()
-        for filepath in validation_dict.keys():
-            data = filepath
+        for data in validation_set:
+            # 
+            filename = os.path.join('vector_representation', os.path.basename(data) + '.txt')
+            with open(filename, 'rb') as f:
+                params_first_neural_network = pickle.load(f)
             
             ## forward (layers calculations)
-            output = self.layers(validation_dict[data])
+            output = self.layers(params_first_neural_network)
+            del params_first_neural_network
 
             # output append
             if outputs == []:
-                #outputs = softmax(output)
                 outputs = softmax(output)
             else:
-                #outputs = torch.cat((outputs, softmax(output)), 0)
                 outputs = torch.cat((outputs, softmax(output)), 0)
 
         return outputs
@@ -159,7 +173,10 @@ The loss we have for the training network is: {loss}
 
     def layers(self, vector_representation_params):
         ls_nodes, w_l_code, w_r_code, b_code = vector_representation_params
-        ls_nodes = self.cod.coding_layer(ls_nodes, w_l_code, w_r_code, b_code, self.w_comb1, self.w_comb2)
+        #ls_nodes = self.cod.coding_layer(ls_nodes, w_l_code, w_r_code, b_code, self.w_comb1, self.w_comb2)
+        del w_l_code
+        del w_r_code
+        del b_code
         ls_nodes = self.conv.convolutional_layer(ls_nodes, self.w_t, self.w_r, self.w_l, self.b_conv)
         if self.pooling == 'three-way pooling':
             dict_sibling = None
@@ -167,7 +184,9 @@ The loss we have for the training network is: {loss}
             vector = self.dynamic.three_way_pooling(ls_nodes, dict_sibling)
         else:
             vector = self.pooling.pooling_layer(ls_nodes)
+        del ls_nodes
         output = self.hidden.hidden_layer(vector, self.w_hidden, self.b_hidden)
+        del vector
 
         return output
 
@@ -205,3 +224,23 @@ The loss we have for the training network is: {loss}
         # save b_conv into csv file
         b_hidden = self.b_hidden.detach().numpy()
         numpy.savetxt("params\\b_hidden.csv", b_hidden, delimiter = ",")
+
+
+    def batch_creator(self, batch_size, training_set, targets):
+        batch = []
+        i = 0
+        j = 0
+        for data in training_set:
+            if i < batch_size:
+                batch.append(data)
+                i += 1
+            else:
+                target = torch.narrow(targets, 0, j*batch_size, batch_size)
+                yield batch, target
+                batch = []
+                i = 0
+                j += 1
+
+        if bool(batch):
+            target = torch.narrow(targets, 0, j*batch_size, len(batch))
+            yield batch, target
