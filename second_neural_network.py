@@ -200,35 +200,35 @@ The loss we have for the training network is: {sum_loss/nb_batch}
         '''Save all the trained parameters into a csv file'''
         # save w_comb1 into csv file
         w_comb1 = self.w_comb1.detach().numpy()
-        numpy.savetxt("params\\w_comb1.csv", w_comb1, delimiter = ",")
+        numpy.savetxt(os.path.join("params", "w_comb1.csv"), w_comb1, delimiter = ",")
 
         # save w_comb2 into csv file
         w_comb2 = self.w_comb2.detach().numpy()
-        numpy.savetxt("params\\w_comb2.csv", w_comb2, delimiter = ",")
+        numpy.savetxt(os.path.join("params", "w_comb2.csv"), w_comb2, delimiter = ",")
 
         # save w_t into csv file
         w_t = self.w_t.detach().numpy()
-        numpy.savetxt("params\\w_t.csv", w_t, delimiter = ",")
+        numpy.savetxt(os.path.join("params", "w_t.csv"), w_t, delimiter = ",")
 
         # save w_l into csv file
         w_l = self.w_l.detach().numpy()
-        numpy.savetxt("params\\w_l.csv", w_l, delimiter = ",")
+        numpy.savetxt(os.path.join("params", "w_l.csv"), w_l, delimiter = ",")
         
         # save w_r into csv file
         w_r = self.w_r.detach().numpy()
-        numpy.savetxt("params\\w_r.csv", w_r, delimiter = ",")
+        numpy.savetxt(os.path.join("params", "w_r.csv"), w_r, delimiter = ",")
 
         # save b_conv into csv file
         b_conv = self.b_conv.detach().numpy()
-        numpy.savetxt("params\\b_conv.csv", b_conv, delimiter = ",")
+        numpy.savetxt(os.path.join("params", "b_conv.csv"), b_conv, delimiter = ",")
 
         # save w_hidden into csv file
         w_hidden = self.w_hidden.detach().numpy()
-        numpy.savetxt("params\\w_hidden.csv", w_hidden, delimiter = ",")
+        numpy.savetxt(os.path.join("params", "w_hidden.csv"), w_hidden, delimiter = ",")
 
         # save b_conv into csv file
         b_hidden = self.b_hidden.detach().numpy()
-        numpy.savetxt("params\\b_hidden.csv", b_hidden, delimiter = ",")
+        numpy.savetxt(os.path.join("params", "b_hidden.csv"), b_hidden, delimiter = ",")
 
 
     def batch_creator(self, batch_size, training_set, targets):
