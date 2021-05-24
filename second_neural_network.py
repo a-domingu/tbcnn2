@@ -179,7 +179,6 @@ The loss we have for the training network is: {sum_loss/nb_batch}
 
     def layers(self, vector_representation_params):
         ls_nodes, w_l_code, w_r_code, b_code = vector_representation_params
-        #ls_nodes = self.cod.coding_layer(ls_nodes, w_l_code, w_r_code, b_code, self.w_comb1, self.w_comb2)
         del w_l_code
         del w_r_code
         del b_code

@@ -17,6 +17,7 @@ from convolutional_layer import Convolutional_layer
 from pooling_layer import Pooling_layer
 from dynamic_pooling import Max_pooling_layer, Dynamic_pooling_layer
 from hidden_layer import Hidden_layer
+from main_first_neural_network import set_vector, set_leaves
 
 
 class Generator_pattern_detection():
@@ -63,6 +64,7 @@ class Generator_pattern_detection():
 
         # Data dictionary creation
         data_dict = self.data_dict_creation(path)
+        print('El primer data_dcit : ', data_dict)
 
         # Training the first neural network
         data_dict = self.first_neural_network(data_dict)
@@ -85,35 +87,37 @@ class Generator_pattern_detection():
                 if filename.endswith('.py'):
                     filepath = os.path.join(dirpath, filename)
                     data_dict[filepath] = None
+        return data_dict
 
+    
 
-    def first_neural_network(data_dict, vector_size = 30, learning_rate = 0.3, momentum = 0, l2_penalty = 0, epoch = 45):
+    def first_neural_network(self, data_dict, vector_size = 30, learning_rate = 0.3, momentum = 0, l2_penalty = 0, epoch = 1):
         total = len(data_dict)
         i = 1
         for data in data_dict:
             time1 = time()
             # Initializing node list, dict list and dict sibling
 
-            # we parse the data of the file into a tree
-            tree = file_parser(data)
+            
             # convert its nodes into the Node class we have, and assign their attributes
-            ls_nodes, dict_ast_to_Node = node_object_creator(tree)
-            ls_nodes = node_position_assign(ls_nodes)
-            ls_nodes, dict_sibling = node_sibling_assign(ls_nodes)
-            ls_nodes = leaves_nodes_assign(ls_nodes, dict_ast_to_Node)
+            main_node = node_object_creator(data)
+            # we set the descendants of the main node and put them in a list
+            ls_nodes = main_node.descendants()
 
+            # We assign the leaves nodes under each node
+            set_leaves(ls_nodes)
             # Initializing vector embeddings
-            embed = Embedding(vector_size, ls_nodes, dict_ast_to_Node)
-            ls_nodes = embed.node_embedding()
+            set_vector(ls_nodes)
+            # Calculate the vector representation for each node
+            vector_representation = First_neural_network(ls_nodes, vector_size, learning_rate, momentum, l2_penalty, epoch)
 
             # Calculate the vector representation for each node
-            vector_representation = First_neural_network(ls_nodes, dict_ast_to_Node, vector_size, learning_rate, momentum, l2_penalty, epoch)
-            ls_nodes, w_l_code, w_r_code, b_code = vector_representation.vector_representation()
-
+            params = vector_representation.vector_representation()
+            #params = [w_l_code, w_r_code, b_code]
+            data_dict[data] = params
             time2= time()
             dtime = time2 - time1
 
-            data_dict[data] = [ls_nodes, dict_ast_to_Node, dict_sibling, w_l_code, w_r_code, b_code]
             print(f"Vector rep. of file: {data} ({i}/{total}) in ", dtime//60, 'min and', dtime%60, 'sec.')
             i += 1
         return data_dict
@@ -136,18 +140,15 @@ class Generator_pattern_detection():
 
 
     def second_neural_network(self, vector_representation_params):
-        ls_nodes = vector_representation_params[0]
-        dict_ast_to_Node = vector_representation_params[1]
-        dict_sibling = vector_representation_params[2]
-        w_l_code = vector_representation_params[3]
-        w_r_code = vector_representation_params[4]
-        b_code = vector_representation_params[5]
-        ls_nodes = self.cod.coding_layer(ls_nodes, dict_ast_to_Node, w_l_code, w_r_code, b_code, self.w_comb1, self.w_comb2)
-        ls_nodes = self.conv.convolutional_layer(ls_nodes, dict_ast_to_Node, self.w_t, self.w_r, self.w_l, self.b_conv)
+        ls_nodes, w_l_code, w_r_code, b_code = vector_representation_params
+        # we don't do coding layer and go directly to convolutional layer; that's why we don't
+        # use the matrices above
+        ls_nodes = self.conv.convolutional_layer(ls_nodes, self.w_t, self.w_r, self.w_l, self.b_conv)
         if self.pooling == 'one-way pooling':
             vector = self.pooling_layer.pooling_layer(ls_nodes)
         else:
             self.max_pool.max_pooling(ls_nodes)
+            dict_sibling = {}
             vector = self.dynamic.three_way_pooling(ls_nodes, dict_sibling)
         output = self.hidden.hidden_layer(vector, self.w_hidden, self.b_hidden)
 
@@ -162,3 +163,9 @@ class Generator_pattern_detection():
             else:
                 print('The file ', data, ' has generators')
             i+=1
+
+
+
+if __name__ == '__main__':
+    generator_detector = Generator_pattern_detection()
+    generator_detector.generator_detection('sets_short')
