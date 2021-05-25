@@ -7,6 +7,7 @@ import torch as torch
 import torch.nn as nn
 import torch.nn.functional as F
 from time import time
+import shutil
 
 from node_object_creator import *
 from embeddings import Embedding
@@ -18,6 +19,7 @@ from pooling_layer import Pooling_layer
 from dynamic_pooling import Max_pooling_layer, Dynamic_pooling_layer
 from hidden_layer import Hidden_layer
 from main_first_neural_network import set_vector, set_leaves
+from repos import download_repos
 
 
 class Generator_pattern_detection():
@@ -26,21 +28,21 @@ class Generator_pattern_detection():
         self.vector_size = n
         self.feature_size = m
         # parameters
-        w_comb1 = numpy.genfromtxt("params\\w_comb1.csv", delimiter = ",")
+        w_comb1 = numpy.genfromtxt(os.path.join("params","w_comb1.csv"), delimiter = ",")
         self.w_comb1 = torch.tensor(w_comb1, dtype=torch.float32)
-        w_comb2 = numpy.genfromtxt("params\\w_comb2.csv", delimiter = ",")
+        w_comb2 = numpy.genfromtxt(os.path.join("params","w_comb2.csv"), delimiter = ",")
         self.w_comb2 = torch.tensor(w_comb2, dtype=torch.float32)
-        w_t = numpy.genfromtxt("params\\w_t.csv", delimiter = ",")
+        w_t = numpy.genfromtxt(os.path.join("params","w_t.csv"), delimiter = ",")
         self.w_t = torch.tensor(w_t, dtype=torch.float32)
-        w_r = numpy.genfromtxt("params\\w_r.csv", delimiter = ",")
+        w_r = numpy.genfromtxt(os.path.join("params","w_r.csv"), delimiter = ",")
         self.w_r = torch.tensor(w_r, dtype=torch.float32)
-        w_l = numpy.genfromtxt("params\\w_l.csv", delimiter = ",")
+        w_l = numpy.genfromtxt(os.path.join("params","w_l.csv"), delimiter = ",")
         self.w_l = torch.tensor(w_l, dtype=torch.float32)
-        b_conv = numpy.genfromtxt("params\\b_conv.csv", delimiter = ",")
+        b_conv = numpy.genfromtxt(os.path.join("params","b_conv.csv"), delimiter = ",")
         self.b_conv = torch.tensor(b_conv, dtype=torch.float32)
-        w_hidden = numpy.genfromtxt("params\\w_hidden.csv", delimiter = ",")
+        w_hidden = numpy.genfromtxt(os.path.join("params","w_hidden.csv"), delimiter = ",")
         self.w_hidden = torch.tensor(w_hidden, dtype=torch.float32)
-        b_hidden = numpy.genfromtxt("params\\b_hidden.csv", delimiter = ",")
+        b_hidden = numpy.genfromtxt(os.path.join("params","b_hidden.csv"), delimiter = ",")
         self.b_hidden = torch.tensor(b_hidden, dtype=torch.float32)
 
         # pooling method
@@ -166,6 +168,84 @@ class Generator_pattern_detection():
 
 
 
-if __name__ == '__main__':
+def main():
+    welcome_message = '''
+        ---------------------------------------------------------------------------------
+    This is the Discern program. The main objective is to be able to find if the files within a project
+    contain any generators. You can either input the path to a folder locally, or you can indicate 
+    a URL from a github project
+    -----------------------------------------------------------------------------
+    '''
+    print(welcome_message)
+    get_input()
+
+
+
+def get_input():
     generator_detector = Generator_pattern_detection()
-    generator_detector.generator_detection('sets_short')
+    choice = '''
+
+    Do you wish to indicate the path to a local folder ([y] / n) ?: 
+    '''
+    print(choice)
+    x = input()
+    if x:
+        if x == 'y':
+            print('Please indicate the path to the folder')
+            x = input()
+            generator_detector.generator_detection(x)
+        elif x == 'n':
+            choose_url()
+        else:
+            print('Invalid expression')
+            get_input()
+    else:
+        print('Please indicate the path to the folder')
+        x = input()
+        generator_detector.generator_detection(x)
+
+
+def choose_url():
+    choice = '''
+    Then do you wish to indicate a URL? ([y] / n)?:
+    '''
+    print(choice)
+    x = input()
+    if x:
+        if x == 'y':
+            print('Please indicate the URL: ')
+            x = input()
+            validate_from_url(x)
+        elif x == 'n':
+            print('Exiting program')
+        else:
+            print('Invalid expression')
+            choose_url()
+    else:
+        print('Please indicate the URL: ')
+        x = input()
+        validate_from_url(x)
+
+
+def validate_from_url(url):
+    download_repos([url], 'downloaded_validate')
+    path = get_path(url)
+    generator_detector = Generator_pattern_detection()
+    generator_detector.generator_detection(path)
+    folder_deleter(path)
+
+def get_path(url):
+    project_name = url.split('/')[-1]
+    path = os.path.join('downloaded_validate', project_name)
+    return path
+
+def folder_deleter(path):
+    try:
+        shutil.rmtree(path, ignore_errors=True)
+        #os.rmdir(path)
+    except Exception:
+        print(f'Couldn\'t delete {path} folder')
+
+
+if __name__ == '__main__':
+    main()
