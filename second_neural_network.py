@@ -45,6 +45,8 @@ class SecondNeuralNetwork():
         self.cod = Coding_layer(self.vector_size)
         self.conv = Convolutional_layer(self.vector_size, features_size=self.feature_size)
         self.hidden = Hidden_layer()
+        #we create an attribute for the best accuracy so far (initialized to 0)
+        self.best_accuracy = 0
 
 
     
@@ -91,16 +93,21 @@ class SecondNeuralNetwork():
             end = time()
 
             # Validation
-            loss_validation = self.validation(validation_set, validation_targets, learning_rate, epoch)
+            loss_validation, accuracy_validation = self.validation(validation_set, validation_targets, learning_rate, epoch)
 
             print('Epoch: ', epoch, ', Time: ', end-start, ', Mean Training Loss: ', sum_loss/nb_batch, ', Validation Loss: ', loss_validation)
             print('############### \n')
+
+            if accuracy_validation > self.best_accuracy:
+                    #we only save the paramters that provide the best accuracy
+                    self.best_accuracy = accuracy_validation
+                    self.save()
 
         message = f'''
 The loss we have for the training network is: {sum_loss/nb_batch}
         '''
         writer(message)
-        self.save()
+        
 
 
     def forward(self, batch_set):
@@ -143,13 +150,14 @@ The loss we have for the training network is: {sum_loss/nb_batch}
             confusion_matrix = conf_matrix(predicts, validation_targets)
             print('Confusión matrix: ')
             print(confusion_matrix)
-            #plot_confusion_matrix(confusion_matrix, ['no generator', 'generator'], lr2 = learning_rate, feature_size = self.feature_size, epoch = epoch)
+            if accuracy_value > self.best_accuracy:
+                plot_confusion_matrix(confusion_matrix, ['no generator', 'generator'], lr2 = learning_rate, feature_size = self.feature_size, epoch = epoch)
         
         except RuntimeError:
             print(f'The type of predicts is nan')
             loss_validation = torch.tensor(numpy.nan)
 
-        return loss_validation
+        return loss_validation, accuracy_value
 
     
     def forward_validation(self, validation_set):
