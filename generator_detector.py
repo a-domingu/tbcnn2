@@ -1,24 +1,19 @@
-import sys
 import os
-import gensim
-import random
 import numpy
+import pandas as pd
 import torch as torch
 import torch.nn as nn
-import torch.nn.functional as F
 from time import time
 import shutil
+from git import rmtree
 
 from node_object_creator import *
-from embeddings import Embedding
-from node import Node
 from first_neural_network import First_neural_network
 from coding_layer import Coding_layer
 from convolutional_layer import Convolutional_layer
+from dynamic_pooling import Dynamic_pooling_layer, Max_pooling_layer
 from pooling_layer import Pooling_layer
-from dynamic_pooling import Max_pooling_layer, Dynamic_pooling_layer
 from hidden_layer import Hidden_layer
-from main_first_neural_network import set_vector, set_leaves
 from repos import download_repos
 
 
@@ -60,13 +55,14 @@ class Generator_pattern_detection():
 
 
     def generator_detection(self, path):
+        
         """Create the data set"""
-        print('########################################')
-        print('Doing the embedding for each file \n')
+        #message = '########################################<br>'
+        #message = message + 'Doing the embedding for each file <br>'
 
         # Data dictionary creation
         data_dict = self.data_dict_creation(path)
-        print('El primer data_dcit : ', data_dict)
+        #print('El primer data_dcit : ', data_dict)
 
         # Training the first neural network
         data_dict = self.first_neural_network(data_dict)
@@ -75,7 +71,8 @@ class Generator_pattern_detection():
         predicts = self.prediction(data_dict)
         
         # We print the predictions
-        self.print_predictions(predicts, data_dict)
+        message = self.print_predictions(predicts, data_dict)
+        return message
 
 
     def data_dict_creation(self, path):
@@ -98,9 +95,7 @@ class Generator_pattern_detection():
         i = 1
         for data in data_dict:
             time1 = time()
-            # Initializing node list, dict list and dict sibling
 
-            
             # convert its nodes into the Node class we have, and assign their attributes
             main_node = node_object_creator(data)
             # we set the descendants of the main node and put them in a list
@@ -159,13 +154,24 @@ class Generator_pattern_detection():
 
     def print_predictions(self, predicts, data_dict):
         i = 0
+        message = ''
         for data in data_dict.keys():
             if predicts[i] < 0.5:
-                print('The file ', data, ' has not generators')
+                message = message + '<p> The file '+data+' has not generators</p>'
             else:
-                print('The file ', data, ' has generators')
+                message = message + '<p> The file '+ data+ ' has generators</p>'
             i+=1
+        return message
 
+
+def set_leaves(ls_nodes):
+    for node in ls_nodes:
+        node.set_leaves()
+
+def set_vector(ls_nodes):
+    df = pd.read_csv('initial_vector_representation.csv')
+    for node in ls_nodes:
+        node.set_vector(df)
 
 
 def main():
@@ -231,8 +237,10 @@ def validate_from_url(url):
     download_repos([url], 'downloaded_validate')
     path = get_path(url)
     generator_detector = Generator_pattern_detection()
-    generator_detector.generator_detection(path)
+    message = generator_detector.generator_detection(path)
     folder_deleter(path)
+    return message
+
 
 def get_path(url):
     project_name = url.split('/')[-1]
@@ -242,7 +250,9 @@ def get_path(url):
 def folder_deleter(path):
     try:
         shutil.rmtree(path, ignore_errors=True)
-        #os.rmdir(path)
+        #os.remove(os.path.join(path, '.git'))
+        rmtree(os.path.join(path, '.git'))
+        os.rmdir(path)
     except Exception:
         print(f'Couldn\'t delete {path} folder')
 

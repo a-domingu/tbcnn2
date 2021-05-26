@@ -8,8 +8,6 @@ from node_object_creator import *
 from first_neural_network import First_neural_network
 
 
-    
-
 def main(path, vector_size , learning_rate, momentum, l2_penalty, epoch):
     # Training the first neural network
     i = 1
@@ -25,6 +23,7 @@ def main(path, vector_size , learning_rate, momentum, l2_penalty, epoch):
         set_leaves(ls_nodes)
         # Initializing vector embeddings
         set_vector(ls_nodes)
+
         # Calculate the vector representation for each node
         vector_representation = First_neural_network(ls_nodes, vector_size, learning_rate, momentum, l2_penalty, epoch)
         ls_nodes, w_l_code, w_r_code, b_code = vector_representation.vector_representation()
@@ -44,6 +43,7 @@ def main(path, vector_size , learning_rate, momentum, l2_penalty, epoch):
         time2= time()
         dtime = time2 - time1
         print(f"Vector rep. of file: {tree} {i} in ", dtime//60, 'min and', dtime%60, 'sec.')
+
         if (i%50 == 0):
             gc.collect()
         i += 1
@@ -67,13 +67,13 @@ def set_vector(ls_nodes):
     df = pd.read_csv('initial_vector_representation.csv')
     for node in ls_nodes:
         node.set_vector(df)
-        
+
 
 ########################################
 
 if __name__ == '__main__':
     # Folder path
-    path = os.path.join('sets_short', 'generators')
+    path = os.path.join('sets', 'generators')
     # First neural network parameters
     vector_size = 30
     learning_rate = 0.3
