@@ -9,9 +9,13 @@ def index():
     return render_template('index.html')
 
 
-@app.route("/github", methods = ['POST'])
+@app.route("/github", methods = ['POST', 'GET'])
 def giturl():
-    input = request.form['url']
+    if request.method == 'POST':
+        input = request.form['url']
+    else:
+        input = request.args['url']
+
     return validate_from_url(input)
 
 @app.route('/scanfolder', methods = ['POST'])

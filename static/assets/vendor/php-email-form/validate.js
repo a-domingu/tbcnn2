@@ -64,12 +64,14 @@
     })
     .then(data => {
       thisForm.querySelector('.loading').classList.remove('d-block');
-      if (data.trim() == 'OK') {
+      //if (data.trim() == 'OK') {
         thisForm.querySelector('.sent-message').classList.add('d-block');
-        thisForm.reset(); 
-      } else {
+        // si se quiere borrar la URL: thisForm.reset(); 
+		// pongo la respuesta en el div:
+		thisForm.querySelector('.outputURL').innerHTML = data;
+      /*} else {
         throw new Error(data ? data : 'Form submission failed and no error message returned from: ' + action); 
-      }
+      }*/
     })
     .catch((error) => {
       displayError(thisForm, error);
