@@ -76,16 +76,18 @@ class Generator_pattern_detection():
 
 
     def data_dict_creation(self, path):
-        #TODO: implement a way to read also the files in a subfolder
         '''we want to read a path that can be a file or a folder with .py files'''
         # we create the data dict with all the information about vector representation
         data_dict = {}
-        # iterates through the generators directory, identifies the folders and enter in them
-        for (dirpath, dirnames, filenames) in os.walk(path):
-            for filename in filenames:
-                if filename.endswith('.py'):
-                    filepath = os.path.join(dirpath, filename)
-                    data_dict[filepath] = None
+        if path.endswith('.py'):
+            data_dict[path] = None
+        else:
+            # iterates through the generators directory, identifies the folders and enter in them
+            for (dirpath, dirnames, filenames) in os.walk(path):
+                for filename in filenames:
+                    if filename.endswith('.py'):
+                        filepath = os.path.join(dirpath, filename)
+                        data_dict[filepath] = None
         return data_dict
 
     

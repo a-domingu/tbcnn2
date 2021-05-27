@@ -62,7 +62,7 @@
               <li class="dropdown"><a href="#"><span>Scan for Patterns</span> <i class="bi bi-chevron-right"></i></a>
                 <ul>
                   <li><a href="#GithubForm">Scan a Github repository</a></li>
-                  <li><a href="#">Scan a file</a></li>
+                  <li><a href="#FileForm">Scan a file</a></li>
                   <li><a href="#FolderForm">Scan a folder</a></li>
                 </ul>
               </li>
@@ -913,6 +913,39 @@
     </section><!-- End Folder section -->
 
 
+    <!-- ======= File Section ======= -->
+    <section id="FileForm" class="contact">
+      <div class="container">
+
+        <div class="section-title" data-aos="zoom-out">
+          <h2>Scan Tool</h2>
+          <p>Scan a file</p>
+        </div>
+
+        <div class="row mt-5">
+			
+          <div class="col-lg-4" data-aos="fade-right">
+            <div >
+              <div >
+                <h4>Please upload a file .py:</h4> 
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-8" data-aos="fade-left" >
+            <form action="http://localhost:8080/uploadfile" method="post" enctype = "multipart/form-data">
+              <input type="file" name="file" id="file" accept=".py" class="text-center" required>
+              <!--<div class="my-3">
+                <div class="loading">Processing...</div>
+                <div class="error-message"></div>
+                <div class="sent-message">The scan is done!</div>
+              </div>-->
+              <div class="text-center"> <button type = "submit"> Scan file</button></div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section><!-- End File section -->
 
 
     <!-- ======= Contact Section ======= -->
