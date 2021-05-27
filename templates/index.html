@@ -853,6 +853,7 @@
                 <div class="loading">Processing...</div>
                 <div class="error-message"></div>
                 <div class="sent-message">The scan is done!</div>
+				      <div class="outputURL"></div>
               </div>
               <div class="text-center"><button type="submit">Scan repository</button></div>
             </form>
@@ -860,57 +861,6 @@
         </div>
       </div>
     </section><!-- End Github section -->
-
-
-
-    <!-- ======= Folder Section ======= -->
-    <section id="FolderForm" class="contact">
-      <div class="container">
-
-        <div class="section-title" data-aos="zoom-out">
-          <h2>Scan Tool</h2>
-          <p>Scan a folder</p>
-        </div>
-
-        <div class="row mt-5">
-			
-          <div class="col-lg-4" data-aos="fade-right">
-            <div >
-              <div >
-				<br>
-                <h4>Enter a folder path:</h4>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-8" data-aos="fade-left">
-
-            <form action="/scanfolder" method="post" role="form" class="php-email-form">
-             <!--<div class="row">
-                <div class="col-md-6 form-group">
-                  <input type="text" name="name" class="form-control" id="name" placeholder="" required>
-                </div>
-                <div class="col-md-6 form-group mt-3 mt-md-0">
-                  <input type="email" class="form-control" name="email" id="email" placeholder="Your Email" required>
-                </div>
-              </div>-->
-              <div class="form-group mt-3">
-                <input type="text" class="form-control" name="folder" id="folder" placeholder="Please enter a valid folder path" required>
-              </div>
-              <!--<div class="form-group mt-3">
-                <textarea class="form-control" name="message" rows="5" placeholder="Message" required></textarea>
-              </div>-->
-              <div class="my-3">
-                <div class="loading">Processing...</div>
-                <div class="error-message"></div>
-                <div class="sent-message">The scan is done!</div>
-              </div>
-              <div class="text-center"><button type="submit">Scan folder</button></div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </section><!-- End Folder section -->
 
 
     <!-- ======= File Section ======= -->
@@ -933,19 +883,63 @@
           </div>
 
           <div class="col-lg-8" data-aos="fade-left" >
-            <form action="http://localhost:8080/uploadfile" method="post" enctype = "multipart/form-data">
-              <input type="file" name="file" id="file" accept=".py" class="text-center" required>
-              <!--<div class="my-3">
+            <form action="/uploadfile" method="post" enctype="multipart/form-data" role="form" class="php-email-form">
+              <div >
+              <input type="file" name="file" id="file" accept=".py" required>
+              </div>
+              <div class="my-3">
                 <div class="loading">Processing...</div>
                 <div class="error-message"></div>
                 <div class="sent-message">The scan is done!</div>
-              </div>-->
-              <div class="text-center"> <button type = "submit"> Scan file</button></div>
+              <div class="outputFile"></div>
+              </div>
+              <button type="submit"> Scan file</button>
             </form>
           </div>
         </div>
       </div>
     </section><!-- End File section -->
+
+
+
+    <!-- ======= Folder Section ======= -->
+    <section id="FolderForm" class="contact">
+      <div class="container">
+
+        <div class="section-title" data-aos="zoom-out">
+          <h2>Scan Tool</h2>
+          <p>Scan a folder</p>
+        </div>
+
+        <div class="row mt-5">
+			
+          <div class="col-lg-4" data-aos="fade-right">
+            <div >
+              <div >
+                <h4>Upload a folder in compressed zip:</h4>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-8" data-aos="fade-left">
+
+            <form action="/scanfolder" method="post" enctype="multipart/form-data" role="form" class="php-email-form">
+              <div >
+                <input type="file" class="button_orange" name="folder" id="folder" accept=".zip" required>
+              </div>
+              <div class="my-3">
+                <div class="loading">Processing...</div>
+                <div class="error-message"></div>
+                <div class="sent-message">The scan is done!</div>
+				      <div class="outputFolder"></div>
+              </div>
+              <button type="submit">Scan folder</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section><!-- End Folder section -->
+
 
 
     <!-- ======= Contact Section ======= -->

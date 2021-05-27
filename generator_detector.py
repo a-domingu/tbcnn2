@@ -159,9 +159,15 @@ class Generator_pattern_detection():
         message = ''
         for data in data_dict.keys():
             if predicts[i] < 0.5:
-                message = message + '<p> The file '+data+' has not generators</p>'
+                path = data.split(os.path.sep)
+                path.pop(0)
+                name = os.path.join(*(path))
+                message = message + '<p> The file ' + name + ' has not generators</p>'
             else:
-                message = message + '<p> The file '+ data+ ' has generators</p>'
+                path = data.split(os.path.sep)
+                path.pop(0)
+                name = os.path.join(*(path))
+                message = message + '<p> The file ' + name + ' has generators</p>'
             i+=1
         return message
 

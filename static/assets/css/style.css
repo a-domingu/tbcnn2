@@ -1437,6 +1437,15 @@ section {
   border-radius: 50px;
 }
 
+ .button_orange {
+  background: #ef6603;
+  border: 0;
+  padding: 10px 24px;
+  color: #fff;
+  transition: 0.4s;
+  border-radius: 50px;
+}
+
 .contact .php-email-form button[type="submit"]:hover {
   background: #fc8129;
 }
