@@ -19,7 +19,7 @@ from utils import writer, plot_confusion_matrix, conf_matrix, accuracy
 
 class SecondNeuralNetwork():
 
-    def __init__(self, n = 20, m = 4, pooling = 'one-way pooling'):
+    def __init__(self, device, n = 20, m = 4, pooling = 'one-way pooling'):
         self.vector_size = n
         self.feature_size = m
         # parameters
@@ -47,16 +47,19 @@ class SecondNeuralNetwork():
         self.hidden = Hidden_layer()
         #we create an attribute for the best accuracy so far (initialized to 0)
         self.best_accuracy = 0
+        #device
+        self.device = device
 
 
     
-    def train(self, targets, training_set, validation_set, validation_targets, total_epochs = 40, learning_rate = 0.01, batch_size = 20):
+    def train(self, training_generator, validation_generator, total_epochs = 40, learning_rate = 0.01, batch_size = 20):
         """Create the training loop"""
         # Construct the optimizer
         params = [self.w_comb1, self.w_comb2, self.w_t, self.w_l, self.w_r, self.b_conv, self.w_hidden, self.b_hidden]
         optimizer = torch.optim.SGD(params, lr = learning_rate)
         criterion = nn.BCEWithLogitsLoss()
-        print('The correct value of the files is: ', targets)
+        print('Entering the neural network')
+        #print('The correct value of the files is: ', targets)
 
         for epoch in range(total_epochs):
             # Time
@@ -64,7 +67,10 @@ class SecondNeuralNetwork():
 
             sum_loss = 0
             nb_batch = 0
-            for (batch, target) in self.batch_creator(batch_size, training_set, targets):
+            train_loss = 0.0
+            for (batch, target) in enumerate(training_generator):
+                # Transfer to GPU
+                batch, target = batch.to(self.device), target.to(self.device)
                 # zero the parameter gradients
                 optimizer.zero_grad()
 
@@ -87,21 +93,25 @@ class SecondNeuralNetwork():
                 # Update parameters
                 optimizer.step() #w_r = w_r - lr * w_r.grad
 
+                train_loss = loss.item() * batch.size(0)
+
                 nb_batch += 1
 
             #Time
             end = time()
 
             # Validation
-            loss_validation, accuracy_validation = self.validation(validation_set, validation_targets, learning_rate, epoch)
+            loss_validation = self.validation(validation_generator, learning_rate, epoch)
 
-            print('Epoch: ', epoch, ', Time: ', end-start, ', Mean Training Loss: ', sum_loss/nb_batch, ', Validation Loss: ', loss_validation)
+            print('Epoch: ', epoch, ', Time: ', end-start, ', Training Loss: ', train_loss/len(training_generator), ', Validation Loss: ', loss_validation/len(validation_generator))
             print('############### \n')
 
+            '''
             if accuracy_validation > self.best_accuracy:
                     #we only save the paramters that provide the best accuracy
                     self.best_accuracy = accuracy_validation
                     self.save()
+            '''
 
         message = f'''
 The loss we have for the training network is: {sum_loss/nb_batch}
@@ -135,54 +145,50 @@ The loss we have for the training network is: {sum_loss/nb_batch}
         gc.collect()
         return outputs
 
-    
-    def validation(self, validation_dict, validation_targets, learning_rate, epoch):
+
+    def validation(self, validation_generator, learning_rate, epoch):
         # Test the accuracy of the updates parameters by using a validation set
-        predicts = self.forward_validation(validation_dict)
-        criterion = nn.BCELoss()
+        validation_loss = self.forward_validation(validation_generator)
+        return validation_loss
 
-        try:
-            loss_validation = criterion(predicts, validation_targets)
-            accuracy_value = accuracy(predicts, validation_targets)
-            print('Validation accuracy: ', accuracy_value)
-            
-            # Confusion matrix
-            confusion_matrix = conf_matrix(predicts, validation_targets)
-            print('Confusión matrix: ')
-            print(confusion_matrix)
-            if accuracy_value > self.best_accuracy:
-                plot_confusion_matrix(confusion_matrix, ['no generator', 'generator'], lr2 = learning_rate, feature_size = self.feature_size, epoch = epoch)
+        '''
+        print('Validation accuracy: ', accuracy_value)
         
-        except RuntimeError:
-            print(f'The type of predicts is nan')
-            loss_validation = torch.tensor(numpy.nan)
-
+        # Confusion matrix
+        confusion_matrix = conf_matrix(predicts, validation_targets)
+        print('Confusión matrix: ')
+        print(confusion_matrix)
+        if accuracy_value > self.best_accuracy:
+            plot_confusion_matrix(confusion_matrix, ['no generator', 'generator'], lr2 = learning_rate, feature_size = self.feature_size, epoch = epoch)
+    
         return loss_validation, accuracy_value
+        '''
+
 
     
-    def forward_validation(self, validation_set):
+    def forward_validation(self, validation_generator):
+        criterion = nn.BCELoss()
         outputs = []
         softmax = nn.Sigmoid()
-        for data in validation_set:
-            # 
-            filename = os.path.join('vector_representation', os.path.basename(data) + '.txt')
-            with open(filename, 'rb') as f:
-                params_first_neural_network = pickle.load(f)
-            
-            ## forward (layers calculations)
-            output = self.layers(params_first_neural_network)
-            del params_first_neural_network
+        with torch.set_grad_enabled(False):
+            for data, target in validation_generator:
+                data, target = data.to(self.device), target.to(self.device)
+                # 
+                filename = os.path.join('vector_representation', os.path.basename(data) + '.txt')
+                with open(filename, 'rb') as f:
+                    params_first_neural_network = pickle.load(f)
+                
+                ## forward (layers calculations)
+                output = self.layers(params_first_neural_network)
+                del params_first_neural_network
+                predicts = softmax(output)
 
-            # output append
-            if outputs == []:
-                outputs = softmax(output)
-            else:
-                outputs = torch.cat((outputs, softmax(output)), 0)
-
-            del output
+                loss = criterion(predicts, target)
+                #accuracy_value = accuracy(predicts, validation_targets)
+                validation_loss = loss.item()*data.size(0)
 
         gc.collect()
-        return outputs
+        return validation_loss
 
 
     def layers(self, vector_representation_params):
