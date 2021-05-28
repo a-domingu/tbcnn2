@@ -22,7 +22,7 @@ def main(path, vector_size, learning_rate2, feature_size, epoch, pooling, batch_
 
     params = {'batch_size': batch_size, 
     'shuffle': True, 
-    'num_workers': 1} 
+    'num_workers': 4} 
 
 
     ### Creation of the training set and validation set
@@ -103,7 +103,7 @@ if __name__ == '__main__':
     learning_rate2 = 0.001
     feature_size = 50
     epoch = 5
-    batch_size = 2
+    batch_size = 10
     pooling = 'one-way pooling'
 
     main(path, vector_size, learning_rate2, feature_size, epoch, pooling, batch_size)
