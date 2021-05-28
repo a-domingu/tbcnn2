@@ -1,5 +1,5 @@
 import torch
-
+import os
 
 
 class Dataset(torch.utils.data.Dataset):
@@ -20,9 +20,7 @@ class Dataset(torch.utils.data.Dataset):
             ID = self.list_IDs[index]
 
             # Load data and get label
-            print('Id: ', ID)
-            X = ID
-            y = self.labels[ID]
-            print('x, y: ', X,y)
+            X = os.path.join('vector_representation', os.path.basename(ID) + '.txt')
+            y = torch.tensor(self.labels[ID])
 
             return X, y

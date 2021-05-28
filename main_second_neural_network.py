@@ -1,6 +1,7 @@
 import os
 import random
 import torch as torch
+import torch.nn as nn
 from time import time
 import pandas as pd
 import pickle
@@ -21,14 +22,13 @@ def main(path, vector_size, learning_rate2, feature_size, epoch, pooling, batch_
 
     params = {'batch_size': batch_size, 
     'shuffle': True, 
-    'num_workers': 1} # TODO mirar que son los workers
+    'num_workers': 1} 
 
 
     ### Creation of the training set and validation set
     training_set, validation_set, training_targets, validation_targets = training_and_validation_sets_creation(path) 
     print('training set: ', training_set)
     print('targets del training: ', training_targets)
-
 
         
     # Generators
@@ -39,8 +39,14 @@ def main(path, vector_size, learning_rate2, feature_size, epoch, pooling, batch_
     validation_generator = torch.utils.data.DataLoader(validation_dataset, **params)
 
     # Training
-    secnn = SecondNeuralNetwork(device, vector_size, feature_size, pooling)
-    secnn.train(training_generator, validation_generator, epoch, learning_rate2, batch_size)
+    model = SecondNeuralNetwork(device, vector_size, feature_size, pooling)
+    if torch.cuda.device_count() > 1:
+        print("Let's use", torch.cuda.device_count(), "GPUs!")
+        # dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs
+        model = nn.DataParallel(model)
+
+    model.to(device)
+    model.train(training_generator, validation_generator, epoch, learning_rate2, batch_size)
 
 
 def training_and_validation_sets_creation(path):

@@ -17,9 +17,12 @@ from utils import writer, plot_confusion_matrix, conf_matrix, accuracy
 
 
 
-class SecondNeuralNetwork():
+class SecondNeuralNetwork(nn.Module):
 
     def __init__(self, device, n = 20, m = 4, pooling = 'one-way pooling'):
+        ###############################
+        super(SecondNeuralNetwork, self).__init__()
+        ###############################
         self.vector_size = n
         self.feature_size = m
         # parameters
@@ -68,9 +71,10 @@ class SecondNeuralNetwork():
             sum_loss = 0
             nb_batch = 0
             train_loss = 0.0
-            for (batch, target) in enumerate(training_generator):
+            for data in training_generator:
                 # Transfer to GPU
-                batch, target = batch.to(self.device), target.to(self.device)
+                #data = data.to(self.device)
+                batch, target = data
                 # zero the parameter gradients
                 optimizer.zero_grad()
 
@@ -78,6 +82,8 @@ class SecondNeuralNetwork():
                 outputs = self.forward(batch)
 
                 # Computes the loss function
+                #outputs = outputs.float()
+                target = target.float()
                 try:
                     loss = criterion(outputs, target)
                 except AttributeError:
@@ -88,12 +94,12 @@ class SecondNeuralNetwork():
                 # Backward = calculates the derivative
                 loss.backward() # w_r.grad = dloss/dw_r
                 sum_loss += loss.detach()
-                del loss
 
                 # Update parameters
                 optimizer.step() #w_r = w_r - lr * w_r.grad
 
-                train_loss = loss.item() * batch.size(0)
+                train_loss += loss.item()*len(batch)
+                del loss
 
                 nb_batch += 1
 
@@ -124,8 +130,9 @@ The loss we have for the training network is: {sum_loss/nb_batch}
         outputs = []
         #softmax = nn.Sigmoid()
         for data in batch_set:
-            filename = os.path.join('vector_representation', os.path.basename(data) + '.txt')
-            with open(filename, 'rb') as f:
+            #filename = os.path.join('vector_representation', os.path.basename(data) + '.txt')
+            with open(data, 'rb') as f:
+                print('data: ', data)
                 params_first_neural_network = pickle.load(f)
             
             ## forward (layers calculations)
@@ -170,22 +177,27 @@ The loss we have for the training network is: {sum_loss/nb_batch}
         criterion = nn.BCELoss()
         outputs = []
         softmax = nn.Sigmoid()
+        validation_loss = 0
+        predicts = []
         with torch.set_grad_enabled(False):
-            for data, target in validation_generator:
-                data, target = data.to(self.device), target.to(self.device)
-                # 
-                filename = os.path.join('vector_representation', os.path.basename(data) + '.txt')
-                with open(filename, 'rb') as f:
-                    params_first_neural_network = pickle.load(f)
+            for batch, target in validation_generator:
+                #data, target = data.to(self.device), target.to(self.device)
+                for file in batch: 
+                    with open(file, 'rb') as f:
+                        data = pickle.load(f)
                 
                 ## forward (layers calculations)
-                output = self.layers(params_first_neural_network)
-                del params_first_neural_network
-                predicts = softmax(output)
+                    output = self.layers(data)
+                    del data
+                    if predicts == []:
+                        predicts = softmax(output)
+                    else:
+                        predicts = torch.cat((predicts, softmax(output)), 0)
 
+                target = target.float()
                 loss = criterion(predicts, target)
                 #accuracy_value = accuracy(predicts, validation_targets)
-                validation_loss = loss.item()*data.size(0)
+                validation_loss += loss.item()*len(batch)
 
         gc.collect()
         return validation_loss
