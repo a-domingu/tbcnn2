@@ -41,12 +41,17 @@ def scan_folder():
             output = generator_detection.generator_detection(input)
             remove_folder(os.path.join(os.getcwd(), 'zipfolder'))
 
-        else:  
+        elif f.filename.endswith('.py'):  
             generator_detection = Generator_pattern_detection()
             input = os.path.join('downloaded_validate', f.filename)    
             output = generator_detection.generator_detection(input)  
+            os.remove(os.path.join(os.getcwd(), input))
+
+        else:
+            output = 'Invalid file extension. Please upload a Python or a zip file.' 
 
         return output
+
 
 def remove_folder(dir):
     for files in os.listdir(dir):
@@ -56,7 +61,7 @@ def remove_folder(dir):
     except OSError:
         os.remove(path)
 
-
+'''
 @app.route('/uploadfile', methods = ['POST', 'GET'])
 def scan_file():
     if request.method == 'POST':
@@ -67,7 +72,7 @@ def scan_file():
         output = generator_detection.generator_detection(input)   
         os.remove(os.path.join(os.getcwd(), input)) 
         return output
-
+'''
 
 if __name__ == '__main__':
     app.run(host="127.0.0.1", port=8080, debug=True)

@@ -61,8 +61,7 @@
               <li class="dropdown"><a href="#GithubForm"><span>Scan for Patterns</span> <i class="bi bi-chevron-right"></i></a>
                 <ul>
                   <li><a href="#GithubForm">Scan a Github repository</a></li>
-                  <li><a href="#FileForm">Scan a file</a></li>
-                  <li><a href="#FolderForm">Scan a folder</a></li>
+                  <li><a href="#FolderForm">Scan a file or folder</a></li>
                 </ul>
               </li>
             </ul>
@@ -768,7 +767,7 @@
 
 
     <!-- ======= File Section ======= -->
-    <section id="FileForm" class="contact">
+    <!--<section id="FileForm" class="contact">
       <div class="container">
 
         <div class="section-title" data-aos="zoom-out">
@@ -802,7 +801,7 @@
           </div>
         </div>
       </div>
-    </section><!-- End File section -->
+    </section>--><!-- End File section -->
 
 
 
@@ -820,7 +819,7 @@
           <div class="col-lg-4" data-aos="fade-right">
             <div >
               <div >
-                <h4>Upload a folder in compressed zip:</h4>
+                <h4>Please upload a Python file or multiple Python files compressed in a Zip folder:</h4>
               </div>
             </div>
           </div>
@@ -829,8 +828,10 @@
 
             <form action="/scanfolder" method="post" enctype="multipart/form-data" role="form" class="php-email-form">
               <div >
-                <input type="file" name="folder" id="folder" accept=".zip" required>
+                <input type="file" name="folder" id="folder" accept=".py, .zip" required hidden/>
+                <label for="folder" class="button_orange">Upload a file</label>
                 <!--class="button_orange"-->
+                <!--class="upload-btn-wrapper"-->
               </div>
               <div class="my-3">
                 <div class="loading">Processing...</div>
@@ -838,7 +839,7 @@
                 <div class="sent-message">The scan is done!</div>
 				      <div class="outputFolder"></div>
               </div>
-              <button type="submit">Scan folder</button>
+              <button type="submit">Scan file</button>
             </form>
           </div>
         </div>
