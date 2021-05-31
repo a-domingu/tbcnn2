@@ -22,7 +22,7 @@ def main(path, vector_size, learning_rate2, feature_size, epoch, pooling, batch_
 
     params = {'batch_size': batch_size, 
     'shuffle': True, 
-    'num_workers': 4} 
+    'num_workers': 2} 
 
 
     ### Creation of the training set and validation set
@@ -97,13 +97,13 @@ def tensor_creation(folder_path, training_set, validation_set, training_targets,
 
 if __name__ == '__main__':
     # Folder path
-    path = os.path.join('sets_short', 'generators')
+    path = os.path.join('sets', 'generators')
     # Second neural network parameters
     vector_size = 30
     learning_rate2 = 0.001
     feature_size = 50
     epoch = 5
-    batch_size = 10
+    batch_size = 64
     pooling = 'one-way pooling'
 
     main(path, vector_size, learning_rate2, feature_size, epoch, pooling, batch_size)

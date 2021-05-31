@@ -59,9 +59,9 @@ def accuracy(predicts, targets):
     difference = targets - rounded_prediction
     errors = torch.abs(difference).sum()
 
-    accuracy = (len(difference) - errors)/len(difference)
+    #accuracy = (len(difference) - errors)/len(difference)
 
-    return accuracy
+    return errors
 
     
 def conf_matrix(predicts, targets):

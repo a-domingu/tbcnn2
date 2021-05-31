@@ -73,7 +73,7 @@ def set_vector(ls_nodes):
 
 if __name__ == '__main__':
     # Folder path
-    path = os.path.join('sets_short', 'generators')
+    path = os.path.join('sets', 'generators')
     # First neural network parameters
     vector_size = 30
     learning_rate = 0.3

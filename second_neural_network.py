@@ -107,9 +107,9 @@ class SecondNeuralNetwork(nn.Module):
             end = time()
 
             # Validation
-            loss_validation = self.validation(validation_generator, learning_rate, epoch)
+            loss_validation, accuracy = self.validation(validation_generator, learning_rate, epoch)
 
-            print('Epoch: ', epoch, ', Time: ', end-start, ', Training Loss: ', train_loss/len(training_generator), ', Validation Loss: ', loss_validation/len(validation_generator))
+            print('Epoch: ', epoch, ', Time: ', end-start, ', Training Loss: ', train_loss/len(training_generator), ', Validation Loss: ', loss_validation/len(validation_generator), ', accuracy: ', accuracy)
             print('############### \n')
 
             '''
@@ -155,10 +155,8 @@ The loss we have for the training network is: {sum_loss/nb_batch}
 
     def validation(self, validation_generator, learning_rate, epoch):
         # Test the accuracy of the updates parameters by using a validation set
-        validation_loss = self.forward_validation(validation_generator)
-        return validation_loss
+        validation_loss, accuracy_value, predicts, validation_targets = self.forward_validation(validation_generator)
 
-        '''
         print('Validation accuracy: ', accuracy_value)
         
         # Confusion matrix
@@ -168,8 +166,7 @@ The loss we have for the training network is: {sum_loss/nb_batch}
         if accuracy_value > self.best_accuracy:
             plot_confusion_matrix(confusion_matrix, ['no generator', 'generator'], lr2 = learning_rate, feature_size = self.feature_size, epoch = epoch)
     
-        return loss_validation, accuracy_value
-        '''
+        return validation_loss, accuracy_value
 
 
     
@@ -178,13 +175,19 @@ The loss we have for the training network is: {sum_loss/nb_batch}
         outputs = []
         softmax = nn.Sigmoid()
         validation_loss = 0
+        errors = 0
+        number_of_files = 0
         predicts = []
+        all_predicts = torch.empty(0)
+        all_targets = torch.empty(0)
         with torch.set_grad_enabled(False):
             for batch, target in validation_generator:
                 #data, target = data.to(self.device), target.to(self.device)
+                predicts = []
                 for file in batch: 
                     with open(file, 'rb') as f:
                         data = pickle.load(f)
+                    number_of_files += 1
                 
                 ## forward (layers calculations)
                     output = self.layers(data)
@@ -196,11 +199,18 @@ The loss we have for the training network is: {sum_loss/nb_batch}
 
                 target = target.float()
                 loss = criterion(predicts, target)
-                #accuracy_value = accuracy(predicts, validation_targets)
+                accuracy_value = accuracy(predicts, target)
+                #ahora 'accuracy value' no es la función accuracy, sino la cantidad absoluta de errores sobre el total del batch
+                errors += accuracy_value
                 validation_loss += loss.item()*len(batch)
 
+                #añadimos los predicts y targets a los tensores que contienen toda la información
+                all_predicts = torch.cat((all_predicts, predicts), 0)
+                all_targets = torch.cat((all_targets, target), 0)
+
         gc.collect()
-        return validation_loss
+        total_accuracy = float(errors)/number_of_files
+        return validation_loss, total_accuracy, all_predicts, all_targets
 
 
     def layers(self, vector_representation_params):
