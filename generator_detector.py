@@ -54,7 +54,7 @@ class Generator_pattern_detection():
         self.hidden = Hidden_layer()
 
 
-    def generator_detection(self, path):
+    def generator_detection(self, path, url=False, github_url =None):
         
         """Create the data set"""
         #message = '########################################<br>'
@@ -71,7 +71,10 @@ class Generator_pattern_detection():
         predicts = self.prediction(data_dict)
         
         # We print the predictions
-        message = self.print_predictions(predicts, data_dict)
+        if url==False:
+            message = self.print_predictions(predicts, data_dict)
+        else:
+            message = self.print_predictions_url(predicts, data_dict, github_url)
         return message
 
 
@@ -171,6 +174,25 @@ class Generator_pattern_detection():
             i+=1
         return message
 
+    def print_predictions_url(self, predicts, data_dict, github_url):
+        i = 0
+        message = ''
+        for data in data_dict.keys():
+            if predicts[i] < 0.5:
+                path = data.split(os.path.sep)
+                path.pop(0)
+                name = os.path.join(path[0], 'blob/master', *(path[1:]))
+                url = github_url + '/' + name.replace("\\", "/")
+                message = message + '<p> The file ' + '<a href=' + url + '>' + url + '</a>' + ' does not have generators</p>'
+            else:
+                path = data.split(os.path.sep)
+                path.pop(0)
+                name = os.path.join(path[0], 'blob/master', *(path[1:]))
+                url = github_url + '/' + name.replace("\\", "/")
+                message = message + '<p> The file ' + '<a href=' + url + '>' + url + '</a>' + ' has generators</p>'
+            i+=1
+        return message
+
 
 def set_leaves(ls_nodes):
     for node in ls_nodes:
@@ -242,10 +264,12 @@ def choose_url():
 
 
 def validate_from_url(url):
+    http = 'https://github.com'
+    site = http + '/' + url.split('/')[3]
     download_repos([url], 'downloaded_validate')
     path = get_path(url)
     generator_detector = Generator_pattern_detection()
-    message = generator_detector.generator_detection(path)
+    message = generator_detector.generator_detection(path, url=True, github_url = site)
     folder_deleter(path)
     return message
 
