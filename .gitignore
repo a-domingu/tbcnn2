@@ -5,6 +5,7 @@ __pycache__
 *.csv
 sets
 sets100
+sets400
 sets_short
 results.txt
 params

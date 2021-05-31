@@ -63,6 +63,29 @@ def accuracy(predicts, targets):
 
     return accuracy
 
+
+def bad_predicted_files(validation_set, predicts, targets):
+    with torch.no_grad():
+        rounded_predicts = torch.round(predicts)
+
+    # 1 if false negative
+    # -1 if false positive    
+    difference = targets - rounded_predicts
+    
+    message = '\n The prediction of the following files is incorrect: \n'
+    i=0
+    for data in validation_set:
+        if difference[i] == 1:
+            message = message + 'The file ' + data + ' is a false negative \n'
+            i+=1
+        elif difference[i] == -1:
+            message = message + 'The file ' + data + ' is a false positive \n'
+            i+=1
+        else:
+            i+=1
+
+    return message  
+
     
 def conf_matrix(predicts, targets):
     with torch.no_grad():
