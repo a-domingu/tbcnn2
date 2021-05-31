@@ -162,7 +162,7 @@ class Generator_pattern_detection():
                 path = data.split(os.path.sep)
                 path.pop(0)
                 name = os.path.join(*(path))
-                message = message + '<p> The file ' + name + ' has not generators</p>'
+                message = message + '<p> The file ' + name + ' does not have generators</p>'
             else:
                 path = data.split(os.path.sep)
                 path.pop(0)
