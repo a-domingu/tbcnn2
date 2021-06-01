@@ -183,13 +183,13 @@ class Generator_pattern_detection():
                 path.pop(0)
                 name = os.path.join(path[0], 'blob/master', *(path[1:]))
                 url = github_url + '/' + name.replace("\\", "/")
-                message = message + '<p> The file ' + '<a href=' + url + '>' + url + '</a>' + ' does not have generators</p>'
+                message = message + '<p> The file ' + '<a target="_blank" href=' + url + '>' + url + '</a>' + ' does not have generators</p>'
             else:
                 path = data.split(os.path.sep)
                 path.pop(0)
                 name = os.path.join(path[0], 'blob/master', *(path[1:]))
                 url = github_url + '/' + name.replace("\\", "/")
-                message = message + '<p> The file ' + '<a href=' + url + '>' + url + '</a>' + ' has generators</p>'
+                message = message + '<p> The file ' + '<a target="_blank" href=' + url + '>' + url + '</a>' + ' has generators</p>'
             i+=1
         return message
 
