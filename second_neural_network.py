@@ -71,6 +71,7 @@ class SecondNeuralNetwork(nn.Module):
             sum_loss = 0
             nb_batch = 0
             train_loss = 0.0
+            num_files = 0
             for data in training_generator:
                 # Transfer to GPU
                 #data = data.to(self.device)
@@ -102,6 +103,7 @@ class SecondNeuralNetwork(nn.Module):
                 del loss
 
                 nb_batch += 1
+                num_files += len(batch)
 
             #Time
             end = time()
@@ -109,7 +111,7 @@ class SecondNeuralNetwork(nn.Module):
             # Validation
             loss_validation, accuracy = self.validation(validation_generator, learning_rate, epoch)
 
-            print('Epoch: ', epoch, ', Time: ', end-start, ', Training Loss: ', train_loss/len(training_generator), ', Validation Loss: ', loss_validation/len(validation_generator), ', accuracy: ', accuracy)
+            print('Epoch: ', epoch, ', Time: ', end-start, ', Training Loss: ', train_loss/len(training_generator.sampler), ', Validation Loss: ', loss_validation/len(validation_generator), ', accuracy: ', accuracy)
             print('############### \n')
 
             '''
@@ -171,7 +173,7 @@ The loss we have for the training network is: {sum_loss/nb_batch}
 
     
     def forward_validation(self, validation_generator):
-        criterion = nn.BCELoss()
+        criterion = nn.BCEWithLogitsLoss()
         outputs = []
         softmax = nn.Sigmoid()
         validation_loss = 0
@@ -183,25 +185,26 @@ The loss we have for the training network is: {sum_loss/nb_batch}
         with torch.set_grad_enabled(False):
             for batch, target in validation_generator:
                 #data, target = data.to(self.device), target.to(self.device)
-                predicts = []
+                predicts = torch.empty(0)
+                predicts_no_sigmoid = torch.empty(0)
                 for file in batch: 
                     with open(file, 'rb') as f:
                         data = pickle.load(f)
                     number_of_files += 1
                 
-                ## forward (layers calculations)
+                    ## forward (layers calculations)
                     output = self.layers(data)
                     del data
-                    if predicts == []:
-                        predicts = softmax(output)
-                    else:
-                        predicts = torch.cat((predicts, softmax(output)), 0)
+                    predicts = torch.cat((predicts, softmax(output)), 0)
+                    predicts_no_sigmoid = torch.cat((predicts_no_sigmoid, output), 0)
 
                 target = target.float()
-                loss = criterion(predicts, target)
+                loss = criterion(predicts_no_sigmoid, target)
                 accuracy_value = accuracy(predicts, target)
                 #ahora 'accuracy value' no es la función accuracy, sino la cantidad absoluta de errores sobre el total del batch
                 errors += accuracy_value
+
+
                 validation_loss += loss.item()*len(batch)
 
                 #añadimos los predicts y targets a los tensores que contienen toda la información
@@ -211,7 +214,6 @@ The loss we have for the training network is: {sum_loss/nb_batch}
         gc.collect()
         total_accuracy = float(errors)/number_of_files
         return validation_loss, total_accuracy, all_predicts, all_targets
-
 
     def layers(self, vector_representation_params):
         ls_nodes, w_l_code, w_r_code, b_code = vector_representation_params

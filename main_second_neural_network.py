@@ -20,6 +20,9 @@ def main(path, vector_size, learning_rate2, feature_size, epoch, pooling, batch_
     device = torch.device("cuda:0" if use_cuda else "cpu")
     torch.backends.cudnn.benchmark = True
 
+    # allow tf32 for matmul
+    torch.backends.cuda.matmul.allow_tf32 = True
+
     params = {'batch_size': batch_size, 
     'shuffle': True, 
     'num_workers': 2} 
