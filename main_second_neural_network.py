@@ -27,6 +27,8 @@ def main(path, vector_size, learning_rate2, feature_size, epoch, pooling, batch_
     'shuffle': True, 
     'num_workers': 2} 
 
+    #we create the params folder in case it's not created already
+    create_params_folder()
 
     ### Creation of the training set and validation set
     training_set, validation_set, training_targets, validation_targets = training_and_validation_sets_creation(path) 
@@ -50,6 +52,11 @@ def main(path, vector_size, learning_rate2, feature_size, epoch, pooling, batch_
 
     model.to(device)
     model.train(training_generator, validation_generator, epoch, learning_rate2, batch_size)
+
+
+def create_params_folder():
+    if os.path.isdir('params') == False:
+        os.mkdir('params')
 
 
 def training_and_validation_sets_creation(path):
