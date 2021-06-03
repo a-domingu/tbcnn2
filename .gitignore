@@ -3,6 +3,7 @@ __pycache__
 .vscode
 sets
 sets100
+sets400
 sets_short
 results.txt
 *.png
