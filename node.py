@@ -89,3 +89,9 @@ class Node():
 
     def set_children(self, child):
         self.children.append(child)
+
+    def set_coeffs(self, c1, c2, c3):
+        self.coeffs = (c1,c2,c3)
+
+    def set_matrix(self, matrix):
+        self.matrix = matrix

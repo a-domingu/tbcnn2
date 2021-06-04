@@ -39,10 +39,11 @@ class Convolutional_layer():
     b_conv [array[features_size]]: bias term
     '''
 
-    def __init__(self, vector_size, kernel_depth = 2, features_size = 4):
+    def __init__(self, device, vector_size, kernel_depth = 2, features_size = 4):
         self.vector_size = vector_size
         self.Nc = features_size
         self.kernel_depth = kernel_depth
+        self.device = device
         
 
     def convolutional_layer(self, ls_nodes, w_t, w_r, w_l, b):
@@ -51,6 +52,16 @@ class Convolutional_layer():
         self.calculate_y(ls_nodes, w_t, w_r, w_l, b)
 
         return ls_nodes
+
+
+    def get_coeffs_and_matrix(self, ls_nodes):
+        for node in ls_nodes:
+            #we send its vector to the GPU
+            node.vector = node.vector.to(self.device)
+            if node.children:
+                vector_matrix, w_t_coeffs, w_l_coeffs, w_r_coeffs = self.sliding_window_tensor(node)
+                node.set_coeffs(w_t_coeffs, w_l_coeffs, w_r_coeffs)
+                node.set_matrix(vector_matrix)
 
 
     def calculate_y(self, ls_nodes, w_t, w_r, w_l, b):
@@ -67,8 +78,10 @@ class Convolutional_layer():
             In case we change the depth of the window, we have to change the parameters of each tensor
             '''
             if node.children:
-                vector_matrix, w_t_coeffs, w_l_coeffs, w_r_coeffs = self.sliding_window_tensor(node)
 
+                vector_matrix, w_t_coeffs, w_l_coeffs, w_r_coeffs = self.sliding_window_tensor(node)
+                node.set_coeffs(w_t_coeffs, w_l_coeffs, w_r_coeffs)
+                node.set_matrix(vector_matrix)
                 # The convolutional matrix for each node is a linear combination of matrices w_t, w_l and w_r
                 convolutional_matrix = (w_t_coeffs*w_t) + (w_l_coeffs*w_l) + (w_r_coeffs*w_r)
                 del w_t_coeffs
@@ -126,13 +139,13 @@ class Convolutional_layer():
         vector_matrix = torch.stack(tuple(vectors), 0)
         del vectors
         # We create a tensor with the parameters associated to the top matrix
-        w_t_params = torch.tensor(w_t_list)
+        w_t_params = torch.tensor(w_t_list).to(self.device)
         del w_t_list
         # We create a tensor with the parameters associated to the left matrix
-        w_l_params = torch.tensor(w_l_list)
+        w_l_params = torch.tensor(w_l_list).to(self.device)
         del w_l_list
         # We create a tensor with the parameters associated to the right matrix
-        w_r_params = torch.tensor(w_r_list)
+        w_r_params = torch.tensor(w_r_list).to(self.device)
         del w_r_list
         # Reshape the matrices and vectors and create 3D tensors
         vector_matrix, w_t_params, w_l_params, w_r_params = self.reshape_matrices_and_vectors(vector_matrix, w_t_params, w_l_params, w_r_params)
