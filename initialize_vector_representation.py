@@ -61,13 +61,6 @@ def vector_representation_all_files(data_dict, vector_size = 20, learning_rate =
             ls_nodes_all.append(node)
 
     # Initializing vector embeddings
-    for node in ls_nodes_all:
-        print(node)
-        if node.__class__.__name__ == 'Str':
-            print('AAAAAAAAAAAAAAAAAAAA')
-            print(node)
-            break
-    raise Exception
     embed = Embedding(vector_size, ls_nodes_all)
     dc = embed.node_embedding()
     return dc

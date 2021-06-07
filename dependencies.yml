@@ -8,6 +8,7 @@ dependencies:
   - pandas=1.2.4
   - matplotlib=3.3.4
   - git=2.23.0
+  - joblib
   - pip 
   - pip:
     - numpy==1.20.0

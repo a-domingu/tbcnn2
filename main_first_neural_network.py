@@ -3,6 +3,7 @@ from time import time
 import pandas as pd
 import pickle
 import gc
+from joblib import Parallel, delayed
 
 from node_object_creator import *
 from first_neural_network import First_neural_network
@@ -12,8 +13,9 @@ from first_neural_network import First_neural_network
 
 def main(path, vector_size , learning_rate, momentum, l2_penalty, epoch):
     # Training the first neural network
-    i = 1
-    for tree in read_folder_data_set(path):
+
+
+    def loop(tree):
         time1 = time()
 
         # convert its nodes into the Node class we have, and assign their attributes
@@ -43,11 +45,14 @@ def main(path, vector_size , learning_rate, momentum, l2_penalty, epoch):
 
         time2= time()
         dtime = time2 - time1
-        print(f"Vector rep. of file: {tree} {i} in ", dtime//60, 'min and', dtime%60, 'sec.')
-        if (i%50 == 0):
-            gc.collect()
-        i += 1
+        print(f"Vector rep. of file: {tree} in ", dtime//60, 'min and', dtime%60, 'sec.')
 
+    # we parallelize this loop 
+    Parallel(n_jobs = 4)(delayed(loop)(tree) for tree in read_folder_data_set(path))
+
+    gc.collect
+
+    
 
 def read_folder_data_set(path):
     # iterates through the generators directory, identifies the folders and enter in them
