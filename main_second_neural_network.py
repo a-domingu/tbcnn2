@@ -31,9 +31,9 @@ def training_and_validation_sets_creation(path):
     for (dirpath, dirnames, filenames) in os.walk(path):
         for folder in dirnames:
             folder_path = os.path.join(dirpath, folder)
-            if folder == 'withgen':
+            if folder == 'withwrap':
                 training_set, validation_set, targets_training, targets_validation = tensor_creation(folder_path, training_set, validation_set, targets_training, targets_validation, 1)
-            elif folder == 'nogen':
+            elif folder == 'nowrap':
                 training_set, validation_set, targets_training, targets_validation = tensor_creation(folder_path, training_set, validation_set, targets_training, targets_validation, 0)
             
     return training_set, validation_set, targets_training.float(), targets_validation.float()
@@ -73,7 +73,7 @@ def tensor_creation(folder_path, training_set, validation_set, targets_training,
 
 if __name__ == '__main__':
     # Folder path
-    path = os.path.join('sets', 'generators')
+    path = os.path.join('sets200', 'wrappers')
     # Second neural network parameters
     vector_size = 30
     learning_rate2 = 0.001

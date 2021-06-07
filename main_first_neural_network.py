@@ -52,7 +52,7 @@ def main(path, vector_size , learning_rate, momentum, l2_penalty, epoch):
 def read_folder_data_set(path):
     # iterates through the generators directory, identifies the folders and enter in them
     for (dirpath, _dirnames, filenames) in os.walk(path):
-        if dirpath.endswith('withgen') or dirpath.endswith('nogen'):
+        if dirpath.endswith('withwrap') or dirpath.endswith('nowrap'):
             for filename in filenames:
                 if filename.endswith('.py'):
                     filepath = os.path.join(dirpath, filename)
@@ -73,7 +73,7 @@ def set_vector(ls_nodes):
 
 if __name__ == '__main__':
     # Folder path
-    path = os.path.join('sets', 'generators')
+    path = os.path.join('sets200', 'wrappers')
     # First neural network parameters
     vector_size = 30
     learning_rate = 0.3

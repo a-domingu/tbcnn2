@@ -38,7 +38,7 @@ def first_neural_network_dict_creation(path):
     data_dict = {}
     # iterates through the generators directory, identifies the folders and enter in them
     for (dirpath, _dirnames, filenames) in os.walk(path):
-        if dirpath.endswith('withgen') or dirpath.endswith('nogen'):
+        if dirpath.endswith('withwrap') or dirpath.endswith('nowrap'):
             for filename in filenames:
                 if filename.endswith('.py'):
                     filepath = os.path.join(dirpath, filename)
@@ -86,7 +86,7 @@ def vector_representation_all_files(data_dict, vector_size = 20, learning_rate =
 
 if __name__ == '__main__':
     # Folder path
-    path = os.path.join('sets', 'generators')
+    path = os.path.join('sets200', 'wrappers')
     # First neural network parameters
     vector_size = 30
     learning_rate = 0.3

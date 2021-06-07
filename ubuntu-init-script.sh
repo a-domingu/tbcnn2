@@ -42,7 +42,7 @@ export PATH=/home/estherplai96_gmail_com/.local/bin:$PATH
 
 # For detached mode run (stderr & stdout are redirected to the file):
 
-nohup python3 ./param_tester.py &> 2021-05-19_12-00_output.log &
+nohup python3 ./main_second_neural_network.py &> 2021-06-03_21-00_output.log &
 
 # Step 6: (Optionally) Run the main application:
 # python3 main.py

@@ -20,7 +20,13 @@ class Node():
         self.node = node
         self.children = []
         self.parent = parent
-        self.type = self.node.__class__.__name__
+        if self.node.__class__.__name__ == 'FunctionDef':
+            if 'wrap' in self.node.name or 'decorator' in self.node.name: 
+                self.type = 'wrapper'
+            else:
+                self.type = self.node.__class__.__name__
+        else:
+            self.type = self.node.__class__.__name__
         self.vector = []
         self.combined_vector = []
         self.leaves = None
