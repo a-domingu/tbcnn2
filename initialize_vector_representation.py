@@ -38,6 +38,7 @@ def first_neural_network_dict_creation(pattern):
                 if filename.endswith('.py'):
                     filepath = os.path.join(dirpath, filename)
                     data_dict[filepath] = None
+                    print('File: ', filename)
 
     return data_dict
 
@@ -56,6 +57,7 @@ def vector_representation_all_files(data_dict, vector_size = 20, learning_rate =
     embed = Embedding(vector_size, ls_nodes_all)
     dc = embed.node_embedding()
     return dc
+
 
 
 ########################################

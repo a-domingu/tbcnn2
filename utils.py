@@ -59,9 +59,9 @@ def accuracy(predicts, targets):
     difference = targets - rounded_prediction
     errors = torch.abs(difference).sum()
 
-    accuracy = (len(difference) - errors)/len(difference)
+    #accuracy = (len(difference) - errors)/len(difference)
 
-    return accuracy
+    return errors
 
 
 def bad_predicted_files(validation_set, predicts, targets):

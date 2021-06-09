@@ -1,6 +1,7 @@
 import os
 import random
 import torch as torch
+import torch.nn as nn
 from time import time
 import pandas as pd
 import pickle
@@ -9,15 +10,43 @@ from node_object_creator import *
 from embeddings import Embedding
 from first_neural_network import First_neural_network
 from second_neural_network import SecondNeuralNetwork
+from dataset import Dataset
 
     
-def main(pattern, vector_size, learning_rate2, feature_size, epoch, batch_size, pooling = 'one-way pooling'):
+def main(path, vector_size, learning_rate2, feature_size, epoch, batch_size, pooling = "one_way pooling"):
+        
+    # CUDA for PyTorch
+    use_cuda = torch.cuda.is_available()
+    device = torch.device("cuda:0" if use_cuda else "cpu")
+    torch.backends.cudnn.benchmark = True
+
+    params = {'batch_size': batch_size, 
+    'shuffle': True, 
+    'num_workers': 2} 
+
+
     ### Creation of the training set and validation set
-    training_set, validation_set, targets_training, targets_validation = training_and_validation_sets_creation(pattern) 
+    training_set, validation_set, training_targets, validation_targets = training_and_validation_sets_creation(path) 
+    print('training set: ', training_set)
+    print('targets del training: ', training_targets)
+
+        
+    # Generators
+    training_dataset = Dataset(training_set, training_targets)
+    training_generator = torch.utils.data.DataLoader(training_dataset, **params)
+
+    validation_dataset = Dataset(validation_set, validation_targets)
+    validation_generator = torch.utils.data.DataLoader(validation_dataset, **params)
 
     # Training
-    secnn = SecondNeuralNetwork(vector_size, feature_size, pooling)
-    secnn.train(targets_training, training_set, validation_set, targets_validation, epoch, learning_rate2, batch_size)
+    model = SecondNeuralNetwork(device, vector_size, feature_size, pooling)
+    if torch.cuda.device_count() > 1:
+        print("Let's use", torch.cuda.device_count(), "GPUs!")
+        # dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs
+        model = nn.DataParallel(model)
+
+    model.to(device)
+    model.train(training_generator, validation_generator, epoch, learning_rate2, batch_size)
 
 
 def training_and_validation_sets_creation(pattern):
@@ -26,21 +55,21 @@ def training_and_validation_sets_creation(pattern):
     training_set = []
     validation_set = []
     # We create a target training target tensor and a validation target tensor
-    targets_training = [] 
-    targets_validation = []
+    training_targets = {}
+    validation_targets = {}
     # iterates through the generators directory, identifies the folders and enter in them
     for (dirpath, dirnames, filenames) in os.walk(path):
         for folder in dirnames:
             folder_path = os.path.join(dirpath, folder)
             if folder == 'withpattern':
-                training_set, validation_set, targets_training, targets_validation = tensor_creation(folder_path, training_set, validation_set, targets_training, targets_validation, 1)
+                training_set, validation_set, training_targets, validation_targets = tensor_creation(folder_path, training_set, validation_set, training_targets, validation_targets, 1)
             elif folder == 'nopattern':
-                training_set, validation_set, targets_training, targets_validation = tensor_creation(folder_path, training_set, validation_set, targets_training, targets_validation, 0)
+                training_set, validation_set, training_targets, validation_targets = tensor_creation(folder_path, training_set, validation_set, training_targets, validation_targets, 0)
             
-    return training_set, validation_set, targets_training.float(), targets_validation.float()
+    return training_set, validation_set, training_targets, validation_targets
 
 
-def tensor_creation(folder_path, training_set, validation_set, targets_training, targets_validation, value):
+def tensor_creation(folder_path, training_set, validation_set, training_targets, validation_targets, value):
     # we list all files of each folder
     list_files = os.listdir(folder_path)
     # Having a list with only .py files
@@ -52,22 +81,15 @@ def tensor_creation(folder_path, training_set, validation_set, targets_training,
     while list_files_py:
         file = random.choice(list_files_py)
         list_files_py.remove(file)
+        filepath = os.path.join(folder_path, file)
         if i <= N:
-            filepath = os.path.join(folder_path, file)
             training_set.append(filepath)
-            if targets_training == []:
-                targets_training = torch.tensor([value])
-            else:
-                targets_training = torch.cat((targets_training, torch.tensor([value])), 0)
+            training_targets[filepath] = value
         else:
-            filepath = os.path.join(folder_path, file)
             validation_set.append(filepath)
-            if targets_validation == []:
-                targets_validation = torch.tensor([value])
-            else:
-                targets_validation = torch.cat((targets_validation, torch.tensor([value])), 0)
+            validation_targets[filepath] = value
         i += 1
-    return training_set, validation_set, targets_training, targets_validation
+    return training_set, validation_set, training_targets, validation_targets
 
 
 ########################################
