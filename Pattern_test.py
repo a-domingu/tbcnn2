@@ -5,7 +5,6 @@ import torch as torch
 import torch.nn as nn
 from time import time
 import pickle
-import shutil
 
 from node_object_creator import *
 from first_neural_network import First_neural_network
@@ -66,7 +65,7 @@ class Pattern_test():
 
         # We calculate the predictions
         predicts = self.prediction(targets_set, targets_label)
-        shutil.rmtree('vector_representation', ignore_errors=True)
+        self.delete_vector_representation_files()
         
         # We print the predictions
         self.print_predictions(targets_label, predicts, targets_set)
@@ -162,6 +161,15 @@ class Pattern_test():
         output = self.hidden.hidden_layer(vector, self.w_hidden, self.b_hidden)
 
         return output
+
+    def delete_vector_representation_files(self):
+        folder = 'vector_representation'
+        for filename in os.listdir(folder):
+            file = os.path.join(folder, filename)
+            if file.startswith('.'):
+                pass
+            else:
+                os.remove(file)
 
 
     def print_predictions(self, targets_label, predicts, targets_set):

@@ -8,10 +8,10 @@ from node_object_creator import *
 from first_neural_network import First_neural_network
 
 
-def main(path, vector_size , learning_rate, momentum, l2_penalty, epoch):
+def main(pattern, vector_size , learning_rate, momentum, l2_penalty, epoch):
     # Training the first neural network
     i = 1
-    for tree in read_folder_data_set(path):
+    for tree in read_folder_data_set(pattern):
         time1 = time()
 
         # convert its nodes into the Node class we have, and assign their attributes
@@ -49,10 +49,11 @@ def main(path, vector_size , learning_rate, momentum, l2_penalty, epoch):
         i += 1
 
 
-def read_folder_data_set(path):
+def read_folder_data_set(pattern):
+    path = os.path.join('sets', pattern)
     # iterates through the generators directory, identifies the folders and enter in them
     for (dirpath, _dirnames, filenames) in os.walk(path):
-        if dirpath.endswith('withgen') or dirpath.endswith('nogen'):
+        if dirpath.endswith('withpattern') or dirpath.endswith('nopattern'):
             for filename in filenames:
                 if filename.endswith('.py'):
                     filepath = os.path.join(dirpath, filename)
@@ -73,7 +74,7 @@ def set_vector(ls_nodes):
 
 if __name__ == '__main__':
     # Folder path
-    path = os.path.join('sets', 'generators')
+    pattern = 'generators'
     # First neural network parameters
     vector_size = 30
     learning_rate = 0.3
@@ -81,4 +82,4 @@ if __name__ == '__main__':
     l2_penalty = 0
     epoch = 1
 
-    main(path, vector_size, learning_rate, momentum, l2_penalty, epoch)
+    main(pattern, vector_size, learning_rate, momentum, l2_penalty, epoch)

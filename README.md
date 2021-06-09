@@ -3,7 +3,7 @@
 
 ## What does the program do?
 
-This program is meant to receive different Python files, and train a Convolutional Neural Network (CNN) to detect patterns 
+This program is meant to receive different Python files, and train a Convolutional Neural Network (CNN) to detect patterns.
 
 *so far, it can only dettect generators, but our intention is to be able to detect more patterns (wrapper, decorator, observer...)*.
 

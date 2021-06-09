@@ -11,16 +11,17 @@ from first_neural_network import First_neural_network
 from second_neural_network import SecondNeuralNetwork
 
     
-def main(path, vector_size, learning_rate2, feature_size, epoch, pooling, batch_size):
+def main(pattern, vector_size, learning_rate2, feature_size, epoch, batch_size, pooling = 'one-way pooling'):
     ### Creation of the training set and validation set
-    training_set, validation_set, targets_training, targets_validation = training_and_validation_sets_creation(path) 
+    training_set, validation_set, targets_training, targets_validation = training_and_validation_sets_creation(pattern) 
 
     # Training
     secnn = SecondNeuralNetwork(vector_size, feature_size, pooling)
     secnn.train(targets_training, training_set, validation_set, targets_validation, epoch, learning_rate2, batch_size)
 
 
-def training_and_validation_sets_creation(path):
+def training_and_validation_sets_creation(pattern):
+    path = os.path.join('sets', pattern)
     # we create the training set and the validation set
     training_set = []
     validation_set = []
@@ -31,9 +32,9 @@ def training_and_validation_sets_creation(path):
     for (dirpath, dirnames, filenames) in os.walk(path):
         for folder in dirnames:
             folder_path = os.path.join(dirpath, folder)
-            if folder == 'withgen':
+            if folder == 'withpattern':
                 training_set, validation_set, targets_training, targets_validation = tensor_creation(folder_path, training_set, validation_set, targets_training, targets_validation, 1)
-            elif folder == 'nogen':
+            elif folder == 'nopattern':
                 training_set, validation_set, targets_training, targets_validation = tensor_creation(folder_path, training_set, validation_set, targets_training, targets_validation, 0)
             
     return training_set, validation_set, targets_training.float(), targets_validation.float()
@@ -73,13 +74,12 @@ def tensor_creation(folder_path, training_set, validation_set, targets_training,
 
 if __name__ == '__main__':
     # Folder path
-    path = os.path.join('sets', 'generators')
+    pattern = 'generators'
     # Second neural network parameters
     vector_size = 30
     learning_rate2 = 0.001
     feature_size = 100
     epoch = 80
     batch_size = 20
-    pooling = 'one-way pooling'
 
-    main(path, vector_size, learning_rate2, feature_size, epoch, pooling, batch_size)
+    main(pattern, vector_size, learning_rate2, feature_size, epoch, batch_size)

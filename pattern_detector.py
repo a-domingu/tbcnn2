@@ -17,7 +17,7 @@ from hidden_layer import Hidden_layer
 from repos import download_repos
 
 
-class Generator_pattern_detection():
+class Pattern_detection():
 
     def __init__(self, n = 30, m = 100, pooling = 'one-way pooling'):
         self.vector_size = n
@@ -54,7 +54,7 @@ class Generator_pattern_detection():
         self.hidden = Hidden_layer()
 
 
-    def generator_detection(self, path):
+    def pattern_detection(self, path):
         
         """Create the data set"""
         #message = '########################################<br>'
@@ -196,7 +196,7 @@ def main():
 
 
 def get_input():
-    generator_detector = Generator_pattern_detection()
+    pattern_detector = Pattern_detection()
     choice = '''
 
     Do you wish to indicate the path to a local folder ([y] / n) ?: 
@@ -207,7 +207,7 @@ def get_input():
         if x == 'y':
             print('Please indicate the path to the folder')
             x = input()
-            generator_detector.generator_detection(x)
+            pattern_detector.pattern_detection(x)
         elif x == 'n':
             choose_url()
         else:
@@ -216,7 +216,7 @@ def get_input():
     else:
         print('Please indicate the path to the folder')
         x = input()
-        generator_detector.generator_detection(x)
+        pattern_detector.pattern_detection(x)
 
 
 def choose_url():
@@ -244,7 +244,7 @@ def choose_url():
 def validate_from_url(url):
     download_repos([url], 'downloaded_validate')
     path = get_path(url)
-    generator_detector = Generator_pattern_detection()
+    generator_detector = Pattern_detection()
     message = generator_detector.generator_detection(path)
     folder_deleter(path)
     return message
