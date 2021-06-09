@@ -161,6 +161,11 @@ The loss we have for the training network is: {sum_loss/nb_batch}
         confusion_matrix = conf_matrix(predicts, validation_targets)
         print('Confusión matrix: ')
         print(confusion_matrix)
+        #TODO preguntar cómo saber cuál es el conjunto de todos los archivos del validation set
+        '''
+        files_bad_predicted = bad_predicted_files(validation_dict, predicts, validation_targets)
+        print(files_bad_predicted)
+        '''
         if accuracy_value > self.best_accuracy:
             plot_confusion_matrix(confusion_matrix, ['no generator', 'generator'], lr2 = learning_rate, feature_size = self.feature_size, epoch = epoch)
     

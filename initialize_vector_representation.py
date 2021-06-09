@@ -4,72 +4,73 @@ import pandas as pd
 from node_object_creator import *
 from embeddings import Embedding
 
-    
 
-def main(pattern, vector_size, learning_rate = 0.3, momentum = 0, l2_penalty = 0, epoch_first = 1):
-    # Training the first neural network
-    vectors_dict = first_neural_network(pattern, vector_size, learning_rate, momentum, l2_penalty, epoch_first)
+class Initialize_vector_representation():
 
-    #save_files(ls_nodes)
-    save_vectors(vectors_dict)
+    def __init__(self, pattern, vector_size):
+        self.pattern = pattern
+        self.vector_size = vector_size
 
 
-def save_vectors(vectors_dict):
-    df = pd.DataFrame.from_dict(vectors_dict)
-    df.to_csv('initial_vector_representation.csv')
+    def initial_vector_representation(self):
+        # Training the first neural network
+        vectors_dict = self.first_neural_network()
+        #save_files(ls_nodes)
+        self.save_vectors(vectors_dict)
 
 
-def first_neural_network(pattern, vector_size = 30, learning_rate = 0.3, momentum = 0, l2_penalty = 0, epoch = 1):
-    # we create the data dict with all the information about vector representation
-    data_dict = first_neural_network_dict_creation(pattern)
-    # We now do the first neural network (vector representation) for every file:
-    data_dict = vector_representation_all_files(data_dict, vector_size, learning_rate, momentum, l2_penalty, epoch)
-    return data_dict
+    def save_vectors(self, vectors_dict):
+        df = pd.DataFrame.from_dict(vectors_dict)
+        df.to_csv('initial_vector_representation.csv')
 
 
-def first_neural_network_dict_creation(pattern):
-    path = os.path.join('sets', pattern)
-    # we create the data dict with all the information about vector representation
-    data_dict = {}
-    # iterates through the generators directory, identifies the folders and enter in them
-    for (dirpath, _dirnames, filenames) in os.walk(path):
-        if dirpath.endswith('withpattern') or dirpath.endswith('nopattern'):
-            for filename in filenames:
-                if filename.endswith('.py'):
-                    filepath = os.path.join(dirpath, filename)
-                    data_dict[filepath] = None
-                    print('File: ', filename)
-
-    return data_dict
+    def first_neural_network(self):
+        # we create the data dict with all the information about vector representation
+        data_dict = self.first_neural_network_dict_creation()
+        # We now do the first neural network (vector representation) for every file:
+        data_dict = self.vector_representation_all_files(data_dict)
+        return data_dict
 
 
-def vector_representation_all_files(data_dict, vector_size = 20, learning_rate = 0.1, momentum = 0.01, l2_penalty = 0, epoch = 45):
-    ls_nodes_all = []
-    for tree in data_dict:
-    
-        # convert its nodes into the Node class we have, and assign their attributes
-        main_node = node_object_creator(tree)
-    
-        for node in main_node.descendants():
-            ls_nodes_all.append(node)
+    def first_neural_network_dict_creation(self):
+        path = os.path.join('sets', self.pattern)
+        # we create the data dict with all the information about vector representation
+        data_dict = {}
+        # iterates through the generators directory, identifies the folders and enter in them
+        for (dirpath, _dirnames, filenames) in os.walk(path):
+            if dirpath.endswith('withpattern') or dirpath.endswith('nopattern'):
+                for filename in filenames:
+                    if filename.endswith('.py'):
+                        filepath = os.path.join(dirpath, filename)
+                        data_dict[filepath] = None
 
-    # Initializing vector embeddings
-    embed = Embedding(vector_size, ls_nodes_all)
-    dc = embed.node_embedding()
-    return dc
+        return data_dict
+
+
+    def vector_representation_all_files(self, data_dict):
+        ls_nodes_all = []
+        for tree in data_dict:
+        
+            # convert its nodes into the Node class we have, and assign their attributes
+            main_node = node_object_creator(tree)
+        
+            for node in main_node.descendants():
+                ls_nodes_all.append(node)
+
+        # Initializing vector embeddings
+        embed = Embedding(self.vector_size, ls_nodes_all)
+        dc = embed.node_embedding()
+        return dc
 
 
 
 ########################################
 
 if __name__ == '__main__':
-    # Folder path
+    # Pattern
     pattern = 'generators'
     # First neural network parameters
     vector_size = 30
-    learning_rate = 0.3
-    momentum = 0
-    l2_penalty = 0
-    epoch_first = 1
 
-    main(pattern, vector_size, learning_rate, momentum, l2_penalty, epoch_first)
+    initial_vector_representation = Initialize_vector_representation(pattern, vector_size)
+    initial_vector_representation.initial_vector_representation()

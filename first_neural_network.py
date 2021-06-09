@@ -44,7 +44,7 @@ class First_neural_network():
         self.w_r_params = None
 
 
-    def vector_representation(self):
+    def train(self):
         ### SGD
         # params is a tensor with vectors (p -> node.vector and node childs c1,..,cN -> node_list), w_r, w_l and b
         params = [node.vector for node in self.ls]
