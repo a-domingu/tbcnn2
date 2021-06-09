@@ -6,7 +6,7 @@ if __name__ == '__main__':
 
 
     # Folder path
-    path = os.path.join('sets_short', 'generators')
+    path = os.path.join('sets200', 'generators')
     
     # First neural network parameters
     vector_size_ls = [30]
