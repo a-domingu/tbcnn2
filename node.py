@@ -20,7 +20,7 @@ class Node():
         self.node = node
         self.children = []
         self.parent = parent
-        self.type = self.node.__class__.__name__
+        self.type = self.get_type()
         self.vector = []
         self.combined_vector = []
         self.leaves = None
@@ -32,6 +32,17 @@ class Node():
 
     def __str__(self):
         return self.type
+
+    def get_type(self):
+        if self.node.__class__.__name__ == 'FunctionDef':
+            if 'wrap' in  self.node.name or 'decorator' in self.node.name:
+                return 'wrapper'
+            else:
+                return self.node.__class__.__name__
+        else:
+            return self.node.__class__.__name__
+
+
 
     #Returns the children nodes of each node
     def get_children(self):
@@ -52,9 +63,11 @@ class Node():
 
     # Assigns the vector embedding to each node
     def set_vector(self, df):
-        assert self.type in df.columns
-        # TODO determinar qué hacer cuando nos encontramos un tipo de nodo del cual no tenemos representacion vectorial
-        vector =  df[self.type]
+        if self.type in df.columns:
+            vector =  df[self.type]
+        else:
+            num = len(df['Yield'])
+            vector = [0 for i in range(num)]
         if type(vector) == torch.Tensor:
             self.vector = vector
         else:

@@ -11,9 +11,10 @@ from second_neural_network import SecondNeuralNetwork
 
     
 
-def main(path, vector_size , learning_rate, momentum, l2_penalty, epoch_first, learning_rate2, feature_size, epoch, pooling):
+def main(path, vector_size):
+    # Second neural network parameters
     # Training the first neural network
-    vectors_dict = first_neural_network(path, vector_size, learning_rate, momentum, l2_penalty, epoch_first)
+    vectors_dict = first_neural_network(path, vector_size)
 
     #save_files(ls_nodes)
     save_vectors(vectors_dict)
@@ -25,7 +26,7 @@ def save_vectors(vectors_dict):
     df = pd.DataFrame.from_dict(vectors_dict)
     df.to_csv('initial_vector_representation.csv')
 
-def first_neural_network(path, vector_size = 20, learning_rate = 0.1, momentum = 0.01, l2_penalty = 0, epoch = 45):
+def first_neural_network(path, vector_size = 20, learning_rate = 0, momentum = 0, l2_penalty = 0, epoch = 1):
     # we create the data dict with all the information about vector representation
     data_dict = first_neural_network_dict_creation(path)
     # We now do the first neural network (vector representation) for every file:
@@ -38,7 +39,7 @@ def first_neural_network_dict_creation(path):
     data_dict = {}
     # iterates through the generators directory, identifies the folders and enter in them
     for (dirpath, _dirnames, filenames) in os.walk(path):
-        if dirpath.endswith('withgen') or dirpath.endswith('nogen'):
+        if dirpath.endswith('withwrap') or dirpath.endswith('nowrap'):
             for filename in filenames:
                 if filename.endswith('.py'):
                     filepath = os.path.join(dirpath, filename)
@@ -86,17 +87,8 @@ def vector_representation_all_files(data_dict, vector_size = 20, learning_rate =
 
 if __name__ == '__main__':
     # Folder path
-    path = os.path.join('sets', 'generators')
+    path = os.path.join('sets_short', 'generators')
     # First neural network parameters
     vector_size = 30
-    learning_rate = 0.3
-    momentum = 0
-    l2_penalty = 0
-    epoch_first = 1
-    # Second neural network parameters
-    learning_rate2 = 0.01
-    feature_size = 100
-    epoch = 2
-    pooling = 'one-way pooling'
 
-    main(path, vector_size, learning_rate, momentum, l2_penalty, epoch_first, learning_rate2, feature_size, epoch, pooling)
+    main(path, vector_size)
