@@ -50,7 +50,7 @@ def main(path, vector_size, learning_rate2, feature_size, epoch, pooling, batch_
         # dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs
         model = nn.DataParallel(model)
 
-    model.to(device)
+    #model.to(device)
     model.train(training_generator, validation_generator, epoch, learning_rate2, batch_size)
 
 
