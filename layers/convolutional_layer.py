@@ -1,8 +1,9 @@
 import torch as torch
+import torch.distributions
 import torch.nn as nn
 import torch.nn.functional as F
 
-from node import Node
+from first_neural_network.node import Node
 
 class Convolutional_layer():
     '''
@@ -41,19 +42,31 @@ class Convolutional_layer():
 
     def __init__(self, vector_size, kernel_depth = 2, features_size = 4):
         self.vector_size = vector_size
-        self.Nc = features_size
+        self.feature_size = features_size
         self.kernel_depth = kernel_depth
         
 
-    def convolutional_layer(self, ls_nodes, w_t, w_r, w_l, b):
+    def convolutional_layer(self, ls_nodes):
 
         # self.y is the output of the convolutional layer.
-        self.calculate_y(ls_nodes, w_t, w_r, w_l, b)
+        self.calculate_y(ls_nodes)
 
         return ls_nodes
 
 
-    def calculate_y(self, ls_nodes, w_t, w_r, w_l, b):
+    def initialize_matrices_and_bias(self):
+        #self.w_t = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_()
+        self.w_t = torch.rand(self.feature_size, self.vector_size).requires_grad_()
+        #self.w_r = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_()
+        self.w_r = torch.rand(self.feature_size, self.vector_size).requires_grad_()
+        #self.w_l = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_()
+        self.w_l = torch.rand(self.feature_size, self.vector_size).requires_grad_()
+        self.b = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.feature_size, 1))).requires_grad_()
+
+        return self.w_t, self.w_l, self.w_r, self.b
+
+
+    def calculate_y(self, ls_nodes):
         for node in ls_nodes:
             ''' 
             We are going to create the sliding window. Taking as reference the book,
@@ -70,7 +83,7 @@ class Convolutional_layer():
                 vector_matrix, w_t_coeffs, w_l_coeffs, w_r_coeffs = self.sliding_window_tensor(node)
 
                 # The convolutional matrix for each node is a linear combination of matrices w_t, w_l and w_r
-                convolutional_matrix = (w_t_coeffs*w_t) + (w_l_coeffs*w_l) + (w_r_coeffs*w_r)
+                convolutional_matrix = (w_t_coeffs*self.w_t) + (w_l_coeffs*self.w_l) + (w_r_coeffs*self.w_r)
                 del w_t_coeffs
                 del w_l_coeffs
                 del w_r_coeffs
@@ -85,13 +98,13 @@ class Convolutional_layer():
 
                 # We used relu as the activation function in TBCNN mainly because we hope to 
                 # encode features to a same semantic space during coding.
-                node.set_y(F.leaky_relu(final_vector + b))
+                node.set_y(F.leaky_relu(final_vector + self.b))
                 del final_vector
 
             else:
                 # The convolutional matrix for each node is a linear combination of matrices w_t, w_l and w_r
                 #convolutional_matrix = self.w_t
-                argument = torch.matmul(w_t, node.vector) + b
+                argument = torch.matmul(self.w_t, node.vector) + self.b
                 node.set_y(F.leaky_relu(argument))
 
 

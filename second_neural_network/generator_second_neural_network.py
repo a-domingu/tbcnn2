@@ -1,33 +1,66 @@
-from second_neural_network import SecondNeuralNetwork
 import numpy
 import os
 import torch as torch
 import torch.nn as nn
 import torch.nn.functional as F
-from time import time
-import pickle
-import gc
 
-from node_object_creator import *
-from coding_layer import Coding_layer
-from convolutional_layer import Convolutional_layer
-from pooling_layer import Pooling_layer
-from dynamic_pooling import Max_pooling_layer, Dynamic_pooling_layer
-from hidden_layer import Hidden_layer
-from utils import writer, plot_confusion_matrix, conf_matrix, accuracy, bad_predicted_files
+from utils.node_object_creator import *
+from layers.coding_layer import Coding_layer
+from layers.convolutional_layer import Convolutional_layer
+from layers.pooling_layer import Pooling_layer
+from layers.dynamic_pooling import Max_pooling_layer, Dynamic_pooling_layer
+from layers.hidden_layer import Hidden_layer
+from second_neural_network.second_neural_network import SecondNeuralNetwork
+from utils.utils import writer, plot_confusion_matrix, conf_matrix, accuracy, bad_predicted_files
 
 
 class Generator_second_neural_network(SecondNeuralNetwork):
 
     def __init__(self, device, n = 20, m = 4, pooling = 'one-way pooling'):
-        super().__init__(device, n, m, pooling)
+        super().__init__(device, n, m)
+        self.pooling = pooling
+
+    
+    def matrices_and_layers_initialization(self):
+        # Initialize the layers
+        self.cod = Coding_layer(self.vector_size)
+        self.conv = Convolutional_layer(self.vector_size, features_size = self.feature_size)
+        self.hidden = Hidden_layer(self.feature_size)
+        if self.pooling == 'three-way pooling':
+            self.dynamic = Dynamic_pooling_layer()
+            self.max_pool = Max_pooling_layer()
+        else:
+            self.pooling = Pooling_layer()
+
+        # Initialize matrices and bias
+        self.w_comb1, self.w_comb2 = self.cod.initialize_matrices_and_bias()
+        self.w_t, self.w_l, self.w_r, self.b_conv = self.conv.initialize_matrices_and_bias()
+        if self.pooling == 'three-way pooling':
+            self.w_hidden, self.b_hidden = self.hidden.initialize_matrices_and_bias()
+        else:
+            self.w_hidden, self.b_hidden = self.hidden.initialize_matrices_and_bias()
+
+        params = [self.w_comb1, self.w_comb2, self.w_t, self.w_l, self.w_r, self.b_conv, self.w_hidden, self.b_hidden]
+
+        return params
+
+
+    def print_params(self, params):
+        w_comb1, w_comb2, w_t, w_l, w_r, b_conv, w_hidden, b_hidden = params
+
+        print('Self w_l: ', self.w_l)
+        print('Params w_l: ', w_l)
+
+        print('Self b_conv: ', self.b_conv)
+        print('grad w_l: ', self.b_conv.grad)
+
 
     def layers(self, vector_representation_params):
         ls_nodes, w_l_code, w_r_code, b_code = vector_representation_params
         del w_l_code
         del w_r_code
         del b_code
-        ls_nodes = self.conv.convolutional_layer(ls_nodes, self.w_t, self.w_r, self.w_l, self.b_conv)
+        ls_nodes = self.conv.convolutional_layer(ls_nodes)
         if self.pooling == 'three-way pooling':
             dict_sibling = None
             self.max_pool.max_pooling(ls_nodes)
@@ -35,7 +68,7 @@ class Generator_second_neural_network(SecondNeuralNetwork):
         else:
             vector = self.pooling.pooling_layer(ls_nodes)
         del ls_nodes
-        output = self.hidden.hidden_layer(vector, self.w_hidden, self.b_hidden)
+        output = self.hidden.hidden_layer(vector)
         del vector
 
         return output

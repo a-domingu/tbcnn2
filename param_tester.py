@@ -1,6 +1,6 @@
 from vector_representation import Vector_representation
 from pattern_training import Pattern_training
-from utils import writer, remover
+from utils.utils import writer, remover
 import os
 
 

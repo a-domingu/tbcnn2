@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from node import Node
+from first_neural_network.node import Node
 
 class Coding_layer():
     '''
@@ -26,7 +26,7 @@ class Coding_layer():
     def __init__(self, features_size):
         self.ls = []
         self.dict_ast_to_Node = {}
-        self.features_size = features_size
+        self.vector_size = features_size
         self.w_l = None
         self.w_r = None
         self.b = None
@@ -34,20 +34,24 @@ class Coding_layer():
         self.w_comb2 = None
 
 
-    def coding_layer(self, ls_nodes, w_l, w_r, b, w1, w2):
+    def coding_layer(self, ls_nodes, w_l, w_r, b):
         # Initialize the node list and the dict node
         self.ls = ls_nodes
         # Initialize matrices and bias
         self.w_l = w_l
         self.w_r = w_r
         self.b = b
-        self.w_comb1 = w1
-        self.w_comb2 = w2
 
         self.coding_iterations()
 
         return self.ls
 
+
+    def initialize_matrices_and_bias(self):
+        self.w_comb1 = torch.diag(torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.vector_size, 1)), 1)).requires_grad_()
+        self.w_comb2 = torch.diag(torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.vector_size, 1)), 1)).requires_grad_()
+
+        return self.w_comb1, self.w_comb2
 
     # We create each combined vector p
     def coding_iterations(self):
@@ -68,7 +72,7 @@ class Coding_layer():
         # Calculate the first term of the coding layers
         first_term = torch.matmul(self.w_comb1, node.vector)
         # Initalize the tensor of the second term
-        sum = torch.zeros(self.features_size, dtype=torch.float32)
+        sum = torch.zeros(self.vector_size, dtype=torch.float32)
         # Parameters used to calculate the weight matrix for each node
         n = len(node.children)
         i=1

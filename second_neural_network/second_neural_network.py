@@ -7,47 +7,24 @@ from time import time
 import pickle
 import gc
 
-from node_object_creator import *
-from coding_layer import Coding_layer
-from convolutional_layer import Convolutional_layer
-from pooling_layer import Pooling_layer
-from dynamic_pooling import Max_pooling_layer, Dynamic_pooling_layer
-from hidden_layer import Hidden_layer
-from utils import writer, plot_confusion_matrix, conf_matrix, accuracy, bad_predicted_files
+from utils.node_object_creator import *
+from layers.coding_layer import Coding_layer
+from layers.convolutional_layer import Convolutional_layer
+from layers.pooling_layer import Pooling_layer
+from layers.dynamic_pooling import Max_pooling_layer, Dynamic_pooling_layer
+from layers.hidden_layer import Hidden_layer
+from utils.utils import writer, plot_confusion_matrix, conf_matrix, accuracy, bad_predicted_files
 
 
 
 class SecondNeuralNetwork(nn.Module):
 
-    def __init__(self, device, n = 20, m = 4, pooling = 'one-way pooling'):
+    def __init__(self, device, n = 20, m = 4):
         ###############################
         super(SecondNeuralNetwork, self).__init__()
         ###############################
         self.vector_size = n
         self.feature_size = m
-        # parameters
-        # Create uniform random numbers in half-open interval [-1.0, 1.0)
-        self.w_comb1 = torch.diag(torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.vector_size, 1)), 1)).requires_grad_()
-        self.w_comb2 = torch.diag(torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.vector_size, 1)), 1)).requires_grad_()
-        self.w_t = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_()
-        self.w_r = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_()
-        self.w_l = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_()
-        self.b_conv = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.feature_size, 1))).requires_grad_()
-        # pooling method
-        self.pooling = pooling
-        if self.pooling == 'three-way pooling':
-            self.w_hidden = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((3, 1))).requires_grad_()
-            self.b_hidden = torch.squeeze(torch.distributions.Uniform(-1, +1).sample()).requires_grad_()
-            self.dynamic = Dynamic_pooling_layer()
-            self.max_pool = Max_pooling_layer()
-        else:
-            self.w_hidden = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.feature_size, 1))).requires_grad_()
-            self.b_hidden = torch.rand(1, requires_grad = True)
-            self.pooling = Pooling_layer()
-        # layers
-        self.cod = Coding_layer(self.vector_size)
-        self.conv = Convolutional_layer(self.vector_size, features_size=self.feature_size)
-        self.hidden = Hidden_layer()
         #we create an attribute for the best accuracy so far (initialized to 0)
         self.best_accuracy = 0
         #device
@@ -57,7 +34,8 @@ class SecondNeuralNetwork(nn.Module):
     def train(self, training_generator, validation_generator, total_epochs = 40, learning_rate = 0.01, batch_size = 20):
         """Create the training loop"""
         # Construct the optimizer
-        params = [self.w_comb1, self.w_comb2, self.w_t, self.w_l, self.w_r, self.b_conv, self.w_hidden, self.b_hidden]
+        #params = [self.w_comb1, self.w_comb2, self.w_t, self.w_l, self.w_r, self.b_conv, self.w_hidden, self.b_hidden]
+        params = self.matrices_and_layers_initialization()
         optimizer = torch.optim.SGD(params, lr = learning_rate)
         criterion = nn.BCEWithLogitsLoss()
         print('Entering the neural network')
@@ -96,6 +74,7 @@ class SecondNeuralNetwork(nn.Module):
 
                 # Update parameters
                 optimizer.step() #w_r = w_r - lr * w_r.grad
+                self.print_params(params)
 
                 train_loss += loss.item()*len(batch)
                 del loss
@@ -122,6 +101,14 @@ class SecondNeuralNetwork(nn.Module):
 The loss we have for the training network is: {sum_loss/nb_batch}
         '''
         writer(message)
+
+
+    def matrices_and_layers_initialization(self):
+        pass
+
+    
+    def print_params(self, params):
+        pass
         
 
     def forward(self, batch_set):

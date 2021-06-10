@@ -1,18 +1,18 @@
 import os
-from pattern_test import Pattern_test
 import numpy
 import pandas as pd
 import torch as torch
 
 
-from node_object_creator import *
-from first_neural_network import First_neural_network
-from coding_layer import Coding_layer
-from convolutional_layer import Convolutional_layer
-from dynamic_pooling import Dynamic_pooling_layer, Max_pooling_layer
-from pooling_layer import Pooling_layer
-from hidden_layer import Hidden_layer
-from utils import conf_matrix, accuracy, bad_predicted_files
+from utils.node_object_creator import *
+from first_neural_network.first_neural_network import First_neural_network
+from layers.coding_layer import Coding_layer
+from layers.convolutional_layer import Convolutional_layer
+from layers.dynamic_pooling import Dynamic_pooling_layer, Max_pooling_layer
+from layers.pooling_layer import Pooling_layer
+from layers.hidden_layer import Hidden_layer
+from utils.utils import conf_matrix, accuracy, bad_predicted_files
+from pattern_accuracy_test.pattern_test import Pattern_test
 
 
 class Generator_test(Pattern_test):

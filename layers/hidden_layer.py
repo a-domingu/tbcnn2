@@ -2,8 +2,9 @@ import torch
 
 class Hidden_layer():
     
-    def __init__(self):
+    def __init__(self, feature_size):
         self.input = []
+        self.feature_size = feature_size
         self.w = None
         self.b = None
         # The size of n is based on the dynamic pooling method.
@@ -12,14 +13,16 @@ class Hidden_layer():
         self.n = 3
 
 
-    def hidden_layer(self, vector, w, b):
-        # Initialize matrix and vector
-        self.w = w
-        self.b = b
+    def hidden_layer(self, vector):
         # Initialize the node list and the vector
         self.input = vector
         output = self.get_output()
         return output
+
+    def initialize_matrices_and_bias(self):
+        self.w = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.feature_size, 1))).requires_grad_()
+        self.b = torch.rand(1, requires_grad = True)
+        return self.w, self.b
 
     def get_output(self):
         output = torch.matmul(self.w,self.input) + self.b

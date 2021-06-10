@@ -3,7 +3,7 @@ import torch as torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from node import Node
+from first_neural_network.node import Node
 
 class First_neural_network():
     '''

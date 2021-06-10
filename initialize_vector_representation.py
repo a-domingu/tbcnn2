@@ -2,8 +2,8 @@ import os
 import sys
 import pandas as pd
 
-from node_object_creator import *
-from embeddings import Embedding
+from utils.node_object_creator import *
+from first_neural_network.embeddings import Embedding
 
 
 class Initialize_vector_representation():

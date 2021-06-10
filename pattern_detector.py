@@ -8,14 +8,14 @@ from git import rmtree
 import click
 import importlib
 
-from node_object_creator import *
-from first_neural_network import First_neural_network
-from coding_layer import Coding_layer
-from convolutional_layer import Convolutional_layer
-from dynamic_pooling import Dynamic_pooling_layer, Max_pooling_layer
-from pooling_layer import Pooling_layer
-from hidden_layer import Hidden_layer
-from repos import download_repos
+from utils.node_object_creator import *
+from first_neural_network.first_neural_network import First_neural_network
+from layers.coding_layer import Coding_layer
+from layers.convolutional_layer import Convolutional_layer
+from layers.dynamic_pooling import Dynamic_pooling_layer, Max_pooling_layer
+from layers.pooling_layer import Pooling_layer
+from layers.hidden_layer import Hidden_layer
+from utils.repos import download_repos
 
 
 class Pattern_detection():
@@ -169,7 +169,7 @@ def get_input(pattern):
     if pattern_exists(pattern):
         #We instantiate the subclass for this pattern
         class_name = pattern.capitalize() + '_detection'
-        module = importlib.import_module(pattern + '_detector')
+        module = importlib.import_module('pattern_detection.' + pattern + '_detector')
         pattern_class = getattr(module, class_name)
         pattern_detector = pattern_class()
 

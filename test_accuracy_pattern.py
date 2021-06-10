@@ -25,7 +25,7 @@ def main(pattern):
 
         # We test the accuracy for this pattern
         class_name = pattern.capitalize() + '_test'
-        module = importlib.import_module(pattern + '_test')
+        module = importlib.import_module('pattern_accuracy_test.' + pattern + '_test')
         pattern_class = getattr(module, class_name)
 
         generator_test = pattern_class()

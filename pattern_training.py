@@ -5,11 +5,11 @@ import torch as torch
 import torch.nn as nn
 import importlib
 
-from node_object_creator import *
-from second_neural_network import SecondNeuralNetwork
-from generator_second_neural_network import Generator_second_neural_network
-import generator_second_neural_network
-from dataset import Dataset
+from utils.node_object_creator import *
+from second_neural_network.second_neural_network import SecondNeuralNetwork
+from second_neural_network.generator_second_neural_network import Generator_second_neural_network
+import second_neural_network.generator_second_neural_network
+from second_neural_network.dataset import Dataset
 
 
 class Pattern_training():
@@ -51,7 +51,7 @@ class Pattern_training():
 
         # We instantiate the pattern class
         class_name = self.pattern.capitalize() + '_second_neural_network'
-        module = importlib.import_module(self.pattern + '_second_neural_network')
+        module = importlib.import_module('second_neural_network.' + self.pattern + '_second_neural_network')
         pattern_class = getattr(module, class_name)
 
         # Training

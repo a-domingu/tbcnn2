@@ -5,8 +5,8 @@ import pandas as pd
 import pickle
 import gc
 
-from node_object_creator import *
-from first_neural_network import First_neural_network
+from utils.node_object_creator import *
+from first_neural_network.first_neural_network import First_neural_network
 
 
 class Vector_representation():
