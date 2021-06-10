@@ -1,4 +1,5 @@
 import os
+import sys
 import pandas as pd
 
 from node_object_creator import *
@@ -34,17 +35,30 @@ class Initialize_vector_representation():
 
     def first_neural_network_dict_creation(self):
         path = os.path.join('sets', self.pattern)
-        # we create the data dict with all the information about vector representation
-        data_dict = {}
-        # iterates through the generators directory, identifies the folders and enter in them
-        for (dirpath, _dirnames, filenames) in os.walk(path):
-            if dirpath.endswith('withpattern') or dirpath.endswith('nopattern'):
-                for filename in filenames:
-                    if filename.endswith('.py'):
-                        filepath = os.path.join(dirpath, filename)
-                        data_dict[filepath] = None
+        #If there is not a set with the required pattern, we print an error
+        if not os.path.isdir(path):
+            message = '''
+            ---------------------------------------------------------------------------------
+            This pattern is not implemented. Please check the following:
+               - There is a labeled set for the required pattern.
+               - There is a second neural network subclass implemented for this pattern.
+               - The pattern name is well written.
+            -----------------------------------------------------------------------------
+            '''
+            print(message)
+            sys.exit()
+        else:
+            # we create the data dict with all the information about vector representation
+            data_dict = {}
+            # iterates through the generators directory, identifies the folders and enter in them
+            for (dirpath, _dirnames, filenames) in os.walk(path):
+                if dirpath.endswith('withpattern') or dirpath.endswith('nopattern'):
+                    for filename in filenames:
+                        if filename.endswith('.py'):
+                            filepath = os.path.join(dirpath, filename)
+                            data_dict[filepath] = None
 
-        return data_dict
+            return data_dict
 
 
     def vector_representation_all_files(self, data_dict):
@@ -68,7 +82,7 @@ class Initialize_vector_representation():
 
 if __name__ == '__main__':
     # Pattern
-    pattern = 'generators'
+    pattern = 'generator'
     # First neural network parameters
     vector_size = 30
 

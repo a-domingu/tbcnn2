@@ -2,6 +2,7 @@ __pycache__
 .pytest_cache
 .vscode
 sets
+test_sets
 sets100
 sets400
 sets_short

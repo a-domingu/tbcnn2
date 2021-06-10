@@ -67,12 +67,14 @@ class Pattern_training():
 
     def training_and_validation_sets_creation(self):
         path = os.path.join('sets', self.pattern)
-        #TODO Añadir un if si no existe el directorio os.path.join('sets', self.pattern) entonces devolver al usuario que no existe ese generator
+        #If there is not a set with the required pattern, we print an error
         if not os.path.isdir(path):
             message = '''
             ---------------------------------------------------------------------------------
-            This pattern is not implemented. Please implement a new second neural subclass for
-            this pattern or check if the pattern name is well written.
+            This pattern is not implemented. Please check the following:
+               - There is a labeled set for the required pattern.
+               - There is a second neural network subclass implemented for this pattern.
+               - The pattern name is well written.
             -----------------------------------------------------------------------------
             '''
             print(message)

@@ -111,12 +111,12 @@ class SecondNeuralNetwork(nn.Module):
             print('Epoch: ', epoch, ', Time: ', end-start, ', Training Loss: ', train_loss/len(training_generator), ', Validation Loss: ', loss_validation/len(validation_generator), ', accuracy: ', accuracy)
             print('############### \n')
 
-            '''
-            if accuracy_validation > self.best_accuracy:
+            
+            if accuracy > self.best_accuracy:
                     #we only save the paramters that provide the best accuracy
-                    self.best_accuracy = accuracy_validation
+                    self.best_accuracy = accuracy
                     self.save()
-            '''
+            
 
         message = f'''
 The loss we have for the training network is: {sum_loss/nb_batch}

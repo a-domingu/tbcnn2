@@ -1,11 +1,12 @@
 import os
-import numpy
 import pandas as pd
 import torch as torch
 import torch.nn as nn
 from time import time
 import shutil
 from git import rmtree
+import click
+import importlib
 
 from node_object_creator import *
 from first_neural_network import First_neural_network
@@ -19,46 +20,14 @@ from repos import download_repos
 
 class Pattern_detection():
 
-    def __init__(self, n = 30, m = 100, pooling = 'one-way pooling'):
-        self.vector_size = n
-        self.feature_size = m
-        # parameters
-        w_comb1 = numpy.genfromtxt(os.path.join("params","w_comb1.csv"), delimiter = ",")
-        self.w_comb1 = torch.tensor(w_comb1, dtype=torch.float32)
-        w_comb2 = numpy.genfromtxt(os.path.join("params","w_comb2.csv"), delimiter = ",")
-        self.w_comb2 = torch.tensor(w_comb2, dtype=torch.float32)
-        w_t = numpy.genfromtxt(os.path.join("params","w_t.csv"), delimiter = ",")
-        self.w_t = torch.tensor(w_t, dtype=torch.float32)
-        w_r = numpy.genfromtxt(os.path.join("params","w_r.csv"), delimiter = ",")
-        self.w_r = torch.tensor(w_r, dtype=torch.float32)
-        w_l = numpy.genfromtxt(os.path.join("params","w_l.csv"), delimiter = ",")
-        self.w_l = torch.tensor(w_l, dtype=torch.float32)
-        b_conv = numpy.genfromtxt(os.path.join("params","b_conv.csv"), delimiter = ",")
-        self.b_conv = torch.tensor(b_conv, dtype=torch.float32)
-        w_hidden = numpy.genfromtxt(os.path.join("params","w_hidden.csv"), delimiter = ",")
-        self.w_hidden = torch.tensor(w_hidden, dtype=torch.float32)
-        b_hidden = numpy.genfromtxt(os.path.join("params","b_hidden.csv"), delimiter = ",")
-        self.b_hidden = torch.tensor(b_hidden, dtype=torch.float32)
-
-        # pooling method
-        self.pooling = pooling
-        if self.pooling == 'one-way pooling':
-            self.pooling_layer = Pooling_layer()
-        else:
-            self.dynamic = Dynamic_pooling_layer()
-            self.max_pool = Max_pooling_layer()
-
-        ### Layers
-        self.cod = Coding_layer(self.vector_size)
-        self.conv = Convolutional_layer(self.vector_size, features_size=self.feature_size)
-        self.hidden = Hidden_layer()
+    def __init__(self):
+        self.vector_size = self.set_vector_size()
 
 
-    def pattern_detection(self, path):
+    def pattern_detection(self, path, pattern):
         
-        """Create the data set"""
-        #message = '########################################<br>'
-        #message = message + 'Doing the embedding for each file <br>'
+        # Load the trained matrices and vectors
+        self.load_matrices_and_vectors()
 
         # Data dictionary creation
         data_dict = self.data_dict_creation(path)
@@ -71,8 +40,20 @@ class Pattern_detection():
         predicts = self.prediction(data_dict)
         
         # We print the predictions
-        message = self.print_predictions(predicts, data_dict)
+        message = self.print_predictions(predicts, data_dict, pattern)
+        print(message)
         return message
+
+
+    def set_vector_size(self):
+        df = pd.read_csv('initial_vector_representation.csv')
+        vector_size = len(df[df.columns[0]])
+
+        return vector_size
+
+    
+    def load_matrices_and_vectors(self):
+        pass
 
 
     def data_dict_creation(self, path):
@@ -90,7 +71,6 @@ class Pattern_detection():
                         data_dict[filepath] = None
         return data_dict
 
-    
 
     def first_neural_network(self, data_dict, vector_size = 30, learning_rate = 0.3, momentum = 0, l2_penalty = 0, epoch = 1):
         total = len(data_dict)
@@ -111,7 +91,7 @@ class Pattern_detection():
             vector_representation = First_neural_network(ls_nodes, vector_size, learning_rate, momentum, l2_penalty, epoch)
 
             # Calculate the vector representation for each node
-            params = vector_representation.vector_representation()
+            params = vector_representation.train()
             #params = [w_l_code, w_r_code, b_code]
             data_dict[data] = params
             time2= time()
@@ -139,22 +119,10 @@ class Pattern_detection():
 
 
     def second_neural_network(self, vector_representation_params):
-        ls_nodes, w_l_code, w_r_code, b_code = vector_representation_params
-        # we don't do coding layer and go directly to convolutional layer; that's why we don't
-        # use the matrices above
-        ls_nodes = self.conv.convolutional_layer(ls_nodes, self.w_t, self.w_r, self.w_l, self.b_conv)
-        if self.pooling == 'one-way pooling':
-            vector = self.pooling_layer.pooling_layer(ls_nodes)
-        else:
-            self.max_pool.max_pooling(ls_nodes)
-            dict_sibling = {}
-            vector = self.dynamic.three_way_pooling(ls_nodes, dict_sibling)
-        output = self.hidden.hidden_layer(vector, self.w_hidden, self.b_hidden)
-
-        return output
+        pass
 
 
-    def print_predictions(self, predicts, data_dict):
+    def print_predictions(self, predicts, data_dict, pattern):
         i = 0
         message = ''
         for data in data_dict.keys():
@@ -162,12 +130,12 @@ class Pattern_detection():
                 path = data.split(os.path.sep)
                 path.pop(0)
                 name = os.path.join(*(path))
-                message = message + '<p> The file ' + name + ' has not generators</p>'
+                message = message + '<p> The file ' + name + ' has not ' + pattern + 's</p>'
             else:
                 path = data.split(os.path.sep)
                 path.pop(0)
                 name = os.path.join(*(path))
-                message = message + '<p> The file ' + name + ' has generators</p>'
+                message = message + '<p> The file ' + name + ' has ' + pattern + 's</p>'
             i+=1
         return message
 
@@ -176,13 +144,16 @@ def set_leaves(ls_nodes):
     for node in ls_nodes:
         node.set_leaves()
 
+
 def set_vector(ls_nodes):
     df = pd.read_csv('initial_vector_representation.csv')
     for node in ls_nodes:
         node.set_vector(df)
 
 
-def main():
+@click.command()
+@click.argument('pattern', required = True, nargs=1, type=str)
+def main(pattern):
     welcome_message = '''
         ---------------------------------------------------------------------------------
     This is the Discern program. The main objective is to be able to find if the files within a project
@@ -191,35 +162,59 @@ def main():
     -----------------------------------------------------------------------------
     '''
     print(welcome_message)
-    get_input()
+    get_input(pattern)
 
 
+def get_input(pattern):
+    if pattern_exists(pattern):
+        #We instantiate the subclass for this pattern
+        class_name = pattern.capitalize() + '_detection'
+        module = importlib.import_module(pattern + '_detector')
+        pattern_class = getattr(module, class_name)
+        pattern_detector = pattern_class()
 
-def get_input():
-    pattern_detector = Pattern_detection()
-    choice = '''
+        choice = '''
 
-    Do you wish to indicate the path to a local folder ([y] / n) ?: 
-    '''
-    print(choice)
-    x = input()
-    if x:
-        if x == 'y':
+        Do you wish to indicate the path to a local folder ([y] / n) ?: 
+        '''
+        print(choice)
+        x = input()
+        if x:
+            if x == 'y':
+                print('Please indicate the path to the folder')
+                x = input()
+                pattern_detector.pattern_detection(x, pattern)
+            elif x == 'n':
+                choose_url(pattern)
+            else:
+                print('Invalid expression')
+                get_input(pattern)
+        else:
             print('Please indicate the path to the folder')
             x = input()
-            pattern_detector.pattern_detection(x)
-        elif x == 'n':
-            choose_url()
-        else:
-            print('Invalid expression')
-            get_input()
+            pattern_detector.pattern_detection(x, pattern)
+
     else:
-        print('Please indicate the path to the folder')
-        x = input()
-        pattern_detector.pattern_detection(x)
+        message = '''
+        ---------------------------------------------------------------------------------
+        This pattern is not implemented. Please check the following:
+            - There is a second neural network subclass implemented for this pattern.
+            - The pattern name is well written.
+        -----------------------------------------------------------------------------
+        '''
+        print(message)
+        sys.exit()
 
 
-def choose_url():
+def pattern_exists(pattern):
+    file_name = pattern + '_detector.py'
+    if os.path.isfile(file_name):
+        return True
+    else:
+        return False
+
+
+def choose_url(pattern):
     choice = '''
     Then do you wish to indicate a URL? ([y] / n)?:
     '''
@@ -229,23 +224,23 @@ def choose_url():
         if x == 'y':
             print('Please indicate the URL: ')
             x = input()
-            validate_from_url(x)
+            validate_from_url(x, pattern)
         elif x == 'n':
             print('Exiting program')
         else:
             print('Invalid expression')
-            choose_url()
+            choose_url(pattern)
     else:
         print('Please indicate the URL: ')
         x = input()
-        validate_from_url(x)
+        validate_from_url(x, pattern)
 
 
-def validate_from_url(url):
+def validate_from_url(url, pattern):
     download_repos([url], 'downloaded_validate')
     path = get_path(url)
     generator_detector = Pattern_detection()
-    message = generator_detector.generator_detection(path)
+    message = generator_detector.generator_detection(path, pattern)
     folder_deleter(path)
     return message
 
@@ -254,6 +249,7 @@ def get_path(url):
     project_name = url.split('/')[-1]
     path = os.path.join('downloaded_validate', project_name)
     return path
+
 
 def folder_deleter(path):
     try:

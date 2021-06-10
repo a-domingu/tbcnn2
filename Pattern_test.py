@@ -1,5 +1,4 @@
 import os
-import numpy
 import pandas as pd
 import torch as torch
 import torch.nn as nn
@@ -18,45 +17,17 @@ from utils import conf_matrix, accuracy, bad_predicted_files
 
 class Pattern_test():
 
-    def __init__(self, n = 30, m = 100, pooling = 'one-way pooling'):
-        self.vector_size = n
-        self.feature_size = m
-        # parameters
-        w_comb1 = numpy.genfromtxt(os.path.join("params","w_comb1.csv"), delimiter = ",")
-        self.w_comb1 = torch.tensor(w_comb1, dtype=torch.float32)
-        w_comb2 = numpy.genfromtxt(os.path.join("params","w_comb2.csv"), delimiter = ",")
-        self.w_comb2 = torch.tensor(w_comb2, dtype=torch.float32)
-        w_t = numpy.genfromtxt(os.path.join("params","w_t.csv"), delimiter = ",")
-        self.w_t = torch.tensor(w_t, dtype=torch.float32)
-        w_r = numpy.genfromtxt(os.path.join("params","w_r.csv"), delimiter = ",")
-        self.w_r = torch.tensor(w_r, dtype=torch.float32)
-        w_l = numpy.genfromtxt(os.path.join("params","w_l.csv"), delimiter = ",")
-        self.w_l = torch.tensor(w_l, dtype=torch.float32)
-        b_conv = numpy.genfromtxt(os.path.join("params","b_conv.csv"), delimiter = ",")
-        self.b_conv = torch.tensor(b_conv, dtype=torch.float32)
-        w_hidden = numpy.genfromtxt(os.path.join("params","w_hidden.csv"), delimiter = ",")
-        self.w_hidden = torch.tensor(w_hidden, dtype=torch.float32)
-        b_hidden = numpy.genfromtxt(os.path.join("params","b_hidden.csv"), delimiter = ",")
-        self.b_hidden = torch.tensor(b_hidden, dtype=torch.float32)
-
-        # pooling method
-        self.pooling = pooling
-        if self.pooling == 'one-way pooling':
-            self.pooling_layer = Pooling_layer()
-        else:
-            self.dynamic = Dynamic_pooling_layer()
-            self.max_pool = Max_pooling_layer()
-
-        ### Layers
-        self.cod = Coding_layer(self.vector_size)
-        self.conv = Convolutional_layer(self.vector_size, features_size=self.feature_size)
-        self.hidden = Hidden_layer()
+    def __init__(self):
+        self.vector_size = self.set_vector_size()
 
 
-    def pattern_detection(self, path):
+    def pattern_detection(self, pattern):
+
+        # Load the trained matrices and vectors
+        self.load_matrices_and_vectors()
         
-        """Create the test set"""
-        targets_set, targets_label = self.create_and_label_test_set(path)
+        # Create the test set
+        targets_set, targets_label = self.create_and_label_test_set(pattern)
 
         # Training the first neural network
         print('Doing the embedding for each file')
@@ -71,7 +42,19 @@ class Pattern_test():
         self.print_predictions(targets_label, predicts, targets_set)
 
     
-    def create_and_label_test_set(self, path):
+    def set_vector_size(self):
+        df = pd.read_csv('initial_vector_representation.csv')
+        vector_size = len(df[df.columns[0]])
+
+        return vector_size
+
+    
+    def load_matrices_and_vectors(self):
+        pass
+        
+    
+    def create_and_label_test_set(self, pattern):
+        path = os.path.join('test_sets', pattern)
         # We create a tensor with the name of the files and other tensor with their label
         targets_set = [] 
         targets_label = []
@@ -111,7 +94,7 @@ class Pattern_test():
             set_vector(ls_nodes)
             # Calculate the vector representation for each node
             vector_representation = First_neural_network(ls_nodes, vector_size, learning_rate, momentum, l2_penalty, epoch)
-            ls_nodes, w_l_code, w_r_code, b_code = vector_representation.vector_representation()
+            ls_nodes, w_l_code, w_r_code, b_code = vector_representation.train()
 
             filename = os.path.join('vector_representation', os.path.basename(tree) + '.txt')
             params = [ls_nodes, w_l_code, w_r_code, b_code]
@@ -148,19 +131,8 @@ class Pattern_test():
 
 
     def second_neural_network(self, vector_representation_params):
-        ls_nodes, w_l_code, w_r_code, b_code = vector_representation_params
-        # we don't do coding layer and go directly to convolutional layer; that's why we don't
-        # use the matrices above
-        ls_nodes = self.conv.convolutional_layer(ls_nodes, self.w_t, self.w_r, self.w_l, self.b_conv)
-        if self.pooling == 'one-way pooling':
-            vector = self.pooling_layer.pooling_layer(ls_nodes)
-        else:
-            self.max_pool.max_pooling(ls_nodes)
-            dict_sibling = None
-            vector = self.dynamic.three_way_pooling(ls_nodes, dict_sibling)
-        output = self.hidden.hidden_layer(vector, self.w_hidden, self.b_hidden)
+        pass
 
-        return output
 
     def delete_vector_representation_files(self):
         folder = 'vector_representation'
@@ -193,11 +165,3 @@ def set_vector(ls_nodes):
     for node in ls_nodes:
         node.set_vector(df)
         
-
-
-
-if __name__ == '__main__':
-    path = os.path.join('sets', 'generators')
-
-    generator_test = Pattern_test()
-    generator_test.pattern_detection(path)

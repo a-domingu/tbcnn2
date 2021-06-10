@@ -43,7 +43,7 @@ class Generator_second_neural_network(SecondNeuralNetwork):
 
     def save(self):
         '''Save all the trained parameters into a csv file'''
-        directory = os.path.join('params', 'generators')
+        directory = os.path.join('params', 'generator')
         if not os.path.exists(directory):
             os.mkdir(directory)
 

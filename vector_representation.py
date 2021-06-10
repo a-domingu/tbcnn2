@@ -1,4 +1,5 @@
 import os
+import sys
 from time import time
 import pandas as pd
 import pickle
@@ -62,13 +63,26 @@ class Vector_representation():
 
     def read_folder_data_set(self):
         path = os.path.join('sets', self.pattern)
-        # iterates through the generators directory, identifies the folders and enter in them
-        for (dirpath, _dirnames, filenames) in os.walk(path):
-            if dirpath.endswith('withpattern') or dirpath.endswith('nopattern'):
-                for filename in filenames:
-                    if filename.endswith('.py'):
-                        filepath = os.path.join(dirpath, filename)
-                        yield filepath
+        #If there is not a set with the required pattern, we print an error
+        if not os.path.isdir(path):
+            message = '''
+            ---------------------------------------------------------------------------------
+            This pattern is not implemented. Please check the following:
+               - There is a labeled set for the required pattern.
+               - There is a second neural network subclass implemented for this pattern.
+               - The pattern name is well written.
+            -----------------------------------------------------------------------------
+            '''
+            print(message)
+            sys.exit()
+        else:
+            # iterates through the generators directory, identifies the folders and enter in them
+            for (dirpath, _dirnames, filenames) in os.walk(path):
+                if dirpath.endswith('withpattern') or dirpath.endswith('nopattern'):
+                    for filename in filenames:
+                        if filename.endswith('.py'):
+                            filepath = os.path.join(dirpath, filename)
+                            yield filepath
 
 
     def set_leaves(self, ls_nodes):
@@ -85,7 +99,7 @@ class Vector_representation():
 
 if __name__ == '__main__':
     # Pattern
-    pattern = 'generators'
+    pattern = 'generator'
     # First neural network parameters
     vector_size = 30
     learning_rate = 0.3
