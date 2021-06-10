@@ -88,6 +88,7 @@ class Convolutional_layer():
                 del w_l_coeffs
                 del w_r_coeffs
 
+                convolutional_matrix.to(self.device), vector_matrix.to(self.device)
                 final_matrix = torch.matmul(convolutional_matrix, vector_matrix)
                 del vector_matrix
                 final_vector = torch.sum(final_matrix, 0)
