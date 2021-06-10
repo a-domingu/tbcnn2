@@ -137,7 +137,7 @@ class Convolutional_layer():
             vectors.append(child.vector)
 
         # We create a matrix with all the vectors
-        vector_matrix = torch.stack(tuple(vectors), 0).to(self.device)
+        vector_matrix = torch.stack(tuple(vectors), 0)
         del vectors
         # We create a tensor with the parameters associated to the top matrix
         w_t_params = torch.tensor(w_t_list).to(self.device)
