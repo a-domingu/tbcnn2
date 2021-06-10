@@ -33,10 +33,10 @@ class SecondNeuralNetwork(nn.Module):
         # Create uniform random numbers in half-open interval [-1.0, 1.0)
         self.w_comb1 = torch.diag(torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.vector_size, 1)), 1)).requires_grad_()
         self.w_comb2 = torch.diag(torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.vector_size, 1)), 1)).requires_grad_()
-        self.w_t = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_().to(self.device)
-        self.w_r = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_().to(self.device)
-        self.w_l = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_().to(self.device)
-        self.b_conv = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.feature_size, 1))).requires_grad_().to(self.device)
+        self.w_r = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).to(self.device).requires_grad_()
+        self.w_t = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).to(self.device).requires_grad_()
+        self.w_l = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).to(self.device).requires_grad_()
+        self.b_conv = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.feature_size, 1))).to(self.device).requires_grad_()
         # pooling method
         self.pooling = pooling
         if self.pooling == 'three-way pooling':
@@ -45,8 +45,8 @@ class SecondNeuralNetwork(nn.Module):
             self.dynamic = Dynamic_pooling_layer()
             self.max_pool = Max_pooling_layer()
         else:
-            self.w_hidden = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.feature_size, 1))).requires_grad_().to(self.device)
-            self.b_hidden = torch.rand(1, requires_grad = True).to(self.device)
+            self.w_hidden = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.feature_size, 1))).to(self.device).requires_grad_()
+            self.b_hidden = torch.rand(1).to(self.device).requires_grad_()
             self.pooling = Pooling_layer()
         # layers
         self.cod = Coding_layer(self.vector_size)
