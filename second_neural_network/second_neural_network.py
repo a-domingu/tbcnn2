@@ -8,6 +8,7 @@ import pickle
 import gc
 
 from utils.node_object_creator import *
+from first_neural_network.node import Node
 from layers.coding_layer import Coding_layer
 from layers.convolutional_layer import Convolutional_layer
 from layers.pooling_layer import Pooling_layer

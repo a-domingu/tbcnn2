@@ -14,7 +14,7 @@ from initialize_vector_representation import Initialize_vector_representation
 @click.option('--learning_rate2', required = False, type=int, default = 0.001, help='Choose the learning rate for the TBCNN')
 @click.option('--epoch_first', required = False, type=int, default = 1, help='Choose the number of epochs for the vector representation') 
 @click.option('--epoch', required = False, type=int, default = 1, help='Choose the number of epochs for the TBCNN') 
-@click.option('--batch', required = False, type=int, default = 64, help='Choose the batch size') 
+@click.option('--batch', required = False, type=int, default = 20, help='Choose the batch size') 
 @click.option('--momentum', required = False, type=int, default = 0, help='Parameter (epsilon) used in the SGD with momentum algorithm') 
 @click.option('--l2_penalty', required = False, type=int, default = 0, help='Hyperparameter that strikes the balance between coding error and l2 penalty')
 @click.option('--initial_vector_representation', required = False, is_flag = True, help='Make an initial vector representation based on the type of node')

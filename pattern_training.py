@@ -125,12 +125,12 @@ class Pattern_training():
 
 if __name__ == '__main__':
     # Folder path
-    pattern = 'generator'
+    pattern = 'wrapper'
     # Second neural network parameters
     vector_size = 30
     learning_rate2 = 0.001
     feature_size = 100
-    epoch = 1
+    epoch = 5
     batch_size = 20
 
     pattern_training = Pattern_training(pattern, vector_size, learning_rate2, feature_size, epoch, batch_size)
