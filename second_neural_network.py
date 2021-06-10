@@ -32,10 +32,10 @@ class SecondNeuralNetwork(nn.Module):
         # Create uniform random numbers in half-open interval [-1.0, 1.0)
         self.w_comb1 = torch.diag(torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.vector_size, 1)), 1)).requires_grad_()
         self.w_comb2 = torch.diag(torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.vector_size, 1)), 1)).requires_grad_()
-        self.w_t = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_().to(self.device)
-        self.w_r = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_().to(self.device)
-        self.w_l = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_().to(self.device)
-        self.b_conv = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.feature_size, 1))).requires_grad_().to(self.device)
+        self.w_l = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size), device = self.device).requires_grad_()
+        self.w_t = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size), device = self.device).requires_grad_()
+        self.w_r = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size), device = self.device).requires_grad_()
+        self.b_conv = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.feature_size, 1), device = self.device)).requires_grad_()
         # pooling method
         self.pooling = pooling
         if self.pooling == 'three-way pooling':
@@ -44,8 +44,8 @@ class SecondNeuralNetwork(nn.Module):
             self.dynamic = Dynamic_pooling_layer()
             self.max_pool = Max_pooling_layer()
         else:
-            self.w_hidden = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.feature_size, 1))).requires_grad_().to(self.device)
-            self.b_hidden = torch.rand(1, requires_grad = True).to(self.device)
+            self.w_hidden = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.feature_size, 1), device = self.device)).requires_grad_()
+            self.b_hidden = torch.rand(1, requires_grad = True, device= self.device)
             self.pooling = Pooling_layer()
         # layers
         self.cod = Coding_layer(self.vector_size)
@@ -180,7 +180,7 @@ The loss we have for the training network is: {sum_loss/nb_batch}
         all_targets = torch.empty(0)
         with torch.set_grad_enabled(False):
             for batch, target in validation_generator:
-                #data, target = data.to(self.device), target.to(self.device)
+                target.to(self.device)
                 predicts = torch.empty(0)
                 predicts_no_sigmoid = torch.empty(0)
                 for file in batch: 

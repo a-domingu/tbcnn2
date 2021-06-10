@@ -139,13 +139,12 @@ class Convolutional_layer():
         vector_matrix = torch.stack(tuple(vectors), 0)
         del vectors
         # We create a tensor with the parameters associated to the top matrix
-        w_t_params = torch.tensor(w_t_list).to(self.device)
+        w_t_params = torch.tensor(w_t_list, device= self.device)
         del w_t_list
         # We create a tensor with the parameters associated to the left matrix
-        w_l_params = torch.tensor(w_l_list).to(self.device)
-        del w_l_list
+        w_l_params = torch.tensor(w_l_list, device= self.device)
         # We create a tensor with the parameters associated to the right matrix
-        w_r_params = torch.tensor(w_r_list).to(self.device)
+        w_r_params = torch.tensor(w_r_list, device= self.device)
         del w_r_list
         # Reshape the matrices and vectors and create 3D tensors
         vector_matrix, w_t_params, w_l_params, w_r_params = self.reshape_matrices_and_vectors(vector_matrix, w_t_params, w_l_params, w_r_params)
