@@ -6,6 +6,7 @@ import torch.nn.functional as F
 from time import time
 import pickle
 import gc
+import traceback
 
 from node_object_creator import *
 from coding_layer import Coding_layer
@@ -55,8 +56,24 @@ class SecondNeuralNetwork(nn.Module):
         self.best_accuracy = 0
 
 
+    def assert_leafs(self):
+        try:
+            assert self.w_t.is_leaf
+            assert self.w_l.is_leaf
+            assert self.w_r.is_leaf
+            assert self.b_hidden.is_leaf
+            assert self.b_conv.is_leaf
+            assert self.w_hidden.is_leaf
+        except AssertionError:
+            _, _, tb = sys.exc_info()
+            traceback.print_tb(tb) # Fixed format
+            tb_info = traceback.extract_tb(tb)
+            filename, line, func, text = tb_info[-1]
+            print('An error occurred on line {} in statement {}'.format(line, text))
+            exit(1)
     
     def train(self, training_generator, validation_generator, total_epochs = 40, learning_rate = 0.01, batch_size = 20):
+        self.assert_leafs()
         """Create the training loop"""
         # Construct the optimizer
         params = [self.w_comb1, self.w_comb2, self.w_t, self.w_l, self.w_r, self.b_conv, self.w_hidden, self.b_hidden]
