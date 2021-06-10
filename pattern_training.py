@@ -1,15 +1,14 @@
 import os
+import sys
 import random
 import torch as torch
 import torch.nn as nn
-from time import time
-import pandas as pd
-import pickle
+import importlib
 
 from node_object_creator import *
-from embeddings import Embedding
-from first_neural_network import First_neural_network
 from second_neural_network import SecondNeuralNetwork
+from generator_second_neural_network import Generator_second_neural_network
+import generator_second_neural_network
 from dataset import Dataset
 
 
@@ -43,15 +42,20 @@ class Pattern_training():
         print('targets del training: ', training_targets)
 
             
-        # Generators
+        # Dataset management: batch creation and sending data to GPU
         training_dataset = Dataset(training_set, training_targets)
         training_generator = torch.utils.data.DataLoader(training_dataset, **params)
 
         validation_dataset = Dataset(validation_set, validation_targets)
         validation_generator = torch.utils.data.DataLoader(validation_dataset, **params)
 
+        # We instantiate the pattern class
+        class_name = self.pattern.capitalize() + '_second_neural_network'
+        module = importlib.import_module(self.pattern + '_second_neural_network')
+        pattern_class = getattr(module, class_name)
+
         # Training
-        model = SecondNeuralNetwork(device, self.vector_size, self.feature_size, self.pooling)
+        model = pattern_class(device, self.vector_size, self.feature_size, self.pooling)
         if torch.cuda.device_count() > 1:
             print("Let's use", torch.cuda.device_count(), "GPUs!")
             # dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs
@@ -63,22 +67,33 @@ class Pattern_training():
 
     def training_and_validation_sets_creation(self):
         path = os.path.join('sets', self.pattern)
-        # we create the training set and the validation set
-        training_set = []
-        validation_set = []
-        # We create a target training target tensor and a validation target tensor
-        training_targets = {}
-        validation_targets = {}
-        # iterates through the generators directory, identifies the folders and enter in them
-        for (dirpath, dirnames, filenames) in os.walk(path):
-            for folder in dirnames:
-                folder_path = os.path.join(dirpath, folder)
-                if folder == 'withpattern':
-                    training_set, validation_set, training_targets, validation_targets = self.tensor_creation(folder_path, training_set, validation_set, training_targets, validation_targets, 1)
-                elif folder == 'nopattern':
-                    training_set, validation_set, training_targets, validation_targets = self.tensor_creation(folder_path, training_set, validation_set, training_targets, validation_targets, 0)
-                
-        return training_set, validation_set, training_targets, validation_targets
+        #TODO Añadir un if si no existe el directorio os.path.join('sets', self.pattern) entonces devolver al usuario que no existe ese generator
+        if not os.path.isdir(path):
+            message = '''
+            ---------------------------------------------------------------------------------
+            This pattern is not implemented. Please implement a new second neural subclass for
+            this pattern or check if the pattern name is well written.
+            -----------------------------------------------------------------------------
+            '''
+            print(message)
+            sys.exit()
+        else:
+            # we create the training set and the validation set
+            training_set = []
+            validation_set = []
+            # We create a target training target tensor and a validation target tensor
+            training_targets = {}
+            validation_targets = {}
+            # iterates through the generators directory, identifies the folders and enter in them
+            for (dirpath, dirnames, filenames) in os.walk(path):
+                for folder in dirnames:
+                    folder_path = os.path.join(dirpath, folder)
+                    if folder == 'withpattern':
+                        training_set, validation_set, training_targets, validation_targets = self.tensor_creation(folder_path, training_set, validation_set, training_targets, validation_targets, 1)
+                    elif folder == 'nopattern':
+                        training_set, validation_set, training_targets, validation_targets = self.tensor_creation(folder_path, training_set, validation_set, training_targets, validation_targets, 0)
+                    
+            return training_set, validation_set, training_targets, validation_targets
 
 
     def tensor_creation(self, folder_path, training_set, validation_set, training_targets, validation_targets, value):
@@ -108,7 +123,7 @@ class Pattern_training():
 
 if __name__ == '__main__':
     # Folder path
-    pattern = 'generators'
+    pattern = 'generator'
     # Second neural network parameters
     vector_size = 30
     learning_rate2 = 0.001

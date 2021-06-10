@@ -19,8 +19,8 @@ from utils import writer, plot_confusion_matrix, conf_matrix, accuracy, bad_pred
 
 class Generator_second_neural_network(SecondNeuralNetwork):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, device, n = 20, m = 4, pooling = 'one-way pooling'):
+        super().__init__(device, n, m, pooling)
 
     def layers(self, vector_representation_params):
         ls_nodes, w_l_code, w_r_code, b_code = vector_representation_params
