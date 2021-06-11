@@ -1,3 +1,5 @@
+GitPython==3.1.17
+git=2.23.0
 scipy==1.6.2
 pytest==6.2.3
 pandas==1.2.4
@@ -5,3 +7,4 @@ matplotlib==3.3.4
 numpy==1.20.0
 gensim==4.0.1
 torch==1.8.1
+joblib==1.0.1

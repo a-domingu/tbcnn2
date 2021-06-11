@@ -52,9 +52,12 @@ class Node():
 
     # Assigns the vector embedding to each node
     def set_vector(self, df):
-        assert self.type in df.columns
-        # TODO determinar qué hacer cuando nos encontramos un tipo de nodo del cual no tenemos representacion vectorial
-        vector =  df[self.type]
+        if self.type in df.columns:
+            vector =  df[self.type]
+        else:
+            num = len(df['Yield'])
+            vector = [0 for i in range(num)]
+        
         if type(vector) == torch.Tensor:
             self.vector = vector
         else:

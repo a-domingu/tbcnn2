@@ -1,8 +1,9 @@
 import torch as torch
+import torch.distributions
 import torch.nn as nn
 import torch.nn.functional as F
 
-from node import Node
+from first_neural_network.node import Node
 
 class Convolutional_layer():
     '''
@@ -40,33 +41,32 @@ class Convolutional_layer():
     '''
 
     def __init__(self, vector_size, kernel_depth = 2, features_size = 4):
-        self.ls = []
         self.vector_size = vector_size
-        self.w_t = None
-        self.w_r = None
-        self.w_l = None
-        self.b_conv = None
-        self.Nc = features_size
+        self.feature_size = features_size
         self.kernel_depth = kernel_depth
+        #self.w_t = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_()
+        self.w_t = torch.rand(self.feature_size, self.vector_size).requires_grad_()
+        #self.w_r = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_()
+        self.w_r = torch.rand(self.feature_size, self.vector_size).requires_grad_()
+        #self.w_l = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_()
+        self.w_l = torch.rand(self.feature_size, self.vector_size).requires_grad_()
+        self.b = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.feature_size, 1))).requires_grad_()
+        
 
-
-    def convolutional_layer(self, ls_nodes, w_t, w_r, w_l, b):
-        # Initialize the node list and the dict node
-        self.ls = ls_nodes
-        # Initialize matrices and bias
-        self.w_t = w_t
-        self.w_r = w_r
-        self.w_l = w_l
-        self.b_conv = b
+    def convolutional_layer(self, ls_nodes):
 
         # self.y is the output of the convolutional layer.
-        self.calculate_y()
+        self.calculate_y(ls_nodes)
 
-        return self.ls
+        return ls_nodes
 
 
-    def calculate_y(self):
-        for node in self.ls:
+    def initialize_matrices_and_bias(self):
+        return self.w_t, self.w_l, self.w_r, self.b
+
+
+    def calculate_y(self, ls_nodes):
+        for node in ls_nodes:
             ''' 
             We are going to create the sliding window. Taking as reference the book,
             we are going to set the kernel depth of our windows as 2. We consider into the window
@@ -79,12 +79,16 @@ class Convolutional_layer():
             In case we change the depth of the window, we have to change the parameters of each tensor
             '''
             if node.children:
-                self.sliding_window_tensor(node)
+                vector_matrix, w_t_coeffs, w_l_coeffs, w_r_coeffs = self.sliding_window_tensor(node)
 
                 # The convolutional matrix for each node is a linear combination of matrices w_t, w_l and w_r
-                convolutional_matrix = (self.w_t_params*self.w_t) + (self.w_l_params*self.w_l) + (self.w_r_params*self.w_r)
+                convolutional_matrix = (w_t_coeffs*self.w_t) + (w_l_coeffs*self.w_l) + (w_r_coeffs*self.w_r)
+                del w_t_coeffs
+                del w_l_coeffs
+                del w_r_coeffs
 
-                final_matrix = torch.matmul(convolutional_matrix, self.vector_matrix)
+                final_matrix = torch.matmul(convolutional_matrix, vector_matrix)
+                del vector_matrix
                 final_vector = torch.sum(final_matrix, 0)
                 final_vector = torch.squeeze(final_vector, 1)
 
@@ -93,18 +97,19 @@ class Convolutional_layer():
 
                 # We used relu as the activation function in TBCNN mainly because we hope to 
                 # encode features to a same semantic space during coding.
-                node.set_y(F.leaky_relu(final_vector + self.b_conv))
+                node.set_y(F.leaky_relu(final_vector + self.b))
+                del final_vector
 
             else:
                 # The convolutional matrix for each node is a linear combination of matrices w_t, w_l and w_r
                 #convolutional_matrix = self.w_t
-                argument = torch.matmul(self.w_t, node.combined_vector) + self.b_conv
+                argument = torch.matmul(self.w_t, node.vector) + self.b
                 node.set_y(F.leaky_relu(argument))
 
 
     def sliding_window_tensor(self, node):
         # We create a list with all combined vectors
-        vectors = [node.combined_vector]
+        vectors = [node.vector]
         # Parameters used to calculate the convolutional matrix for each node
         n = len(node.children)
         # If there is only one child, then we set n = 2 because n cannot be 1 
@@ -127,32 +132,39 @@ class Convolutional_layer():
             w_l_list.append((1-w_t_list[i])*(1-w_r_list[i]))
             i += 1
             # We save the combined vector of each node
-            vectors.append(child.combined_vector)
+            vectors.append(child.vector)
 
         # We create a matrix with all the vectors
-        self.vector_matrix = torch.stack(tuple(vectors), 0)
+        vector_matrix = torch.stack(tuple(vectors), 0)
+        del vectors
         # We create a tensor with the parameters associated to the top matrix
-        self.w_t_params = torch.tensor(w_t_list)
+        w_t_params = torch.tensor(w_t_list)
+        del w_t_list
         # We create a tensor with the parameters associated to the left matrix
-        self.w_l_params = torch.tensor(w_l_list)
+        w_l_params = torch.tensor(w_l_list)
+        del w_l_list
         # We create a tensor with the parameters associated to the right matrix
-        self.w_r_params = torch.tensor(w_r_list)
+        w_r_params = torch.tensor(w_r_list)
+        del w_r_list
         # Reshape the matrices and vectors and create 3D tensors
-        self.reshape_matrices_and_vectors()
+        vector_matrix, w_t_params, w_l_params, w_r_params = self.reshape_matrices_and_vectors(vector_matrix, w_t_params, w_l_params, w_r_params)
+        return vector_matrix, w_t_params, w_l_params, w_r_params
 
     # Reshape the matrices and vectors and create 3D tensors
-    def reshape_matrices_and_vectors(self):
+    def reshape_matrices_and_vectors(self, vector_matrix, w_t_params, w_l_params, w_r_params):
         # We create a 3D tensor for the vector matrix: shape(nb_nodes, 30, 1)
-        self.vector_matrix = torch.unsqueeze(self.vector_matrix, 2)
+        vector_matrix = torch.unsqueeze(vector_matrix, 2)
 
         # We create a 3D tensor for the parameters associated to the top matrix: shape(nb_nodes, 1, 1)
-        self.w_t_params = torch.unsqueeze(self.w_t_params, 1)
-        self.w_t_params = torch.unsqueeze(self.w_t_params, 1)
+        w_t_params = torch.unsqueeze(w_t_params, 1)
+        w_t_params = torch.unsqueeze(w_t_params, 1)
 
         # We create a 3D tensor for the parameters associated to the left matrix: shape(nb_nodes, 1, 1)
-        self.w_l_params = torch.unsqueeze(self.w_l_params, 1)
-        self.w_l_params = torch.unsqueeze(self.w_l_params, 1)
+        w_l_params = torch.unsqueeze(w_l_params, 1)
+        w_l_params = torch.unsqueeze(w_l_params, 1)
 
         # We create a 3D tensor for the parameters associated to the right matrix: shape(nb_nodes, 1, 1)
-        self.w_r_params = torch.unsqueeze(self.w_r_params, 1)
-        self.w_r_params = torch.unsqueeze(self.w_r_params, 1)
+        w_r_params = torch.unsqueeze(w_r_params, 1)
+        w_r_params = torch.unsqueeze(w_r_params, 1)
+
+        return vector_matrix, w_t_params, w_l_params, w_r_params

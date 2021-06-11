@@ -1,7 +1,7 @@
 import ast
 import sys
 
-from node import Node
+from first_neural_network.node import Node
 
 
 # We create the AST

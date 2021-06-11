@@ -35,7 +35,7 @@ def plot_confusion_matrix(cm, classes, lr2, feature_size, epoch, normalize=False
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
 
-    namefile = 'confusion_matrix\\CM_'+str(lr2)+'_'+str(feature_size)+'_'+str(epoch)+'.png'
+    namefile = os.path.join('confusion_matrix', 'CM_'+str(lr2)+'_'+str(feature_size)+'_'+str(epoch)+'.png')
     plt.savefig(namefile, dpi=300, bbox_inches='tight')
 
 
@@ -59,9 +59,32 @@ def accuracy(predicts, targets):
     difference = targets - rounded_prediction
     errors = torch.abs(difference).sum()
 
-    accuracy = (len(difference) - errors)/len(difference)
+    #accuracy = (len(difference) - errors)/len(difference)
 
-    return accuracy
+    return errors
+
+
+def bad_predicted_files(validation_set, predicts, targets):
+    with torch.no_grad():
+        rounded_predicts = torch.round(predicts)
+
+    # 1 if false negative
+    # -1 if false positive    
+    difference = targets - rounded_predicts
+    
+    message = '\n The prediction of the following files is incorrect: \n'
+    i=0
+    for data in validation_set:
+        if difference[i] == 1:
+            message = message + 'The file ' + data + ' is a false negative \n'
+            i+=1
+        elif difference[i] == -1:
+            message = message + 'The file ' + data + ' is a false positive \n'
+            i+=1
+        else:
+            i+=1
+
+    return message  
 
     
 def conf_matrix(predicts, targets):
