@@ -2,6 +2,21 @@
 
 ' main classes and its main methods
 
+class InitializeVectorRepresentation {
+    + initialVectorRepresentation(): void
+    - vectorRepresentationAllFiles(Dictionary[String]): Dictionary[String]
+    - saveVectors(Dictionary[String]): void
+}
+
+class PatternTraining {
+    + patternTraining(): void
+    - trainingAndValidationSetCreation(): Tuple[List[String], List[String], Dictionary[String], Dictionary[String]]
+}
+
+class VectorRepresentation {
+    + vectorRepresentation(): void
+    - readFolderDataSet(): String
+}
 
 
 ' Layers
@@ -40,53 +55,125 @@ class Embedding {
 
 class FirstNeuralNetwork {
 
-    + train(): List[Node], wL: Tensor, wR: Tensor, b: Tensor
+    + train(): Tuple[List[Node], Tensor, Tensor, Tensor]
     - training_iterations(): Integer
 }
+
 
 class Node {
 
     + getChildren(): List[ASTNode]
     + descendants(): List[Node]
-    - training_iterations(): Integer
+    + setVector(dataFrame): void
+    + setChildren(Node): void
 }
 
-class SecondNeuralNetwork {
-    + train(): void
-    + forward(): void
-    + validation(): Float
+
+'Second Neural Network
+abstract class SecondNeuralNetwork {
+    + train(List[File], List[File], int, float): void
+    - forward(List[File]): Tensor
+    - {abstract} layers(Tuple[List[Node], Tensor, Tensor, Tensor]): float
+    - validation(List[File], int, float): Tuple[float, float]
 }
 
+class GeneratorSecondNeuralNetwork extends SecondNeuralNetwork {
+    - matricesAndLayersInitialization(): Tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]
+    - layers(Tuple[List[Node], Tensor, Tensor, Tensor]): float
+}
+
+class WrapperSecondNeuralNetwork extends SecondNeuralNetwork {
+    - matricesAndLayersInitialization(): Tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]
+    - layers(Tuple[List[Node], Tensor, Tensor, Tensor]): float
+}
+
+class Dataset extends torch.utils.data.Dataset{
+
+}
+
+'Pattern accuracy test
+abstract class PatternTest {
+    + patternDetection(string): void
+    - {abstract} secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+    - predictions(List[String]): Tensor
+}
+
+class GeneratorTest extends PatternTest {
+    - secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+}
+
+class WrapperTest extends PatternTest {
+    - secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+}
+
+'Pattern detection
+abstract class PatternDetector {
+    + patternDetection(string): void
+    - {abstract} secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+    - prediction(Dictionary[String]): Tensor
+}
+
+class GeneratorDetector extends PatternDetector {
+    - secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+}
+
+class WrapperDetector extends PatternDetector {
+    - secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+
+'utils
 class NodeObjectCreator {
-    + fileParser(path: String): ASTNode
+    + fileParser(path: String): Node
 }
 
-class Main {
-    + main(params: List[String]): void
-    + secondNeuralNetwork(): Tuple[Set, Set, Float, Float]
+class Utils{
+    + accuracy(predicts: Tensor, targets: Tensor): Float
+    + confMatrix(predicts: Tensor, targets: Tensor): Matrix
 }
 
-class MainTester {
-    + main(params: List[String]): void
-}
-
-class ParameterTesting {
-
-}
 
 
 ' relationships between classes
 
 DynamicPoolingLayer ..> PoolingVector : returns
-Embedding ..> WalkMatrix : returns
+Embedding ..> CSV : returns
+VectorRepresentation ..> txt : returns
+GeneratorSecondNeuralNetwork ..> CSV : returns
+WrapperSecondNeuralNetwork ..> CSV : returns
 
 
-Main "one" ..> "one" FirstNeuralNetwork : uses
-Main "one" ..> "one" SecondNeuralNetwork : uses
+InitializeVectorRepresentation ..> Embedding: uses
 
-ParamTester "one" ..> "one" Main : uses
+VectorRepresentation ..> FirstNeuralNetwork : uses
+VectorRepresentation ..> NodeObjectCreator : uses
+NodeObjectCreator ..> Node : uses
 
-MainTester "one" ..> "one" FirstNeuralNetwork : uses
-MainTester "one" ..> "one" SecondNeuralNetwork : uses
+PatternTraining ..> Dataset : uses
+PatternTraining ..> SecondNeuralNetwork : uses
+SecondNeuralNetwork ..> Utils : uses
+
+GeneratorSecondNeuralNetwork ..> ConvolutionalLayer: uses
+GeneratorSecondNeuralNetwork ..> PoolingLayer: uses
+GeneratorSecondNeuralNetwork ..> HiddenLayer: uses
+
+WrapperSecondNeuralNetwork ..> ConvolutionalLayer: uses
+WrapperSecondNeuralNetwork ..> PoolingLayer: uses
+WrapperSecondNeuralNetwork ..> HiddenLayer: uses
+
+GeneratorTest ..> ConvolutionalLayer: uses
+GeneratorTest ..> PoolingLayer: uses
+GeneratorTest ..> HiddenLayer: uses
+
+WrapperTest ..> ConvolutionalLayer: uses
+WrapperTest ..> PoolingLayer: uses
+WrapperTest ..> HiddenLayer: uses
+
+GeneratorDetector ..> ConvolutionalLayer: uses
+GeneratorDetector ..> PoolingLayer: uses
+GeneratorDetector ..> HiddenLayer: uses
+
+WrapperDetector ..> ConvolutionalLayer: uses
+WrapperDetector ..> PoolingLayer: uses
+WrapperDetector ..> HiddenLayer: uses
+
 
 @enduml
