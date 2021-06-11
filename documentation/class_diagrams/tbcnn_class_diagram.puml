@@ -1,0 +1,83 @@
+@startuml
+
+' main classes and its main methods
+class CodingLayer {
+    + codingIterations(): void
+}
+
+class ConvolutionalLayer {
+    + convolutional_layer(ls_nodes, w_t, w_r, w_l, b): List[Node]
+    - calculateY(): void
+    - slidingWindowTensor(): void
+}
+
+class MaxPoolingLayer {
+    + maxPooling(nodes: List[Node]): void
+}
+
+class DynamicPoolingLayer {
+    + threeWayPooling(nodes: List[Node], dictSibling: Dictionary[Node]): PoolingVector
+}
+
+
+' complete this class?
+class PoolingVector {
+    
+}
+
+
+class Embedding {
+    + nodeEmbedding(): void
+    - randomWalk(): WalkMatrix
+    - generateWalkFile(): void
+}
+
+' is this class necessary? is it correct to model it in the diagram?
+class WalkMatrix {
+
+}
+
+class FirstNeuralNetwork {
+    'does this method returns something?
+    + vectorRepresentation(): void 
+}
+
+class SecondNeuralNetwork {
+    + train(): void
+    + forward(): void
+    + validation(): Float
+}
+
+class NodeObjectCreator {
+    + fileParser(path: String): ASTNode
+}
+
+class Main {
+    + main(params: List[String]): void
+    + secondNeuralNetwork(): Tuple[Set, Set, Float, Float]
+}
+
+class MainTester {
+    + main(params: List[String]): void
+}
+
+class ParameterTesting {
+
+}
+
+
+' relationships between classes
+
+DynamicPoolingLayer ..> PoolingVector : returns
+Embedding ..> WalkMatrix : returns
+
+
+Main "one" ..> "one" FirstNeuralNetwork : uses
+Main "one" ..> "one" SecondNeuralNetwork : uses
+
+ParamTester "one" ..> "one" Main : uses
+
+MainTester "one" ..> "one" FirstNeuralNetwork : uses
+MainTester "one" ..> "one" SecondNeuralNetwork : uses
+
+@enduml
