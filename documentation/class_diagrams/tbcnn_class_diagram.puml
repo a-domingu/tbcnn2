@@ -1,14 +1,19 @@
-@startuml
+@startuml TBCNN-model
 
 ' main classes and its main methods
+
+
+
+' Layers
 class CodingLayer {
-    + codingIterations(): void
+    + codingLayer(nodes: List[Node], wR: Tensor, wL: Tensor, b: Tensor): List[Node]
+    - codingIterations(): void
 }
 
 class ConvolutionalLayer {
-    + convolutional_layer(ls_nodes, w_t, w_r, w_l, b): List[Node]
-    - calculateY(): void
-    - slidingWindowTensor(): void
+    + convolutionalLayer(nodes: List[Node]): List[Node]
+    - calculateY(nodes: List[Node]): void
+    - slidingWindowTensor(Node): Tensor
 }
 
 class MaxPoolingLayer {
@@ -20,26 +25,30 @@ class DynamicPoolingLayer {
 }
 
 
-' complete this class?
-class PoolingVector {
-    
+class PoolingLayer {
+    + poolingLayer(nodes: List[Node]): Tensor
 }
 
 
+' First neural network
 class Embedding {
-    + nodeEmbedding(): void
-    - randomWalk(): WalkMatrix
-    - generateWalkFile(): void
+    + nodeEmbedding(): Dictionary[Node]
+    - randomWalk(Node): List[Node.type]
+    - findVectors(Word2Vec): Dictionary[Node]
 }
 
-' is this class necessary? is it correct to model it in the diagram?
-class WalkMatrix {
-
-}
 
 class FirstNeuralNetwork {
-    'does this method returns something?
-    + vectorRepresentation(): void 
+
+    + train(): List[Node], wL: Tensor, wR: Tensor, b: Tensor
+    - training_iterations(): Integer
+}
+
+class Node {
+
+    + getChildren(): List[ASTNode]
+    + descendants(): List[Node]
+    - training_iterations(): Integer
 }
 
 class SecondNeuralNetwork {

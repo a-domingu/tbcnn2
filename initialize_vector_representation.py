@@ -8,7 +8,8 @@ from first_neural_network.embeddings import Embedding
 
 class Initialize_vector_representation():
 
-    def __init__(self, pattern, vector_size):
+    def __init__(self, folder, pattern, vector_size):
+        self.folder = folder
         self.pattern = pattern
         self.vector_size = vector_size
 
@@ -34,7 +35,7 @@ class Initialize_vector_representation():
 
 
     def first_neural_network_dict_creation(self):
-        path = os.path.join('sets', self.pattern)
+        path = os.path.join(self.folder, self.pattern)
         #If there is not a set with the required pattern, we print an error
         if not os.path.isdir(path):
             message = '''
@@ -77,14 +78,26 @@ class Initialize_vector_representation():
         return dc
 
 
+def read_params(file):
+    with open(file) as f:
+        for line in f.readlines():
+            words = line.split()
+            if words[0] == 'folder':
+                # Convert a string into a variable
+                folder = words[2]
+                #exec("%s = %d" % (words[0], words[2]))
+            elif words[0] == 'pattern':
+                pattern = words[2]
+            elif words[0] == 'vector_size':
+                vector_size = int(words[2])       
+
+    return folder, pattern, vector_size
 
 ########################################
 
 if __name__ == '__main__':
-    # Pattern
-    pattern = 'generator'
-    # First neural network parameters
-    vector_size = 30
 
-    initial_vector_representation = Initialize_vector_representation(pattern, vector_size)
+    folder, pattern, vector_size = read_params('parameters.txt')
+
+    initial_vector_representation = Initialize_vector_representation(folder, pattern, vector_size)
     initial_vector_representation.initial_vector_representation()

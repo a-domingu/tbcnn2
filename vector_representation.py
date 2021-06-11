@@ -11,7 +11,8 @@ from first_neural_network.first_neural_network import First_neural_network
 
 class Vector_representation():
 
-    def __init__(self, pattern, vector_size, learning_rate, momentum, l2_penalty, epoch):
+    def __init__(self, folder, pattern, vector_size, learning_rate, momentum, l2_penalty, epoch):
+        self.folder = folder
         self.pattern = pattern
         self.vector_size = vector_size
         self.learning_rate = learning_rate
@@ -62,7 +63,7 @@ class Vector_representation():
 
 
     def read_folder_data_set(self):
-        path = os.path.join('sets', self.pattern)
+        path = os.path.join(self.folder, self.pattern)
         #If there is not a set with the required pattern, we print an error
         if not os.path.isdir(path):
             message = '''
@@ -95,17 +96,36 @@ class Vector_representation():
             node.set_vector(df)
 
 
+def read_params(file):
+    with open(file) as f:
+        for line in f.readlines():
+            words = line.split()
+            if words[0] == 'folder':
+                # Convert a string into a variable
+                folder = words[2]
+                #exec("%s = %d" % (words[0], words[2]))
+            elif words[0] == 'pattern':
+                pattern = words[2]
+            elif words[0] == 'vector_size':
+                vector_size = int(words[2])
+            elif words[0] == 'learning_rate':
+                learning_rate = float(words[2])
+            elif words[0] == 'epoch':
+                epoch = int(words[2])
+            elif words[0] == 'momentum':
+                momentum = float(words[2])
+            elif words[0] == 'l2_penalty':
+                l2_penalty = float(words[2])
+               
+
+    return folder, pattern, vector_size, learning_rate, momentum, l2_penalty, epoch
+
+
 ########################################
 
 if __name__ == '__main__':
-    # Pattern
-    pattern = 'generator'
-    # First neural network parameters
-    vector_size = 30
-    learning_rate = 0.3
-    momentum = 0
-    l2_penalty = 0
-    epoch = 1
 
-    vector_representation = Vector_representation(pattern, vector_size, learning_rate, momentum, l2_penalty, epoch)
+    folder, pattern, vector_size, learning_rate, momentum, l2_penalty, epoch = read_params('parameters.txt')
+
+    vector_representation = Vector_representation(folder, pattern, vector_size, learning_rate, momentum, l2_penalty, epoch)
     vector_representation.vector_representation()

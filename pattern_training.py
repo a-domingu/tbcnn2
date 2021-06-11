@@ -14,7 +14,8 @@ from second_neural_network.dataset import Dataset
 
 class Pattern_training():
 
-    def __init__(self, pattern, vector_size, learning_rate2, feature_size, epoch, batch_size):
+    def __init__(self, folder, pattern, vector_size, learning_rate2, feature_size, epoch, batch_size):
+        self.folder = folder
         self.pattern = pattern
         self.vector_size = vector_size
         self.learning_rate = learning_rate2
@@ -66,7 +67,7 @@ class Pattern_training():
 
 
     def training_and_validation_sets_creation(self):
-        path = os.path.join('sets', self.pattern)
+        path = os.path.join(self.folder, self.pattern)
         #If there is not a set with the required pattern, we print an error
         if not os.path.isdir(path):
             message = '''
@@ -120,18 +121,34 @@ class Pattern_training():
             i += 1
         return training_set, validation_set, training_targets, validation_targets
 
+def read_params(file):
+    with open(file) as f:
+        for line in f.readlines():
+            words = line.split()
+            if words[0] == 'folder':
+                # Convert a string into a variable
+                folder = words[2]
+                #exec("%s = %d" % (words[0], words[2]))
+            elif words[0] == 'pattern':
+                pattern = words[2]
+            elif words[0] == 'vector_size':
+                vector_size = int(words[2])
+            elif words[0] == 'feature_size':
+                feature_size = int(words[2]) 
+            elif words[0] == 'learning_rate2':
+                learning_rate2 = float(words[2]) 
+            elif words[0] == 'epoch':
+                epoch = int(words[2])
+            elif words[0] == 'batch':
+                batch = int(words[2])        
+
+    return folder, pattern, vector_size, learning_rate2, feature_size, epoch, batch
 
 ########################################
 
 if __name__ == '__main__':
-    # Folder path
-    pattern = 'wrapper'
-    # Second neural network parameters
-    vector_size = 30
-    learning_rate2 = 0.001
-    feature_size = 100
-    epoch = 5
-    batch_size = 20
 
-    pattern_training = Pattern_training(pattern, vector_size, learning_rate2, feature_size, epoch, batch_size)
+    folder, pattern, vector_size, learning_rate2, feature_size, epoch, batch_size = read_params('parameters.txt')
+
+    pattern_training = Pattern_training(folder, pattern, vector_size, learning_rate2, feature_size, epoch, batch_size)
     pattern_training.pattern_training()

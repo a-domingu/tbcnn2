@@ -7,6 +7,7 @@ import os
 if __name__ == '__main__':
 
     # Folder path
+    folder = 'sets'
     pattern = 'generator'
     
     # First neural network parameters
@@ -30,7 +31,7 @@ if __name__ == '__main__':
         for learning_rate in learning_rate_ls:
             for momentum in momentum_ls:
                 for l2_penalty in l2_penalty_ls:
-                    first_neural_network = Vector_representation(pattern, vector_size, learning_rate, momentum, l2_penalty, epoch_first)
+                    first_neural_network = Vector_representation(folder, pattern, vector_size, learning_rate, momentum, l2_penalty, epoch_first)
                     first_neural_network.vector_representation()
                     for learning_rate2 in learning_rate2_ls:
                         for feature_size in feature_size_ls:
@@ -54,7 +55,7 @@ if __name__ == '__main__':
                             '''
                             # We append the results in a results.txt file
                             writer(message)
-                            second_neural_network = Pattern_training(pattern, vector_size, learning_rate2, feature_size, epoch, batch_size)
+                            second_neural_network = Pattern_training(folder, pattern, vector_size, learning_rate2, feature_size, epoch, batch_size)
                             second_neural_network.pattern_training()
 
 
