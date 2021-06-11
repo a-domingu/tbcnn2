@@ -141,7 +141,7 @@ The loss we have for the training network is: {sum_loss/nb_batch}
 
     def validation(self, validation_generator, learning_rate, epoch):
         # Test the accuracy of the updates parameters by using a validation set
-        validation_loss, accuracy_value, predicts, validation_targets = self.forward_validation(validation_generator)
+        validation_loss, accuracy_value, predicts, validation_targets, validation_set = self.forward_validation(validation_generator)
 
         print('Validation accuracy: ', accuracy_value)
         
@@ -149,11 +149,10 @@ The loss we have for the training network is: {sum_loss/nb_batch}
         confusion_matrix = conf_matrix(predicts, validation_targets)
         print('Confusión matrix: ')
         print(confusion_matrix)
-        #TODO preguntar cómo saber cuál es el conjunto de todos los archivos del validation set
-        '''
-        files_bad_predicted = bad_predicted_files(validation_dict, predicts, validation_targets)
+
+        files_bad_predicted = bad_predicted_files(validation_set, predicts, validation_targets)
         print(files_bad_predicted)
-        '''
+
         if accuracy_value > self.best_accuracy:
             plot_confusion_matrix(confusion_matrix, ['no generator', 'generator'], lr2 = learning_rate, feature_size = self.feature_size, epoch = epoch)
     
@@ -162,7 +161,7 @@ The loss we have for the training network is: {sum_loss/nb_batch}
 
     def forward_validation(self, validation_generator):
         criterion = nn.BCELoss()
-        outputs = []
+        validation_set = []
         softmax = nn.Sigmoid()
         validation_loss = 0
         errors = 0
@@ -175,6 +174,7 @@ The loss we have for the training network is: {sum_loss/nb_batch}
                 #data, target = data.to(self.device), target.to(self.device)
                 predicts = []
                 for file in batch: 
+                    validation_set.append(file)
                     with open(file, 'rb') as f:
                         data = pickle.load(f)
                     number_of_files += 1
@@ -199,8 +199,8 @@ The loss we have for the training network is: {sum_loss/nb_batch}
                 all_targets = torch.cat((all_targets, target), 0)
 
         gc.collect()
-        total_accuracy = float(errors)/number_of_files
-        return validation_loss, total_accuracy, all_predicts, all_targets
+        total_accuracy = (number_of_files - float(errors))/number_of_files
+        return validation_loss, total_accuracy, all_predicts, all_targets, validation_set
 
 
     def layers(self, vector_representation_params):

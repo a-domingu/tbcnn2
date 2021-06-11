@@ -44,6 +44,13 @@ class Convolutional_layer():
         self.vector_size = vector_size
         self.feature_size = features_size
         self.kernel_depth = kernel_depth
+        #self.w_t = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_()
+        self.w_t = torch.rand(self.feature_size, self.vector_size).requires_grad_()
+        #self.w_r = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_()
+        self.w_r = torch.rand(self.feature_size, self.vector_size).requires_grad_()
+        #self.w_l = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_()
+        self.w_l = torch.rand(self.feature_size, self.vector_size).requires_grad_()
+        self.b = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.feature_size, 1))).requires_grad_()
         
 
     def convolutional_layer(self, ls_nodes):
@@ -55,14 +62,6 @@ class Convolutional_layer():
 
 
     def initialize_matrices_and_bias(self):
-        #self.w_t = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_()
-        self.w_t = torch.rand(self.feature_size, self.vector_size).requires_grad_()
-        #self.w_r = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_()
-        self.w_r = torch.rand(self.feature_size, self.vector_size).requires_grad_()
-        #self.w_l = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_()
-        self.w_l = torch.rand(self.feature_size, self.vector_size).requires_grad_()
-        self.b = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.feature_size, 1))).requires_grad_()
-
         return self.w_t, self.w_l, self.w_r, self.b
 
 
