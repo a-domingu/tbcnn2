@@ -119,7 +119,7 @@ class GeneratorDetector extends PatternDetector {
 
 class WrapperDetector extends PatternDetector {
     - secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
-
+}
 'utils
 class NodeObjectCreator {
     + fileParser(path: String): Node
