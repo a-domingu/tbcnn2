@@ -16,14 +16,15 @@ from utils.utils import writer, plot_confusion_matrix, conf_matrix, accuracy, ba
 
 class Wrapper_second_neural_network(SecondNeuralNetwork):
 
-    def __init__(self, device, n = 20, m = 4, pooling = 'one-way pooling'):
+    def __init__(self, device, pattern, n = 20, m = 4, pooling = 'one-way pooling'):
         super().__init__(device, n, m)
         self.pooling = pooling
+        self.pattern = pattern
 
     
     def matrices_and_layers_initialization(self):
         # Initialize the layers
-        self.cod = Coding_layer(self.vector_size)
+        #self.cod = Coding_layer(self.vector_size)
         self.conv = Convolutional_layer(self.vector_size, features_size = self.feature_size)
         self.hidden = Hidden_layer(self.feature_size)
         if self.pooling == 'three-way pooling':
@@ -33,29 +34,21 @@ class Wrapper_second_neural_network(SecondNeuralNetwork):
             self.pooling = Pooling_layer()
 
         # Initialize matrices and bias
-        self.w_comb1, self.w_comb2 = self.cod.initialize_matrices_and_bias()
+        #self.w_comb1, self.w_comb2 = self.cod.initialize_matrices_and_bias()
         self.w_t, self.w_l, self.w_r, self.b_conv = self.conv.initialize_matrices_and_bias()
         if self.pooling == 'three-way pooling':
             self.w_hidden, self.b_hidden = self.hidden.initialize_matrices_and_bias()
         else:
             self.w_hidden, self.b_hidden = self.hidden.initialize_matrices_and_bias()
 
-        params = [self.w_comb1, self.w_comb2, self.w_t, self.w_l, self.w_r, self.b_conv, self.w_hidden, self.b_hidden]
+        #params = [self.w_comb1, self.w_comb2, self.w_t, self.w_l, self.w_r, self.b_conv, self.w_hidden, self.b_hidden]
+        params = [self.w_t, self.w_l, self.w_r, self.b_conv, self.w_hidden, self.b_hidden]
 
         return params
 
 
-    def print_params(self, params):
-        w_comb1, w_comb2, w_t, w_l, w_r, b_conv, w_hidden, b_hidden = params
-
-        print('Self w_l: ', self.w_l)
-        print('Params w_l: ', w_l)
-
-        print('Self b_conv: ', self.b_conv)
-        print('grad w_l: ', self.b_conv.grad)
-
-
     def layers(self, vector_representation_params):
+        # Parameters of the first neural network
         ls_nodes, w_l_code, w_r_code, b_code = vector_representation_params
         del w_l_code
         del w_r_code
@@ -76,10 +69,10 @@ class Wrapper_second_neural_network(SecondNeuralNetwork):
 
     def save(self):
         '''Save all the trained parameters into a csv file'''
-        directory = os.path.join('params', 'wrapper')
+        directory = os.path.join('params', self.pattern)
         if not os.path.exists(directory):
             os.mkdir(directory)
-
+        '''
         # save w_comb1 into csv file
         w_comb1 = self.w_comb1.detach().numpy()
         numpy.savetxt(os.path.join(directory, "w_comb1.csv"), w_comb1, delimiter = ",")
@@ -87,7 +80,7 @@ class Wrapper_second_neural_network(SecondNeuralNetwork):
         # save w_comb2 into csv file
         w_comb2 = self.w_comb2.detach().numpy()
         numpy.savetxt(os.path.join(directory, "w_comb2.csv"), w_comb2, delimiter = ",")
-
+        '''
         # save w_t into csv file
         w_t = self.w_t.detach().numpy()
         numpy.savetxt(os.path.join(directory, "w_t.csv"), w_t, delimiter = ",")

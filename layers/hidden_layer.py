@@ -5,8 +5,8 @@ class Hidden_layer():
     def __init__(self, feature_size):
         self.input = []
         self.feature_size = feature_size
-        self.w = None
-        self.b = None
+        self.w = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.feature_size, 1))).requires_grad_()
+        self.b = torch.rand(1, requires_grad = True)
         # The size of n is based on the dynamic pooling method.
         # In one-way pooling the size of n is equal to the output_size / feature_detectors
         # In three-way pooling the size of n is equal to 3
@@ -20,9 +20,10 @@ class Hidden_layer():
         return output
 
     def initialize_matrices_and_bias(self):
-        self.w = torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.feature_size, 1))).requires_grad_()
-        self.b = torch.rand(1, requires_grad = True)
         return self.w, self.b
+
+    def set_matrices_and_vias(self, w, b):
+        self.w, self.b = w, b
 
     def get_output(self):
         output = torch.matmul(self.w,self.input) + self.b

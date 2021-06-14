@@ -65,6 +65,10 @@ class Convolutional_layer():
         return self.w_t, self.w_l, self.w_r, self.b
 
 
+    def set_matrices_and_vias(self, w_t, w_l, w_r, b):
+        self.w_t, self.w_l, self.w_r, self.b = w_t, w_l, w_r, b
+
+
     def calculate_y(self, ls_nodes):
         for node in ls_nodes:
             ''' 

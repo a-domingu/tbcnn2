@@ -17,17 +17,18 @@ from utils.utils import conf_matrix, accuracy, bad_predicted_files
 
 class Pattern_test():
 
-    def __init__(self):
+    def __init__(self, pattern):
         self.vector_size = self.set_vector_size()
+        self.pattern = pattern
 
 
-    def pattern_detection(self, pattern):
+    def pattern_detection(self):
 
         # Load the trained matrices and vectors
         self.load_matrices_and_vectors()
         
         # Create the test set
-        targets_set, targets_label = self.create_and_label_test_set(pattern)
+        targets_set, targets_label = self.create_and_label_test_set()
 
         # Training the first neural network
         print('Doing the embedding for each file')
@@ -53,8 +54,8 @@ class Pattern_test():
         pass
         
     
-    def create_and_label_test_set(self, pattern):
-        path = os.path.join('test_sets', pattern)
+    def create_and_label_test_set(self):
+        path = os.path.join('test_sets', self.pattern)
         # We create a tensor with the name of the files and other tensor with their label
         targets_set = [] 
         targets_label = []
@@ -78,7 +79,7 @@ class Pattern_test():
         return targets_set, targets_label
 
 
-    def first_neural_network(self, targets_set, vector_size = 30, learning_rate = 0.3, momentum = 0, l2_penalty = 0, epoch = 1):
+    def first_neural_network(self, targets_set, learning_rate = 0.3, momentum = 0, l2_penalty = 0, epoch = 1):
         i = 1
         for tree in targets_set:
             time1 = time()
@@ -93,7 +94,7 @@ class Pattern_test():
             # Initializing vector embeddings
             set_vector(ls_nodes)
             # Calculate the vector representation for each node
-            vector_representation = First_neural_network(ls_nodes, vector_size, learning_rate, momentum, l2_penalty, epoch)
+            vector_representation = First_neural_network(ls_nodes, self.vector_size, learning_rate, momentum, l2_penalty, epoch)
             ls_nodes, w_l_code, w_r_code, b_code = vector_representation.train()
 
             filename = os.path.join('vector_representation', os.path.basename(tree) + '.txt')
@@ -145,7 +146,8 @@ class Pattern_test():
 
 
     def print_predictions(self, targets_label, predicts, targets_set):
-        accuracy_value = accuracy(predicts, targets_label)
+        errors = accuracy(predicts, targets_label)
+        accuracy_value = (len(targets_set) - errors) / len(targets_set)
         print('Validation accuracy: ', accuracy_value)
         
         # Confusion matrix

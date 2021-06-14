@@ -20,11 +20,12 @@ from utils.repos import download_repos
 
 class Pattern_detection():
 
-    def __init__(self):
+    def __init__(self, pattern):
         self.vector_size = self.set_vector_size()
+        self.pattern = pattern
 
 
-    def pattern_detection(self, path, pattern):
+    def pattern_detection(self, path):
         
         # Load the trained matrices and vectors
         self.load_matrices_and_vectors()
@@ -40,7 +41,7 @@ class Pattern_detection():
         predicts = self.prediction(data_dict)
         
         # We print the predictions
-        message = self.print_predictions(predicts, data_dict, pattern)
+        message = self.print_predictions(predicts, data_dict)
         print(message)
         return message
 
@@ -122,7 +123,7 @@ class Pattern_detection():
         pass
 
 
-    def print_predictions(self, predicts, data_dict, pattern):
+    def print_predictions(self, predicts, data_dict):
         i = 0
         message = ''
         for data in data_dict.keys():
@@ -130,12 +131,12 @@ class Pattern_detection():
                 path = data.split(os.path.sep)
                 path.pop(0)
                 name = os.path.join(*(path))
-                message = message + '<p> The file ' + name + ' has not ' + pattern + 's</p>'
+                message = message + '<p> The file ' + name + ' has not ' + self.pattern + 's</p>'
             else:
                 path = data.split(os.path.sep)
                 path.pop(0)
                 name = os.path.join(*(path))
-                message = message + '<p> The file ' + name + ' has ' + pattern + 's</p>'
+                message = message + '<p> The file ' + name + ' has ' + self.pattern + 's</p>'
             i+=1
         return message
 
@@ -171,7 +172,7 @@ def get_input(pattern):
         class_name = pattern.capitalize() + '_detection'
         module = importlib.import_module('pattern_detection.' + pattern + '_detector')
         pattern_class = getattr(module, class_name)
-        pattern_detector = pattern_class()
+        pattern_detector = pattern_class(pattern)
 
         choice = '''
 
@@ -183,7 +184,7 @@ def get_input(pattern):
             if x == 'y':
                 print('Please indicate the path to the folder')
                 x = input()
-                pattern_detector.pattern_detection(x, pattern)
+                pattern_detector.pattern_detection(x)
             elif x == 'n':
                 choose_url(pattern)
             else:
@@ -192,7 +193,7 @@ def get_input(pattern):
         else:
             print('Please indicate the path to the folder')
             x = input()
-            pattern_detector.pattern_detection(x, pattern)
+            pattern_detector.pattern_detection(x)
 
     else:
         message = '''
@@ -207,7 +208,7 @@ def get_input(pattern):
 
 
 def pattern_exists(pattern):
-    file_name = pattern + '_detector.py'
+    file_name = os.path.join('pattern_detection', pattern + '_detector.py')
     if os.path.isfile(file_name):
         return True
     else:
@@ -239,10 +240,13 @@ def choose_url(pattern):
 def validate_from_url(url, pattern):
     download_repos([url], 'downloaded_validate')
     path = get_path(url)
-    generator_detector = Pattern_detection()
-    message = generator_detector.generator_detection(path, pattern)
+    #We instantiate the subclass for this pattern
+    class_name = pattern.capitalize() + '_detection'
+    module = importlib.import_module('pattern_detection.' + pattern + '_detector')
+    pattern_class = getattr(module, class_name)
+    pattern_detector = pattern_class(pattern)
+    pattern_detector.pattern_detection(path)
     folder_deleter(path)
-    return message
 
 
 def get_path(url):

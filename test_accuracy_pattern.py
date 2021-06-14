@@ -28,8 +28,8 @@ def main(pattern):
         module = importlib.import_module('pattern_accuracy_test.' + pattern + '_test')
         pattern_class = getattr(module, class_name)
 
-        generator_test = pattern_class()
-        generator_test.pattern_detection(pattern)
+        generator_test = pattern_class(pattern)
+        generator_test.pattern_detection()
 
 
 ########################################
