@@ -7,6 +7,7 @@ import gc
 
 from utils.node_object_creator import *
 from first_neural_network.first_neural_network import First_neural_network
+from parameters import folder, pattern, vector_size, learning_rate, momentum, l2_penalty, epoch
 
 
 class Vector_representation():
@@ -96,36 +97,10 @@ class Vector_representation():
             node.set_vector(df)
 
 
-def read_params(file):
-    with open(file) as f:
-        for line in f.readlines():
-            words = line.split()
-            if words[0] == 'folder':
-                # Convert a string into a variable
-                folder = words[2]
-                #exec("%s = %d" % (words[0], words[2]))
-            elif words[0] == 'pattern':
-                pattern = words[2]
-            elif words[0] == 'vector_size':
-                vector_size = int(words[2])
-            elif words[0] == 'learning_rate':
-                learning_rate = float(words[2])
-            elif words[0] == 'epoch':
-                epoch = int(words[2])
-            elif words[0] == 'momentum':
-                momentum = float(words[2])
-            elif words[0] == 'l2_penalty':
-                l2_penalty = float(words[2])
-               
-
-    return folder, pattern, vector_size, learning_rate, momentum, l2_penalty, epoch
-
 
 ########################################
 
 if __name__ == '__main__':
-
-    folder, pattern, vector_size, learning_rate, momentum, l2_penalty, epoch = read_params('parameters.txt')
 
     vector_representation = Vector_representation(folder, pattern, vector_size, learning_rate, momentum, l2_penalty, epoch)
     vector_representation.vector_representation()

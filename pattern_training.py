@@ -10,6 +10,7 @@ from second_neural_network.second_neural_network import SecondNeuralNetwork
 from second_neural_network.generator_second_neural_network import Generator_second_neural_network
 import second_neural_network.generator_second_neural_network
 from second_neural_network.dataset import Dataset
+from parameters import folder, pattern, vector_size, learning_rate2, feature_size, epoch, batch_size
 
 
 class Pattern_training():
@@ -121,34 +122,10 @@ class Pattern_training():
             i += 1
         return training_set, validation_set, training_targets, validation_targets
 
-def read_params(file):
-    with open(file) as f:
-        for line in f.readlines():
-            words = line.split()
-            if words[0] == 'folder':
-                # Convert a string into a variable
-                folder = words[2]
-                #exec("%s = %d" % (words[0], words[2]))
-            elif words[0] == 'pattern':
-                pattern = words[2]
-            elif words[0] == 'vector_size':
-                vector_size = int(words[2])
-            elif words[0] == 'feature_size':
-                feature_size = int(words[2]) 
-            elif words[0] == 'learning_rate2':
-                learning_rate2 = float(words[2]) 
-            elif words[0] == 'epoch':
-                epoch = int(words[2])
-            elif words[0] == 'batch':
-                batch = int(words[2])        
-
-    return folder, pattern, vector_size, learning_rate2, feature_size, epoch, batch
 
 ########################################
 
 if __name__ == '__main__':
-
-    folder, pattern, vector_size, learning_rate2, feature_size, epoch, batch_size = read_params('parameters.txt')
 
     pattern_training = Pattern_training(folder, pattern, vector_size, learning_rate2, feature_size, epoch, batch_size)
     pattern_training.pattern_training()
