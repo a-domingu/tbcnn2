@@ -75,7 +75,6 @@ class SecondNeuralNetwork(nn.Module):
 
                 # Update parameters
                 optimizer.step() #w_r = w_r - lr * w_r.grad
-                self.print_params(params)
 
                 train_loss += loss.item()*len(batch)
                 del loss
@@ -105,10 +104,6 @@ The loss we have for the training network is: {sum_loss/nb_batch}
 
 
     def matrices_and_layers_initialization(self):
-        pass
-
-    
-    def print_params(self, params):
         pass
         
 

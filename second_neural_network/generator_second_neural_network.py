@@ -45,16 +45,6 @@ class Generator_second_neural_network(SecondNeuralNetwork):
         return params
 
 
-    def print_params(self, params):
-        w_comb1, w_comb2, w_t, w_l, w_r, b_conv, w_hidden, b_hidden = params
-
-        print('Self w_l: ', self.w_l)
-        print('Params w_l: ', w_l)
-
-        print('Self b_conv: ', self.b_conv)
-        print('grad w_l: ', self.b_conv.grad)
-
-
     def layers(self, vector_representation_params):
         ls_nodes, w_l_code, w_r_code, b_code = vector_representation_params
         del w_l_code
