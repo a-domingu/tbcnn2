@@ -1,0 +1,58 @@
+@startuml Pattern_detector-model
+
+abstract class PatternDetector {
+    + patternDetection(path: String, pattern: String): void
+    - {abstract} secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+    - prediction(Dictionary[String]): Tensor
+    - printPredictions(Tensor, Dictionary[String], String): void
+}
+
+
+' Layers
+class CodingLayer {
+    + codingLayer(nodes: List[Node], wR: Tensor, wL: Tensor, b: Tensor): List[Node]
+    - codingIterations(): void
+}
+
+class ConvolutionalLayer {
+    + convolutionalLayer(nodes: List[Node]): List[Node]
+    - calculateY(nodes: List[Node]): void
+    - slidingWindowTensor(Node): Tensor
+}
+
+
+class PoolingLayer {
+    + poolingLayer(nodes: List[Node]): Tensor
+}
+
+class HiddenLayer{
+    + hiddenLayer(Tensor): Float
+}
+
+
+'Test
+class GeneratorDetector extends PatternDetector {
+    - layers: List[Layer]
+    - secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+}
+
+class WrapperDetector extends PatternDetector {
+    - layers: List[Layer]
+    - secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+}
+
+object Layers {
+    List[Layer]
+}
+
+
+GeneratorDetector "one"..> "one" Layers: contains
+WrapperDetector "one"..> "one" Layers: contains
+
+Layers ..> CodingLayer: contains
+Layers ..> ConvolutionalLayer: contains
+Layers ..> PoolingLayer: contains
+Layers ..> HiddenLayer: contains
+
+
+@enduml
