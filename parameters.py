@@ -1,5 +1,5 @@
-folder = sets
-pattern = generator
+folder = "sets"
+pattern = "generator"
 vector_size = 30
 learning_rate = 0.3
 momentum = 0
@@ -9,3 +9,4 @@ learning_rate2 = 0.001
 feature_size = 100
 epoch = 5
 batch = 20
+batch_size = 64

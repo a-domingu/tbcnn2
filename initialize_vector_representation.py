@@ -4,6 +4,7 @@ import pandas as pd
 
 from utils.node_object_creator import *
 from first_neural_network.embeddings import Embedding
+from parameters import folder, pattern, vector_size
 
 
 class Initialize_vector_representation():
@@ -78,26 +79,10 @@ class Initialize_vector_representation():
         return dc
 
 
-def read_params(file):
-    with open(file) as f:
-        for line in f.readlines():
-            words = line.split()
-            if words[0] == 'folder':
-                # Convert a string into a variable
-                folder = words[2]
-                #exec("%s = %d" % (words[0], words[2]))
-            elif words[0] == 'pattern':
-                pattern = words[2]
-            elif words[0] == 'vector_size':
-                vector_size = int(words[2])       
-
-    return folder, pattern, vector_size
 
 ########################################
 
 if __name__ == '__main__':
-
-    folder, pattern, vector_size = read_params('parameters.txt')
 
     initial_vector_representation = Initialize_vector_representation(folder, pattern, vector_size)
     initial_vector_representation.initial_vector_representation()
