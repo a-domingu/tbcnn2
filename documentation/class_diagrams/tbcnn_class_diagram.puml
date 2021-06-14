@@ -78,6 +78,7 @@ abstract class SecondNeuralNetwork {
 }
 
 class GeneratorSecondNeuralNetwork extends SecondNeuralNetwork {
+    - layers: List[Layer]
     - matricesAndLayersInitialization(): Tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]
     - layers(Tuple[List[Node], Tensor, Tensor, Tensor]): float
 }
