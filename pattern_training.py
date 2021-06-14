@@ -10,6 +10,7 @@ from second_neural_network.second_neural_network import SecondNeuralNetwork
 from second_neural_network.generator_second_neural_network import Generator_second_neural_network
 import second_neural_network.generator_second_neural_network
 from second_neural_network.dataset import Dataset
+from get_input import Get_input
 from parameters import folder, pattern, vector_size, learning_rate2, feature_size, epoch, batch_size
 
 
@@ -37,7 +38,7 @@ class Pattern_training():
         'shuffle': True, 
         'num_workers': 2} 
 
-
+        get_input()
         ### Creation of the training set and validation set
         training_set, validation_set, training_targets, validation_targets = self.training_and_validation_sets_creation() 
         print('training set: ', training_set)

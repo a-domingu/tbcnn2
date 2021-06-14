@@ -2,43 +2,12 @@ import torch as torch
 import torch.distributions
 import torch.nn as nn
 import torch.nn.functional as F
+import pickle
+import os
 
 from first_neural_network.node import Node
 
 class Get_input():
-    '''
-    In this class we applied the tree-based convolution algorithm that we can find in section 4.2.4
-    of the book "Tree-based Convolutional Neural Networks". Authors: Lili Mou and Zhi Jin
-    We want to calculate the output of the feature detectors: vector y
-    To do that, we have different elements an parameters:
-    - Sliding window: In our case is a triangle that we use to extract the structural information of the AST.
-        The sliding window has some features and parameters:
-        - Kernel depth (or fixed-depth window): Number of hierarchical levels (or depths) inside of 
-                                                the sliding window
-        - d_i : Depth of node i in the sliding window. In our case the node at the top has the highest
-                value, that corresponds with the value of the kernel depth; and the nodes at the bottom has
-                the minimum value: 1.
-        - d: Is the depth of the window, i.e, the kernel depth
-        - p_i : Position of node i in the sliding window. In this case, is the position (1,..,N) 
-                of the node in its hierarchical level (or depth) under the same parent within 
-                the sliding window
-        - n: Total number of siblings, i.e number of nodes on the same hierarchical level 
-             under the same parent node within the sliding window
-    - Feature detectors: Number of features that we want to study. It corresponds with the length of the 
-                         output: vector y.
-    Inputs:
-    self.ls_nodes [list <class Node>]: list with all nodes in the AST
-    dict_ast_to_Node[dict[ast_object] = <class Node>]: dictionary that relates class ast objects to class Node objects
-    vector_size [int]: Vector embedding size
-    kernel_depth [int]: Number of levels (or depths) in the sliding window
-    features_size [int]: Number of feature detectors (N_c). Is the vector output size
-    Output:
-    self.ls_nodes [list <class Node>]: We add the output of feature detectors. It's the vector y
-    w_t [matrix[features_size x vector_size]]: left weight matrix used as parameter
-    w_r [matrix[features_size x vector_size]]: right weight matrix used as parameter
-    w_l [matrix[features_size x vector_size]]: left weight matrix used as parameter
-    b_conv [array[features_size]]: bias term
-    '''
 
     def __init__(self, ls_nodes, vector_size, kernel_depth = 2, features_size = 4):
         self.vector_size = vector_size
@@ -62,16 +31,8 @@ class Get_input():
             '''
             if node.children:
                 vector_matrix, w_t_coeffs, w_l_coeffs, w_r_coeffs = self.sliding_window_tensor(node)
-                print('vector matrix: ', vector_matrix)
-                print('w_t_coeffs: ', w_t_coeffs)
-                print('type: ', type(w_t_coeffs))
-                raise Exception
+                node.set_matrix_and_coeffs(vector_matrix, w_t_coeffs, w_l_coeffs, w_r_coeffs)
 
-            else:
-                # The convolutional matrix for each node is a linear combination of matrices w_t, w_l and w_r
-                #convolutional_matrix = self.w_t
-                argument = torch.matmul(self.w_t, node.vector) + self.b
-                node.set_y(F.leaky_relu(argument))
 
 
     def sliding_window_tensor(self, node):

@@ -81,6 +81,7 @@ class Convolutional_layer():
             if node.children:
                 vector_matrix, w_t_coeffs, w_l_coeffs, w_r_coeffs = self.sliding_window_tensor(node)
 
+
                 # The convolutional matrix for each node is a linear combination of matrices w_t, w_l and w_r
                 convolutional_matrix = (w_t_coeffs*self.w_t) + (w_l_coeffs*self.w_l) + (w_r_coeffs*self.w_r)
                 del w_t_coeffs

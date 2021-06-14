@@ -4,10 +4,12 @@ from time import time
 import pandas as pd
 import pickle
 import gc
+from joblib import delayed, Parallel
 
 from utils.node_object_creator import *
 from first_neural_network.first_neural_network import First_neural_network
 from parameters import folder, pattern, vector_size, learning_rate, momentum, l2_penalty, epoch
+from get_input import Get_input
 
 
 class Vector_representation():
@@ -25,7 +27,8 @@ class Vector_representation():
     def vector_representation(self):
         # Training the first neural network
         i = 1
-        for tree in self.read_folder_data_set():
+
+        def loop(tree):
             time1 = time()
 
             # convert its nodes into the Node class we have, and assign their attributes
@@ -45,6 +48,10 @@ class Vector_representation():
             filename = os.path.join('vector_representation', os.path.basename(tree) + '.txt')
             params = [ls_nodes, w_l_code, w_r_code, b_code]
 
+            #we get the necessary input for the second neural network
+            get_input_second_cnn = Get_input(ls_nodes, self.vector_size)
+            get_input_second_cnn.get_input()
+
             with open(filename, 'wb') as f:
                 pickle.dump(params, f)
             
@@ -58,10 +65,10 @@ class Vector_representation():
             dtime = time2 - time1
             print(f"Vector rep. of file: {tree} {i} in ", dtime//60, 'min and', dtime%60, 'sec.')
 
-            if (i%50 == 0):
-                gc.collect()
-            i += 1
-
+        #for tree in self.read_folder_data_set():
+        Parallel(n_jobs=8)(delayed(loop)(n) for n in self.read_folder_data_set())
+            
+        
 
     def read_folder_data_set(self):
         path = os.path.join(self.folder, self.pattern)
