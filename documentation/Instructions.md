@@ -3,11 +3,11 @@
 
 ## What does the program do?
 
-This program is meant to receive different Python files, and train a Convolutional Neural Network (CNN) to detect patterns.
+This program is meant to receive different Python files, and train a Convolutional Neural Network (CNN) to detect patterns. The training of the CNN is based on the Abstract Syntax Tree (AST) of the source code. To train the CNN, we previously transform each node of the AST into a vector.
 
 *so far, it can only dettect generators, but our intention is to be able to detect more patterns (wrapper, decorator, observer...)*.
 
-Once you trained the CNN to detect a specific pattern, you will get as output a folder named as the pattern (for example `generator`). This folder will contain each of the matrices and vectors that are necessary to detect patterns in code. 
+Once you trained the CNN to detect a specific pattern, you will get as output a folder named as the pattern (for example `generator`). This folder will contain each of the matrices and vectors that are necessary to detect patterns in code. These matrices and vectors should have a good accurary in the validation to be able to detect patterns in code.
 
 In your directory it will be a folder called `params` that contains the `generator` subfolder. If the CNN is trained to detect a new pattern, a new subfolder named as the pattern will be created in the folder `params`.
 
@@ -57,6 +57,8 @@ sets.
     └───withpattern
 ```
 
+In our case, we used a data set with 400 files: 200 files for each label. In general, we recommend you to use around 400 files to train each pattern.
+
 **Note**: if you want to train the CNN to detect other patterns, for example wrappers, you should create a `wrapper` subfolder. The folder should contain all the data (only Python files) you're going to use to train the neural network and you should divide it on whether they have wrappers or not by placing them in the `withpattern` or `nopatter` accordingly.
 
 The structure will be the following: 
@@ -105,7 +107,7 @@ The functionality of each parameter will be explained below:
  - Batch: You can choose the batch size.
 
 
-You also have a `parameters.txt` file in your directory, which contains the previous parameters. In case you want to train the CNN using other parameters, you can edit the `parameters.txt` file and modify the values. *IMPORTANT: You should only modify the value, not the name of the parameter.*
+You also have a `parameters.py` file in your directory, which contains the previous parameters. In case you want to train the CNN using other parameters, you can edit the `parameters.py` file and modify the values. *IMPORTANT: You should only modify the value, not the name of the parameter.*
 
 **Note**: If you just want to test the program instead of training the whole network, the folder value should be `sets_short` instead of `sets`.
 
@@ -131,7 +133,22 @@ The way to run this CNN is by calling `pyhton pattern_training.py`. This file wi
 
 ## How to use the program
 
-Once you have all the preriquisites and datasets, you should simply call:
+Once you have all the preriquisites and datasets, you can run the program step by step (as mention above). To do that you should simple call:
+
+```
+python initialize_vector_representation.py
+python vector_representation.py
+python pattern_training.py
+```
+
+Also, you can call just some steps independently. For example, if you just want to train the `second neural network` but keep the vector representation for each file, you can simply call:
+
+```
+python pattern_training.py
+```
+
+Moreover, there is another script called TBCNN.py that allows you to run all the steps in one time. You simple need to run:
+<!---This way allow you to use just some steps independently or even repeat more than one time a single step. The other way is to use another script called TBCNN.py that allows you to run all the steps in one time. You simple need to run:--->
 
 ```
 python TBCNN.py

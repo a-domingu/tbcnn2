@@ -34,11 +34,13 @@ class HiddenLayer{
 class GeneratorTest extends PatternTest {
     - layers: List[Layer]
     - secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+    - loadMatricesAndVectors(CSVFiles): void
 }
 
 class WrapperTest extends PatternTest {
     - layers: List[Layer]
     - secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+    - loadMatricesAndVectors(CSVFiles): void
 }
 
 object Layers {

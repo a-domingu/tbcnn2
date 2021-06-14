@@ -34,11 +34,13 @@ class HiddenLayer{
 class GeneratorDetector extends PatternDetector {
     - layers: List[Layer]
     - secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+    - loadMatricesAndVectors(CSVFiles): void
 }
 
 class WrapperDetector extends PatternDetector {
     - layers: List[Layer]
     - secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+    - loadMatricesAndVectors(CSVFiles): void
 }
 
 object Layers {

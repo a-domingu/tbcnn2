@@ -19,7 +19,6 @@ class Node {
 
     + getChildren(): List[ASTNode]
     + descendants(): List[Node]
-    + setVector(dataFrame): void
     + setChildren(Node): void
 }
 

@@ -20,7 +20,7 @@ class Node {
 
     + getChildren(): List[ASTNode]
     + descendants(): List[Node]
-    + setVector(dataFrame): void
+    + setVector(dataFrame: CSVFile): void
     + setChildren(Node): void
 }
 
