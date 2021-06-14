@@ -38,7 +38,6 @@ class Pattern_training():
         'shuffle': True, 
         'num_workers': 2} 
 
-        get_input()
         ### Creation of the training set and validation set
         training_set, validation_set, training_targets, validation_targets = self.training_and_validation_sets_creation() 
         print('training set: ', training_set)

@@ -9,7 +9,7 @@ import os
 if __name__ == '__main__':
 
     # Folder path
-    folder = 'sets'
+    folder = 'sets_short'
     pattern = 'generator'
     
     # First neural network parameters
