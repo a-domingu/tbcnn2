@@ -1,1 +1,0 @@
-path = 'sets_short'
