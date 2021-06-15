@@ -1,21 +1,82 @@
 @startuml TBCNN-model
 
-' main classes and its main methods
+' Initial Vector Representation
 
 class InitializeVectorRepresentation {
+    - pattern: String
+    - vectorSize: Integer
     + initialVectorRepresentation(): void
     - vectorRepresentationAllFiles(Dictionary[String]): Dictionary[String]
     - saveVectors(Dictionary[String]): void
 }
 
-class PatternTraining {
-    + patternTraining(): void
-    - trainingAndValidationSetCreation(): Tuple[List[String], List[String], Dictionary[String], Dictionary[String]]
+
+class Embedding {
+    + nodeEmbedding(): Dictionary[Node]
+    - randomWalk(Node): List[Node.type]
+    - findVectors(Word2Vec): Dictionary[Node]
 }
+
+class Node {
+
+    + getChildren(): List[ASTNode]
+    + descendants(): List[Node]
+    + setVector(dataFrame: CSVFile): void
+    + setChildren(Node): void
+}
+
+
+class NodeObjectCreator {
+    + fileParser(path: String): Node
+}
+
+object CSVFile {
+    InitialVectorRepresentation.csv
+}
+
+
+InitializeVectorRepresentation "one" ..> "one" Embedding : uses
+InitializeVectorRepresentation "one" ..> "many" NodeObjectCreator : uses
+NodeObjectCreator "one"..> "many" Node : uses
+
+InitializeVectorRepresentation "one" ..> "one" CSVFile: saves the vector representation for each type of node
+
+
+' Vector Representation
 
 class VectorRepresentation {
     + vectorRepresentation(): void
     - readFolderDataSet(): String
+}
+
+
+class FirstNeuralNetwork {
+    - MatrixWl: Tensor
+    - MatrixWr: Tensor
+    - VectorB: Tensor
+    - nodes: List[Nodes]
+    + train(): Tuple[List[Node], Tensor, Tensor, Tensor]
+    - training_iterations(): Integer
+}
+
+
+object txtFile {
+    fileName.txt
+}
+
+
+VectorRepresentation "one" ..> "many" FirstNeuralNetwork : uses
+VectorRepresentation "one" ..> "many" NodeObjectCreator : uses
+
+FirstNeuralNetwork "one" ..> "one" txtFile: saves the vector representation for a data file
+
+
+' Pattern training
+
+class PatternTraining {
+    - pattern: String
+    + patternTraining(): void
+    - trainingAndValidationSetCreation(): Tuple[List[String], List[String], Dictionary[String], Dictionary[String]]
 }
 
 
@@ -31,46 +92,20 @@ class ConvolutionalLayer {
     - slidingWindowTensor(Node): Tensor
 }
 
-class MaxPoolingLayer {
-    + maxPooling(nodes: List[Node]): void
-}
-
-class DynamicPoolingLayer {
-    + threeWayPooling(nodes: List[Node], dictSibling: Dictionary[Node]): PoolingVector
-}
-
 
 class PoolingLayer {
     + poolingLayer(nodes: List[Node]): Tensor
 }
 
-
-' First neural network
-class Embedding {
-    + nodeEmbedding(): Dictionary[Node]
-    - randomWalk(Node): List[Node.type]
-    - findVectors(Word2Vec): Dictionary[Node]
+class HiddenLayer{
+    + hiddenLayer(Tensor): Float
 }
-
-
-class FirstNeuralNetwork {
-
-    + train(): Tuple[List[Node], Tensor, Tensor, Tensor]
-    - training_iterations(): Integer
-}
-
-
-class Node {
-
-    + getChildren(): List[ASTNode]
-    + descendants(): List[Node]
-    + setVector(dataFrame): void
-    + setChildren(Node): void
-}
-
 
 'Second Neural Network
+
 abstract class SecondNeuralNetwork {
+    - VectorSize: Integer
+    - FeatureSize: Integer 
     + train(List[File], List[File], int, float): void
     - forward(List[File]): Tensor
     - {abstract} layers(Tuple[List[Node], Tensor, Tensor, Tensor]): float
@@ -78,52 +113,32 @@ abstract class SecondNeuralNetwork {
 }
 
 class GeneratorSecondNeuralNetwork extends SecondNeuralNetwork {
+    - layers: List[Layer]
     - matricesAndLayersInitialization(): Tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]
     - layers(Tuple[List[Node], Tensor, Tensor, Tensor]): float
+    - save(): void
 }
 
 class WrapperSecondNeuralNetwork extends SecondNeuralNetwork {
+    - layers: List[Layer]
     - matricesAndLayersInitialization(): Tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]
     - layers(Tuple[List[Node], Tensor, Tensor, Tensor]): float
+    - save(): void
 }
 
-class Dataset extends torch.utils.data.Dataset{
+class Dataset {
 
 }
 
-'Pattern accuracy test
-abstract class PatternTest {
-    + patternDetection(string): void
-    - {abstract} secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
-    - predictions(List[String]): Tensor
+object Layers {
+    List[Layer]
 }
 
-class GeneratorTest extends PatternTest {
-    - secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+object ParamsFolder{
+    Matrices: CSV
+    VectorBias: CSV
 }
 
-class WrapperTest extends PatternTest {
-    - secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
-}
-
-'Pattern detection
-abstract class PatternDetector {
-    + patternDetection(string): void
-    - {abstract} secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
-    - prediction(Dictionary[String]): Tensor
-}
-
-class GeneratorDetector extends PatternDetector {
-    - secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
-}
-
-class WrapperDetector extends PatternDetector {
-    - secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
-}
-'utils
-class NodeObjectCreator {
-    + fileParser(path: String): Node
-}
 
 class Utils{
     + accuracy(predicts: Tensor, targets: Tensor): Float
@@ -131,49 +146,77 @@ class Utils{
 }
 
 
-
-' relationships between classes
-
-DynamicPoolingLayer ..> PoolingVector : returns
-Embedding ..> CSV : returns
-VectorRepresentation ..> txt : returns
-GeneratorSecondNeuralNetwork ..> CSV : returns
-WrapperSecondNeuralNetwork ..> CSV : returns
-
-
-InitializeVectorRepresentation ..> Embedding: uses
-
-VectorRepresentation ..> FirstNeuralNetwork : uses
-VectorRepresentation ..> NodeObjectCreator : uses
-NodeObjectCreator ..> Node : uses
-
+PatternTraining "one" ..> "one" SecondNeuralNetwork : uses
 PatternTraining ..> Dataset : uses
-PatternTraining ..> SecondNeuralNetwork : uses
-SecondNeuralNetwork ..> Utils : uses
+SecondNeuralNetwork "one" .left.> "one" Utils : uses
 
-GeneratorSecondNeuralNetwork ..> ConvolutionalLayer: uses
-GeneratorSecondNeuralNetwork ..> PoolingLayer: uses
-GeneratorSecondNeuralNetwork ..> HiddenLayer: uses
+GeneratorSecondNeuralNetwork "one"..> "one" Layers: contains
+WrapperSecondNeuralNetwork "one"..> "one" Layers: contains
 
-WrapperSecondNeuralNetwork ..> ConvolutionalLayer: uses
-WrapperSecondNeuralNetwork ..> PoolingLayer: uses
-WrapperSecondNeuralNetwork ..> HiddenLayer: uses
+Layers ..> CodingLayer: contains
+Layers ..> ConvolutionalLayer: contains
+Layers ..> PoolingLayer: contains
+Layers ..> HiddenLayer: contains
 
-GeneratorTest ..> ConvolutionalLayer: uses
-GeneratorTest ..> PoolingLayer: uses
-GeneratorTest ..> HiddenLayer: uses
+SecondNeuralNetwork "one" ..> "one" ParamsFolder: saves the trained matrices and vectors
 
-WrapperTest ..> ConvolutionalLayer: uses
-WrapperTest ..> PoolingLayer: uses
-WrapperTest ..> HiddenLayer: uses
 
-GeneratorDetector ..> ConvolutionalLayer: uses
-GeneratorDetector ..> PoolingLayer: uses
-GeneratorDetector ..> HiddenLayer: uses
+' Pattern detector
 
-WrapperDetector ..> ConvolutionalLayer: uses
-WrapperDetector ..> PoolingLayer: uses
-WrapperDetector ..> HiddenLayer: uses
+abstract class PatternDetector {
+    + patternDetection(path: String, pattern: String): void
+    - {abstract} secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+    - prediction(Dictionary[String]): Tensor
+    - printPredictions(Tensor, Dictionary[String], String): void
+}
 
+
+'Test
+class GeneratorDetector extends PatternDetector {
+    - layers: List[Layer]
+    - secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+    - loadMatricesAndVectors(CSVFiles): void
+}
+
+class WrapperDetector extends PatternDetector {
+    - layers: List[Layer]
+    - secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+    - loadMatricesAndVectors(CSVFiles): void
+}
+
+
+
+GeneratorDetector "one"..> "one" Layers: contains
+WrapperDetector "one"..> "one" Layers: contains
+
+
+' pattern test
+
+abstract class PatternTest {
+    + patternDetection(string): void
+    - {abstract} secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+    - predictions(List[String]): Tensor
+    - printPredictions(List[String], Tensor, List[String]): void
+}
+
+
+'Test
+class GeneratorTest extends PatternTest {
+    - layers: List[Layer]
+    - secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+    - loadMatricesAndVectors(CSVFiles): void
+}
+
+class WrapperTest extends PatternTest {
+    - layers: List[Layer]
+    - secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+    - loadMatricesAndVectors(CSVFiles): void
+}
+
+
+PatternTest "one" ..> "one" Utils : uses
+
+GeneratorTest "one"..> "one" Layers: contains
+WrapperTest "one"..> "one" Layers: contains
 
 @enduml

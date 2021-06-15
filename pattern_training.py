@@ -57,7 +57,7 @@ class Pattern_training():
         pattern_class = getattr(module, class_name)
 
         # Training
-        model = pattern_class(device, self.vector_size, self.feature_size, self.pooling)
+        model = pattern_class(device, self.pattern, self.vector_size, self.feature_size, self.pooling)
         if torch.cuda.device_count() > 1:
             print("Let's use", torch.cuda.device_count(), "GPUs!")
             # dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs

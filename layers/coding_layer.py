@@ -30,8 +30,8 @@ class Coding_layer():
         self.w_l = None
         self.w_r = None
         self.b = None
-        self.w_comb1 = None
-        self.w_comb2 = None
+        self.w_comb1 = torch.diag(torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.vector_size, 1)), 1)).requires_grad_()
+        self.w_comb2 = torch.diag(torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.vector_size, 1)), 1)).requires_grad_()
 
 
     def coding_layer(self, ls_nodes, w_l, w_r, b):
@@ -48,10 +48,12 @@ class Coding_layer():
 
 
     def initialize_matrices_and_bias(self):
-        self.w_comb1 = torch.diag(torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.vector_size, 1)), 1)).requires_grad_()
-        self.w_comb2 = torch.diag(torch.squeeze(torch.distributions.Uniform(-1, +1).sample((self.vector_size, 1)), 1)).requires_grad_()
-
         return self.w_comb1, self.w_comb2
+
+
+    def set_matrices_and_vias(self, w_comb1, w_comb2):
+        self.w_comb1, self.w_comb2 = w_comb1, w_comb2
+
 
     # We create each combined vector p
     def coding_iterations(self):

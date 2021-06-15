@@ -1,0 +1,68 @@
+@startuml Pattern_test-model
+
+abstract class PatternTest {
+    + patternDetection(string): void
+    - {abstract} secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+    - predictions(List[String]): Tensor
+    - printPredictions(List[String], Tensor, List[String]): void
+}
+
+
+' Layers
+class CodingLayer {
+    + codingLayer(nodes: List[Node], wR: Tensor, wL: Tensor, b: Tensor): List[Node]
+    - codingIterations(): void
+}
+
+class ConvolutionalLayer {
+    + convolutionalLayer(nodes: List[Node]): List[Node]
+    - calculateY(nodes: List[Node]): void
+    - slidingWindowTensor(Node): Tensor
+}
+
+
+class PoolingLayer {
+    + poolingLayer(nodes: List[Node]): Tensor
+}
+
+class HiddenLayer{
+    + hiddenLayer(Tensor): Float
+}
+
+
+'Test
+class GeneratorTest extends PatternTest {
+    - layers: List[Layer]
+    - secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+    - loadMatricesAndVectors(CSVFiles): void
+}
+
+class WrapperTest extends PatternTest {
+    - layers: List[Layer]
+    - secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+    - loadMatricesAndVectors(CSVFiles): void
+}
+
+object Layers {
+    List[Layer]
+}
+
+
+class Utils{
+    + accuracy(predicts: Tensor, targets: Tensor): Float
+    + confMatrix(predicts: Tensor, targets: Tensor): Matrix
+}
+
+
+PatternTest "one" .left.> "one" Utils : uses
+
+GeneratorTest "one"..> "one" Layers: contains
+WrapperTest "one"..> "one" Layers: contains
+
+Layers ..> CodingLayer: contains
+Layers ..> ConvolutionalLayer: contains
+Layers ..> PoolingLayer: contains
+Layers ..> HiddenLayer: contains
+
+
+@enduml
