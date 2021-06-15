@@ -9,52 +9,54 @@ abstract class PatternDetector {
 
 
 ' Layers
-class CodingLayer {
+class CodingLayer extends AbstractLayer{
     + codingLayer(nodes: List[Node], wR: Tensor, wL: Tensor, b: Tensor): List[Node]
     - codingIterations(): void
 }
 
-class ConvolutionalLayer {
+class ConvolutionalLayer extends AbstractLayer{
     + convolutionalLayer(nodes: List[Node]): List[Node]
     - calculateY(nodes: List[Node]): void
     - slidingWindowTensor(Node): Tensor
 }
 
 
-class PoolingLayer {
+class PoolingLayer extends AbstractLayer{
     + poolingLayer(nodes: List[Node]): Tensor
 }
 
-class HiddenLayer{
+class HiddenLayer extends AbstractLayer{
     + hiddenLayer(Tensor): Float
+}
+
+abstract class AbstractLayer {
 }
 
 
 'Test
 class GeneratorDetector extends PatternDetector {
-    - layers: List[Layer]
+    - conv: ConvolutionalLayer
+    - pooling: PoolingLayer
+    - hidden: HiddenLayer
     - secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
     - loadMatricesAndVectors(CSVFiles): void
 }
 
 class WrapperDetector extends PatternDetector {
-    - layers: List[Layer]
+    - cod: CodingLayer
+    - conv: ConvolutionalLayer
+    - pooling: PoolingLayer
+    - hidden: HiddenLayer
     - secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
     - loadMatricesAndVectors(CSVFiles): void
 }
 
-object Layers {
-    List[Layer]
-}
 
 
-GeneratorDetector "one"..> "one" Layers: contains
-WrapperDetector "one"..> "one" Layers: contains
+GeneratorDetector "one"..> "many" AbstractLayer: uses
+WrapperDetector "one"..> "many" AbstractLayer: uses
 
-Layers ..> CodingLayer: contains
-Layers ..> ConvolutionalLayer: contains
-Layers ..> PoolingLayer: contains
-Layers ..> HiddenLayer: contains
+
 
 
 @enduml

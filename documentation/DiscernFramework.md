@@ -11,7 +11,7 @@ The TBCNN has two independent networks:
  - The **first neural network** does the embedding and the vector representation for each AST.
  - The **second neural network** apply several transformations to train the Convolutional Neural Network (CNN).
 
-If you are interested on how to use the program, you can find more information in the `documentation` folder. You will also find some class diagrams which describes the structure of the system.
+If you are interested on how to use the program, you can find more information in the `Instructions.md` file. You will also find some class diagrams which describes the structure of the system in the `class_diagram` folder.
 
 Currently, the Discern Framework can only dettect generators, but our intention is to be able to detect other patterns. In fact, the framework was built as an extensible software with the aim of detect new patterns in a simple way (*Please, check the file Patterns.md if you are insterested in add a new pattern*).
 

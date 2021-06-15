@@ -8,30 +8,33 @@ class PatternTraining {
 
 
 ' Layers
-class CodingLayer {
+class CodingLayer extends AbstractLayer{
     + codingLayer(nodes: List[Node], wR: Tensor, wL: Tensor, b: Tensor): List[Node]
     - codingIterations(): void
 }
 
-class ConvolutionalLayer {
+class ConvolutionalLayer extends AbstractLayer{
     + convolutionalLayer(nodes: List[Node]): List[Node]
     - calculateY(nodes: List[Node]): void
     - slidingWindowTensor(Node): Tensor
 }
 
 
-class PoolingLayer {
+class PoolingLayer extends AbstractLayer{
     + poolingLayer(nodes: List[Node]): Tensor
 }
 
-class HiddenLayer{
+class HiddenLayer extends AbstractLayer{
     + hiddenLayer(Tensor): Float
+}
+
+abstract class AbstractLayer {
 }
 
 'Second Neural Network
 abstract class SecondNeuralNetwork {
-    - VectorSize: Integer
-    - FeatureSize: Integer 
+    - vectorSize: Integer
+    - featureSize: Integer 
     + train(List[File], List[File], int, float): void
     - forward(List[File]): Tensor
     - {abstract} layers(Tuple[List[Node], Tensor, Tensor, Tensor]): float
@@ -39,14 +42,20 @@ abstract class SecondNeuralNetwork {
 }
 
 class GeneratorSecondNeuralNetwork extends SecondNeuralNetwork {
-    - layers: List[Layer]
+    - conv: ConvolutionalLayer
+    - pooling: PoolingLayer
+    - hidden: HiddenLayer
     - matricesAndLayersInitialization(): Tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]
     - layers(Tuple[List[Node], Tensor, Tensor, Tensor]): float
     - save(): void
 }
 
+
 class WrapperSecondNeuralNetwork extends SecondNeuralNetwork {
-    - layers: List[Layer]
+    - cod: CodingLayer
+    - conv: ConvolutionalLayer
+    - pooling: PoolingLayer
+    - hidden: HiddenLayer
     - matricesAndLayersInitialization(): Tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]
     - layers(Tuple[List[Node], Tensor, Tensor, Tensor]): float
     - save(): void
@@ -56,13 +65,11 @@ class Dataset {
 
 }
 
-object Layers {
-    List[Layer]
-}
-
-object ParamsFolder{
-    Matrices: CSV
-    VectorBias: CSV
+package Folder <<Folder>> {
+    object ParamsFolder{
+        Matrices: CSV
+        VectorBias: CSV
+    }
 }
 
 
@@ -76,15 +83,12 @@ PatternTraining "one" ..> "one" SecondNeuralNetwork : uses
 PatternTraining ..> Dataset : uses
 SecondNeuralNetwork "one" .left.> "one" Utils : uses
 
-GeneratorSecondNeuralNetwork "one"..> "one" Layers: contains
-WrapperSecondNeuralNetwork "one"..> "one" Layers: contains
+GeneratorSecondNeuralNetwork "one"..> "many" AbstractLayer: uses
+WrapperSecondNeuralNetwork "one"..> "many" AbstractLayer: uses
 
-Layers ..> CodingLayer: contains
-Layers ..> ConvolutionalLayer: contains
-Layers ..> PoolingLayer: contains
-Layers ..> HiddenLayer: contains
 
-SecondNeuralNetwork "one" ..> "one" ParamsFolder: saves the trained matrices and vectors
+SecondNeuralNetwork  ..> ParamsFolder: saves the trained matrices and vectors
+
 
 
 

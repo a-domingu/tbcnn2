@@ -9,42 +9,47 @@ abstract class PatternTest {
 
 
 ' Layers
-class CodingLayer {
+class CodingLayer extends AbstractLayer{
     + codingLayer(nodes: List[Node], wR: Tensor, wL: Tensor, b: Tensor): List[Node]
     - codingIterations(): void
 }
 
-class ConvolutionalLayer {
+class ConvolutionalLayer extends AbstractLayer{
     + convolutionalLayer(nodes: List[Node]): List[Node]
     - calculateY(nodes: List[Node]): void
     - slidingWindowTensor(Node): Tensor
 }
 
 
-class PoolingLayer {
+class PoolingLayer extends AbstractLayer{
     + poolingLayer(nodes: List[Node]): Tensor
 }
 
-class HiddenLayer{
+class HiddenLayer extends AbstractLayer{
     + hiddenLayer(Tensor): Float
 }
+
+abstract class AbstractLayer {
+}
+
 
 
 'Test
 class GeneratorTest extends PatternTest {
-    - layers: List[Layer]
+    - conv: ConvolutionalLayer
+    - pooling: PoolingLayer
+    - hidden: HiddenLayer
     - secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
     - loadMatricesAndVectors(CSVFiles): void
 }
 
 class WrapperTest extends PatternTest {
-    - layers: List[Layer]
+    - cod: CodingLayer
+    - conv: ConvolutionalLayer
+    - pooling: PoolingLayer
+    - hidden: HiddenLayer
     - secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
     - loadMatricesAndVectors(CSVFiles): void
-}
-
-object Layers {
-    List[Layer]
 }
 
 
@@ -56,13 +61,8 @@ class Utils{
 
 PatternTest "one" .left.> "one" Utils : uses
 
-GeneratorTest "one"..> "one" Layers: contains
-WrapperTest "one"..> "one" Layers: contains
-
-Layers ..> CodingLayer: contains
-Layers ..> ConvolutionalLayer: contains
-Layers ..> PoolingLayer: contains
-Layers ..> HiddenLayer: contains
+GeneratorTest "one"..> "one" AbstractLayer: uses
+WrapperTest "one"..> "one" AbstractLayer: uses
 
 
 @enduml
