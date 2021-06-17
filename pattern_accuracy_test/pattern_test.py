@@ -13,6 +13,7 @@ from layers.dynamic_pooling import Dynamic_pooling_layer, Max_pooling_layer
 from layers.pooling_layer import Pooling_layer
 from layers.hidden_layer import Hidden_layer
 from utils.utils import conf_matrix, accuracy, bad_predicted_files
+from get_input import Get_input
 
 
 class Pattern_test():
@@ -99,6 +100,10 @@ class Pattern_test():
 
             filename = os.path.join('vector_representation', os.path.basename(tree) + '.txt')
             params = [ls_nodes, w_l_code, w_r_code, b_code]
+
+            #we get the necessary input for the second neural network
+            get_input_second_cnn = Get_input(ls_nodes, self.vector_size)
+            get_input_second_cnn.get_input()
 
             with open(filename, 'wb') as f:
                 pickle.dump(params, f)

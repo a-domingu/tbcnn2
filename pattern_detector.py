@@ -16,6 +16,7 @@ from layers.dynamic_pooling import Dynamic_pooling_layer, Max_pooling_layer
 from layers.pooling_layer import Pooling_layer
 from layers.hidden_layer import Hidden_layer
 from utils.repos import download_repos
+from get_input import Get_input
 
 
 class Pattern_detection():
@@ -100,6 +101,9 @@ class Pattern_detection():
 
             # Calculate the vector representation for each node
             params = vector_representation.train()
+            #we get the necessary input for the second neural network
+            get_input_second_cnn = Get_input(ls_nodes, self.vector_size)
+            get_input_second_cnn.get_input()
             #params = [w_l_code, w_r_code, b_code]
             data_dict[data] = params
             time2= time()
