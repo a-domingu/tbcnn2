@@ -1,5 +1,7 @@
 # New patterns
 
+Before reading this document, please read carefully the instructions first.
+
 ## How to train the neural network to detect new patterns?
 
 To train the neural network you should have a data set and a test set for the new pattern. Also, you should create the following subclasses: a second neural network subclass, a pattern test subclass and a pattern detector subclass for this new pattern. 

@@ -8,20 +8,20 @@ from joblib import delayed, Parallel
 
 from utils.node_object_creator import *
 from first_neural_network.first_neural_network import First_neural_network
-from parameters import folder, pattern, vector_size, learning_rate, momentum, l2_penalty, epoch
+from parameters import folder, pattern, vector_size, learning_rate, momentum, l2_penalty, epoch_first
 from get_input import Get_input
 
 
 class Vector_representation():
 
-    def __init__(self, folder, pattern, vector_size, learning_rate, momentum, l2_penalty, epoch):
+    def __init__(self, folder, pattern, vector_size, learning_rate, momentum, l2_penalty, epoch_first):
         self.folder = folder
         self.pattern = pattern
         self.vector_size = vector_size
         self.learning_rate = learning_rate
         self.momentum = momentum
         self.l2_penalty = l2_penalty
-        self.epoch = epoch
+        self.epoch = epoch_first
 
 
     def vector_representation(self):
@@ -109,5 +109,5 @@ class Vector_representation():
 
 if __name__ == '__main__':
 
-    vector_representation = Vector_representation(folder, pattern, vector_size, learning_rate, momentum, l2_penalty, epoch)
+    vector_representation = Vector_representation(folder, pattern, vector_size, learning_rate, momentum, l2_penalty, epoch_first)
     vector_representation.vector_representation()
