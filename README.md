@@ -2,9 +2,9 @@
 
 ## About the project
 
-The Discern Framework Project is an artificial intelligence software project aimed to detect software patterns in source code files or complete software projects. It is based on a TBCNN (Tree Based Convolutional Neural Network), and it is developed at the European Industrial Center in Capgemini, Spain (both at Murcia and Valencia locations). The project is developed as an I+D+I project at Capgemini, with the final goal to be included in the DECODER application (REF) as a tool for software development assistance.
+The Discern Framework Project is an artificial intelligence software project aimed to detect software patterns in source code. It is applied to complete software projects. It is based on a TBCNN (Tree Based Convolutional Neural Network), and it is developed in the European Industrial Center at Capgemini, Spain. The project is developed as an I+D+I project at Capgemini, with the final goal to be included in the DECODER application (REF) as a tool for software development assistance.
 
-The Discern Framework is a project that provides a tool developed with Deep Learning tecniques, which offers to the user the detection of software design patterns in arbitrary source code. The framework is meant to receive different Python files, and train a Convolutional Neural Network (CNN) to detect patterns. The TBCNN is a specific type of CNN that works on Abstract Syntax Tree (AST) of source code. To be able to train the CNN, we previously transform each node of the AST into a vector.
+The Discern Framework is a project that provides a tool developed with Deep Learning tecniques and Machine Learning algorithms. The framework offers to the user the detection of software design patterns in arbitrary source code. The framework is meant to receive different Python files, and train a Convolutional Neural Network (CNN) to detect patterns. The TBCNN is a specific type of CNN that works on Abstract Syntax Tree (AST) of source code. To be able to train the CNN, we previously transform each node of the AST into a vector.
 
 The TBCNN has two independent networks:
 
@@ -23,15 +23,19 @@ We are a team of three interns finishing our bachelors on Mathematics and Physic
 Hardworking members:
 
  - Alfonso Dominguez De La Iglesia
+
    *Machine Learning Scientist (B.A. Mathematics)*
 
  - David Minet Casado
+
    *Machine Learning Scientist (B.A. Physicist)*
 
  - Esther Pla Ibañez
+
    *Machine Learning Scientist (MSc. on Mathematics)*
 
  - Ignacio Gallego Sagastume
+ 
    *Project Coordinator (Senior Software Engineer)*
 
 

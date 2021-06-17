@@ -16,14 +16,14 @@ from layers.dynamic_pooling import Dynamic_pooling_layer, Max_pooling_layer
 from layers.pooling_layer import Pooling_layer
 from layers.hidden_layer import Hidden_layer
 from utils.repos import download_repos
-from get_input import Get_input
+from first_neural_network.get_input import Get_input
 
 
 class Pattern_detection():
 
     def __init__(self, pattern):
-        self.vector_size = self.set_vector_size()
         self.pattern = pattern
+        self.vector_size = self.set_vector_size()
 
 
     def pattern_detection(self, path, url=False, github_url =None):
@@ -55,7 +55,7 @@ class Pattern_detection():
 
 
     def set_vector_size(self):
-        df = pd.read_csv('initial_vector_representation.csv')
+        df = pd.read_csv(os.path.join('initial_parameters', self.pattern, 'initial_vector_representation.csv'))
         vector_size = len(df[df.columns[0]])
 
         return vector_size
@@ -81,7 +81,15 @@ class Pattern_detection():
         return data_dict
 
 
-    def first_neural_network(self, data_dict, vector_size = 30, learning_rate = 0.3, momentum = 0, l2_penalty = 0, epoch = 1):
+    def first_neural_network(self, data_dict):
+        # We have to import the parameters used to trained the first neural network
+        module = importlib.import_module('initial_parameters.' + self.pattern + '.parameters_first_neural_network')
+        vector_size = getattr(module, 'vector_size')
+        learning_rate = getattr(module, 'learning_rate')
+        momentum = getattr(module,'momentum')
+        l2_penalty = getattr(module, 'l2_penalty')
+        epoch = getattr(module, 'epoch_first')
+        
         total = len(data_dict)
         i = 1
         for data in data_dict:
@@ -95,7 +103,7 @@ class Pattern_detection():
             # We assign the leaves nodes under each node
             set_leaves(ls_nodes)
             # Initializing vector embeddings
-            set_vector(ls_nodes)
+            set_vector(ls_nodes, self.pattern)
             # Calculate the vector representation for each node
             vector_representation = First_neural_network(ls_nodes, vector_size, learning_rate, momentum, l2_penalty, epoch)
 
@@ -176,8 +184,8 @@ def set_leaves(ls_nodes):
         node.set_leaves()
 
 
-def set_vector(ls_nodes):
-    df = pd.read_csv('initial_vector_representation.csv')
+def set_vector(ls_nodes, pattern):
+    df = pd.read_csv(os.path.join('initial_parameters', pattern, 'initial_vector_representation.csv'))
     for node in ls_nodes:
         node.set_vector(df)
 
