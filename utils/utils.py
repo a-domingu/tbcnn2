@@ -37,6 +37,7 @@ def plot_confusion_matrix(cm, classes, lr2, feature_size, epoch, normalize=False
 
     namefile = os.path.join('confusion_matrix', 'CM_'+str(lr2)+'_'+str(feature_size)+'_'+str(epoch)+'.png')
     plt.savefig(namefile, dpi=300, bbox_inches='tight')
+    plt.clf()
 
 
 
@@ -52,6 +53,7 @@ def remover():
 
 def accuracy(predicts, targets):
     with torch.no_grad():
+        print('predicts', predicts)
         rounded_prediction = torch.round(predicts)
 
     # 1 if false negative
