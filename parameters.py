@@ -1,4 +1,4 @@
-folder = "sets"
+folder = "sets_short"
 pattern = "generator"
 vector_size = 30
 learning_rate = 0.3

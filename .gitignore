@@ -15,3 +15,4 @@ yield_results
 vector_representation/*.txt
 downloaded_validate
 out
+*.csv

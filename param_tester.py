@@ -1,13 +1,15 @@
 from vector_representation import Vector_representation
 from pattern_training import Pattern_training
+from initialize_vector_representation import Initialize_vector_representation
 from utils.utils import writer, remover
+from parameters import folder
 import os
 
 
 if __name__ == '__main__':
 
     # Folder path
-    folder = 'sets'
+    folder = 'sets_short'
     pattern = 'generator'
     
     # First neural network parameters
@@ -28,6 +30,8 @@ if __name__ == '__main__':
     remover()
 
     for vector_size in vector_size_ls:
+        initialize_vector_representation = Initialize_vector_representation(folder, pattern, vector_size)
+        initialize_vector_representation.initial_vector_representation()
         for learning_rate in learning_rate_ls:
             for momentum in momentum_ls:
                 for l2_penalty in l2_penalty_ls:
