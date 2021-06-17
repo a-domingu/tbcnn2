@@ -36,7 +36,7 @@ class Pattern_training():
 
         params = {'batch_size': self.batch_size, 
         'shuffle': True, 
-        'num_workers': 2} 
+        'num_workers': 8} 
 
         ### Creation of the training set and validation set
         training_set, validation_set, training_targets, validation_targets = self.training_and_validation_sets_creation() 

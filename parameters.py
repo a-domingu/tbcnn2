@@ -7,6 +7,6 @@ l2_penalty = 0
 epoch_first = 1
 learning_rate2 = 0.001
 feature_size = 100
-epoch = 5
+epoch = 1
 batch = 20
 batch_size = 64

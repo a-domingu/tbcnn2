@@ -41,7 +41,7 @@ class SecondNeuralNetwork(nn.Module):
         criterion = nn.BCEWithLogitsLoss()
         print('Entering the neural network')
         #print('The correct value of the files is: ', targets)
-
+        best_epoch = 0
         for epoch in range(total_epochs):
             # Time
             start = time()
@@ -94,11 +94,12 @@ class SecondNeuralNetwork(nn.Module):
             if accuracy > self.best_accuracy:
                     #we only save the paramters that provide the best accuracy
                     self.best_accuracy = accuracy
+                    best_epoch = epoch
                     self.save()
             
 
         message = f'''
-The loss we have for the training network is: {sum_loss/nb_batch}
+The accuracy we have is: {self.best_accuracy} for epoch {best_epoch}
         '''
         writer(message)
 
@@ -155,35 +156,32 @@ The loss we have for the training network is: {sum_loss/nb_batch}
 
 
     def forward_validation(self, validation_generator):
-        criterion = nn.BCELoss()
+        criterion = nn.BCEWithLogitsLoss()
         validation_set = []
         softmax = nn.Sigmoid()
         validation_loss = 0
         errors = 0
         number_of_files = 0
-        predicts = []
         all_predicts = torch.empty(0)
         all_targets = torch.empty(0)
         with torch.set_grad_enabled(False):
             for batch, target in validation_generator:
-                #data, target = data.to(self.device), target.to(self.device)
-                predicts = []
+                predicts = torch.empty(0)
+                outputs = torch.empty(0)
                 for file in batch: 
                     validation_set.append(file)
                     with open(file, 'rb') as f:
                         data = pickle.load(f)
                     number_of_files += 1
                 
-                ## forward (layers calculations)
+                    ## forward (layers calculations)
                     output = self.layers(data)
                     del data
-                    if predicts == []:
-                        predicts = softmax(output)
-                    else:
-                        predicts = torch.cat((predicts, softmax(output)), 0)
+                    predicts = torch.cat((predicts, softmax(output)), 0)
+                    outputs = torch.cat((outputs, output), 0)
 
                 target = target.float()
-                loss = criterion(predicts, target)
+                loss = criterion(outputs, target)
                 accuracy_value = accuracy(predicts, target)
                 #ahora 'accuracy value' no es la función accuracy, sino la cantidad absoluta de errores sobre el total del batch
                 errors += accuracy_value
