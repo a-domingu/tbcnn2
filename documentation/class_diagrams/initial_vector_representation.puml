@@ -27,8 +27,10 @@ class NodeObjectCreator {
     + fileParser(path: String): Node
 }
 
-object CSVFile {
-    InitialVectorRepresentation.csv
+package CSV <<Rectangle>> {
+    object CSVFile {
+        InitialVectorRepresentation.csv
+    }
 }
 
 

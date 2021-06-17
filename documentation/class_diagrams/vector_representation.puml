@@ -29,8 +29,10 @@ class NodeObjectCreator {
     + fileParser(path: String): Node
 }
 
-object txtFile {
-    fileName.txt
+package Vector <<Folder>> {
+    object txtFile {
+        fileName.txt
+    }
 }
 
 

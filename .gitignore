@@ -1,6 +1,7 @@
 __pycache__
 .pytest_cache
 .vscode
+params
 sets
 test_sets
 sets100
@@ -8,6 +9,7 @@ sets400
 sets_short
 results.txt
 *.png
+*.csv
 sets_short2
 yield_results
 vector_representation/*.txt
