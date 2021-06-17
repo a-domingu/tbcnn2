@@ -1,0 +1,68 @@
+@startuml Pattern_test-model
+
+abstract class PatternTest {
+    + patternDetection(string): void
+    - {abstract} secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+    - predictions(List[String]): Tensor
+    - printPredictions(List[String], Tensor, List[String]): void
+}
+
+
+' Layers
+class CodingLayer extends AbstractLayer{
+    + codingLayer(nodes: List[Node], wR: Tensor, wL: Tensor, b: Tensor): List[Node]
+    - codingIterations(): void
+}
+
+class ConvolutionalLayer extends AbstractLayer{
+    + convolutionalLayer(nodes: List[Node]): List[Node]
+    - calculateY(nodes: List[Node]): void
+    - slidingWindowTensor(Node): Tensor
+}
+
+
+class PoolingLayer extends AbstractLayer{
+    + poolingLayer(nodes: List[Node]): Tensor
+}
+
+class HiddenLayer extends AbstractLayer{
+    + hiddenLayer(Tensor): Float
+}
+
+abstract class AbstractLayer {
+}
+
+
+
+'Test
+class GeneratorTest extends PatternTest {
+    - conv: ConvolutionalLayer
+    - pooling: PoolingLayer
+    - hidden: HiddenLayer
+    - secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+    - loadMatricesAndVectors(CSVFiles): void
+}
+
+class WrapperTest extends PatternTest {
+    - cod: CodingLayer
+    - conv: ConvolutionalLayer
+    - pooling: PoolingLayer
+    - hidden: HiddenLayer
+    - secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+    - loadMatricesAndVectors(CSVFiles): void
+}
+
+
+class Utils{
+    + accuracy(predicts: Tensor, targets: Tensor): Float
+    + confMatrix(predicts: Tensor, targets: Tensor): Matrix
+}
+
+
+PatternTest "one" .left.> "one" Utils : uses
+
+GeneratorTest "one"..> "one" AbstractLayer: uses
+WrapperTest "one"..> "one" AbstractLayer: uses
+
+
+@enduml

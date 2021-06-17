@@ -1,0 +1,95 @@
+@startuml Pattern_training-model
+
+class PatternTraining {
+    - pattern: String
+    + patternTraining(): void
+    - trainingAndValidationSetCreation(): Tuple[List[String], List[String], Dictionary[String], Dictionary[String]]
+}
+
+
+' Layers
+class CodingLayer extends AbstractLayer{
+    + codingLayer(nodes: List[Node], wR: Tensor, wL: Tensor, b: Tensor): List[Node]
+    - codingIterations(): void
+}
+
+class ConvolutionalLayer extends AbstractLayer{
+    + convolutionalLayer(nodes: List[Node]): List[Node]
+    - calculateY(nodes: List[Node]): void
+    - slidingWindowTensor(Node): Tensor
+}
+
+
+class PoolingLayer extends AbstractLayer{
+    + poolingLayer(nodes: List[Node]): Tensor
+}
+
+class HiddenLayer extends AbstractLayer{
+    + hiddenLayer(Tensor): Float
+}
+
+abstract class AbstractLayer {
+}
+
+'Second Neural Network
+abstract class SecondNeuralNetwork {
+    - vectorSize: Integer
+    - featureSize: Integer 
+    + train(List[File], List[File], int, float): void
+    - forward(List[File]): Tensor
+    - {abstract} layers(Tuple[List[Node], Tensor, Tensor, Tensor]): float
+    - validation(List[File], int, float): Tuple[float, float]
+}
+
+class GeneratorSecondNeuralNetwork extends SecondNeuralNetwork {
+    - conv: ConvolutionalLayer
+    - pooling: PoolingLayer
+    - hidden: HiddenLayer
+    - matricesAndLayersInitialization(): Tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]
+    - layers(Tuple[List[Node], Tensor, Tensor, Tensor]): float
+    - save(): void
+}
+
+
+class WrapperSecondNeuralNetwork extends SecondNeuralNetwork {
+    - cod: CodingLayer
+    - conv: ConvolutionalLayer
+    - pooling: PoolingLayer
+    - hidden: HiddenLayer
+    - matricesAndLayersInitialization(): Tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]
+    - layers(Tuple[List[Node], Tensor, Tensor, Tensor]): float
+    - save(): void
+}
+
+class Dataset {
+
+}
+
+package Folder <<Folder>> {
+    object ParamsFolder{
+        Matrices: CSV
+        VectorBias: CSV
+    }
+}
+
+
+class Utils{
+    + accuracy(predicts: Tensor, targets: Tensor): Float
+    + confMatrix(predicts: Tensor, targets: Tensor): Matrix
+}
+
+
+PatternTraining "one" ..> "one" SecondNeuralNetwork : uses
+PatternTraining ..> Dataset : uses
+SecondNeuralNetwork "one" .left.> "one" Utils : uses
+
+GeneratorSecondNeuralNetwork "one"..> "many" AbstractLayer: uses
+WrapperSecondNeuralNetwork "one"..> "many" AbstractLayer: uses
+
+
+SecondNeuralNetwork  ..> ParamsFolder: saves the trained matrices and vectors
+
+
+
+
+@enduml

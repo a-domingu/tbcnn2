@@ -1,0 +1,46 @@
+@startuml Vector_representation-model
+
+class VectorRepresentation {
+    + vectorRepresentation(): void
+    - readFolderDataSet(): String
+}
+
+
+class FirstNeuralNetwork {
+    - MatrixWl: Tensor
+    - MatrixWr: Tensor
+    - VectorB: Tensor
+    - nodes: List[Nodes]
+    + train(): Tuple[List[Node], Tensor, Tensor, Tensor]
+    - training_iterations(): Integer
+}
+
+
+class Node {
+
+    + getChildren(): List[ASTNode]
+    + descendants(): List[Node]
+    + setVector(dataFrame: CSVFile): void
+    + setChildren(Node): void
+}
+
+
+class NodeObjectCreator {
+    + fileParser(path: String): Node
+}
+
+package Vector <<Folder>> {
+    object txtFile {
+        fileName.txt
+    }
+}
+
+
+VectorRepresentation "one" ..> "many" FirstNeuralNetwork : uses
+VectorRepresentation "one" ..> "many" NodeObjectCreator : uses
+NodeObjectCreator "one"..> "many" Node : uses
+
+FirstNeuralNetwork "one" ..> "one" txtFile: saves the vector representation for a data file
+
+
+@enduml

@@ -1,0 +1,236 @@
+@startuml TBCNN-model
+
+' Initial Vector Representation
+
+class InitializeVectorRepresentation {
+    - pattern: String
+    - vectorSize: Integer
+    + initialVectorRepresentation(): void
+    - vectorRepresentationAllFiles(Dictionary[String]): Dictionary[String]
+    - saveVectors(Dictionary[String]): void
+}
+
+
+class Embedding {
+    + nodeEmbedding(): Dictionary[Node]
+    - randomWalk(Node): List[Node.type]
+    - findVectors(Word2Vec): Dictionary[Node]
+}
+
+class Node {
+
+    + getChildren(): List[ASTNode]
+    + descendants(): List[Node]
+    + setVector(dataFrame: CSVFile): void
+    + setChildren(Node): void
+}
+
+
+class NodeObjectCreator {
+    + fileParser(path: String): Node
+}
+
+package CSV <<Rectangle>> {
+    object CSVFile {
+        InitialVectorRepresentation.csv
+    }
+}
+
+
+InitializeVectorRepresentation "one" ..> "one" Embedding : uses
+InitializeVectorRepresentation "one" ..> "many" NodeObjectCreator : uses
+NodeObjectCreator "one"..> "many" Node : uses
+
+InitializeVectorRepresentation "one" ..> "one" CSVFile: saves the vector representation for each type of node
+
+
+' Vector Representation
+
+class VectorRepresentation {
+    + vectorRepresentation(): void
+    - readFolderDataSet(): String
+}
+
+
+class FirstNeuralNetwork {
+    - MatrixWl: Tensor
+    - MatrixWr: Tensor
+    - VectorB: Tensor
+    - nodes: List[Nodes]
+    + train(): Tuple[List[Node], Tensor, Tensor, Tensor]
+    - training_iterations(): Integer
+}
+
+
+package Vector <<Folder>> {
+    object txtFile {
+        fileName.txt
+    }
+}
+
+
+VectorRepresentation "one" ..> "many" FirstNeuralNetwork : uses
+VectorRepresentation "one" ..> "many" NodeObjectCreator : uses
+
+FirstNeuralNetwork "one" ..> "one" txtFile: saves the vector representation for a data file
+
+
+' Pattern training
+
+class PatternTraining {
+    - pattern: String
+    + patternTraining(): void
+    - trainingAndValidationSetCreation(): Tuple[List[String], List[String], Dictionary[String], Dictionary[String]]
+}
+
+
+' Layers
+class CodingLayer extends AbstractLayer{
+    + codingLayer(nodes: List[Node], wR: Tensor, wL: Tensor, b: Tensor): List[Node]
+    - codingIterations(): void
+}
+
+class ConvolutionalLayer extends AbstractLayer{
+    + convolutionalLayer(nodes: List[Node]): List[Node]
+    - calculateY(nodes: List[Node]): void
+    - slidingWindowTensor(Node): Tensor
+}
+
+
+class PoolingLayer extends AbstractLayer{
+    + poolingLayer(nodes: List[Node]): Tensor
+}
+
+class HiddenLayer extends AbstractLayer{
+    + hiddenLayer(Tensor): Float
+}
+
+abstract class AbstractLayer {
+}
+'Second Neural Network
+
+abstract class SecondNeuralNetwork {
+    - vectorSize: Integer
+    - featureSize: Integer 
+    + train(List[File], List[File], int, float): void
+    - forward(List[File]): Tensor
+    - {abstract} layers(Tuple[List[Node], Tensor, Tensor, Tensor]): float
+    - validation(List[File], int, float): Tuple[float, float]
+}
+
+class GeneratorSecondNeuralNetwork extends SecondNeuralNetwork {
+    - conv: ConvolutionalLayer
+    - pooling: PoolingLayer
+    - hidden: HiddenLayer
+    - matricesAndLayersInitialization(): Tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]
+    - layers(Tuple[List[Node], Tensor, Tensor, Tensor]): float
+    - save(): void
+}
+
+class WrapperSecondNeuralNetwork extends SecondNeuralNetwork {
+    - cod: CodingLayer
+    - conv: ConvolutionalLayer
+    - pooling: PoolingLayer
+    - hidden: HiddenLayer
+    - matricesAndLayersInitialization(): Tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]
+    - layers(Tuple[List[Node], Tensor, Tensor, Tensor]): float
+    - save(): void
+}
+
+class Dataset {
+
+}
+
+package Folder <<Folder>> {
+    object ParamsFolder{
+        Matrices: CSV
+        VectorBias: CSV
+    }
+}
+
+
+class Utils{
+    + accuracy(predicts: Tensor, targets: Tensor): Float
+    + confMatrix(predicts: Tensor, targets: Tensor): Matrix
+}
+
+
+PatternTraining "one" ..> "one" SecondNeuralNetwork : uses
+PatternTraining ..> Dataset : uses
+SecondNeuralNetwork "one" .left.> "one" Utils : uses
+
+GeneratorSecondNeuralNetwork "one"..> "many" AbstractLayer: uses
+WrapperSecondNeuralNetwork "one"..> "many" AbstractLayer: uses
+
+SecondNeuralNetwork ..>  ParamsFolder: saves the trained matrices and vectors
+
+
+' Pattern detector
+
+abstract class PatternDetector {
+    + patternDetection(path: String, pattern: String): void
+    - {abstract} secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+    - prediction(Dictionary[String]): Tensor
+    - printPredictions(Tensor, Dictionary[String], String): void
+}
+
+
+'Test
+class GeneratorDetector extends PatternDetector {
+    - conv: ConvolutionalLayer
+    - pooling: PoolingLayer
+    - hidden: HiddenLayer
+    - secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+    - loadMatricesAndVectors(CSVFiles): void
+}
+
+class WrapperDetector extends PatternDetector {
+    - cod: CodingLayer
+    - conv: ConvolutionalLayer
+    - pooling: PoolingLayer
+    - hidden: HiddenLayer
+    - secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+    - loadMatricesAndVectors(CSVFiles): void
+}
+
+
+
+GeneratorDetector "one"..> "many" AbstractLayer: uses
+WrapperDetector "one"..> "many" AbstractLayer: uses
+
+
+' pattern test
+
+abstract class PatternTest {
+    + patternDetection(string): void
+    - {abstract} secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+    - predictions(List[String]): Tensor
+    - printPredictions(List[String], Tensor, List[String]): void
+}
+
+
+'Test
+class GeneratorTest extends PatternTest {
+    - conv: ConvolutionalLayer
+    - pooling: PoolingLayer
+    - hidden: HiddenLayer
+    - secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+    - loadMatricesAndVectors(CSVFiles): void
+}
+
+class WrapperTest extends PatternTest {
+    - cod: CodingLayer
+    - conv: ConvolutionalLayer
+    - pooling: PoolingLayer
+    - hidden: HiddenLayer
+    - secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+    - loadMatricesAndVectors(CSVFiles): void
+}
+
+
+PatternTest "one" ..> "one" Utils : uses
+
+GeneratorTest "one"..> "many" AbstractLayer: uses
+WrapperTest "one"..> "many" AbstractLayer: uses
+
+@enduml

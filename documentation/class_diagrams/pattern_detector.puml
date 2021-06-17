@@ -1,0 +1,62 @@
+@startuml Pattern_detector-model
+
+abstract class PatternDetector {
+    + patternDetection(path: String, pattern: String): void
+    - {abstract} secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+    - prediction(Dictionary[String]): Tensor
+    - printPredictions(Tensor, Dictionary[String], String): void
+}
+
+
+' Layers
+class CodingLayer extends AbstractLayer{
+    + codingLayer(nodes: List[Node], wR: Tensor, wL: Tensor, b: Tensor): List[Node]
+    - codingIterations(): void
+}
+
+class ConvolutionalLayer extends AbstractLayer{
+    + convolutionalLayer(nodes: List[Node]): List[Node]
+    - calculateY(nodes: List[Node]): void
+    - slidingWindowTensor(Node): Tensor
+}
+
+
+class PoolingLayer extends AbstractLayer{
+    + poolingLayer(nodes: List[Node]): Tensor
+}
+
+class HiddenLayer extends AbstractLayer{
+    + hiddenLayer(Tensor): Float
+}
+
+abstract class AbstractLayer {
+}
+
+
+'Test
+class GeneratorDetector extends PatternDetector {
+    - conv: ConvolutionalLayer
+    - pooling: PoolingLayer
+    - hidden: HiddenLayer
+    - secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+    - loadMatricesAndVectors(CSVFiles): void
+}
+
+class WrapperDetector extends PatternDetector {
+    - cod: CodingLayer
+    - conv: ConvolutionalLayer
+    - pooling: PoolingLayer
+    - hidden: HiddenLayer
+    - secondNeuralNetwork(Tuple[Tensor, Tensor, Tensor, Tensor]): float
+    - loadMatricesAndVectors(CSVFiles): void
+}
+
+
+
+GeneratorDetector "one"..> "many" AbstractLayer: uses
+WrapperDetector "one"..> "many" AbstractLayer: uses
+
+
+
+
+@enduml
