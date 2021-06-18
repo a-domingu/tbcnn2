@@ -5,8 +5,6 @@
 
 This program is meant to receive different Python files, and train a Convolutional Neural Network (CNN) to detect patterns. The training of the CNN is based on the Abstract Syntax Tree (AST) of the source code. To train the CNN, we previously transform each node of the AST into a vector.
 
-*so far, it can only dettect generators, but our intention is to be able to detect more patterns (wrapper, decorator, observer...)*.
-
 Once you trained the CNN to detect a specific pattern, you will get as output a folder named as the pattern (for example `generator`). This folder will contain each of the matrices and vectors that are necessary to detect patterns in code. These matrices and vectors should have a good accurary in the validation to be able to detect patterns in code.
 
 In your directory it will be a folder called `params` that contains the `generator` subfolder. If the CNN is trained to detect a new pattern, a new subfolder named as the pattern will be created in the folder `params`.
@@ -21,6 +19,7 @@ params.
     
 ```
 
+Currently, the Discern Framework can only dettect generators, but our intention is to be able to detect other patterns. In fact, the framework was built as an extensible software with the aim of detect new patterns in a simple way (*Please, check the file Patterns.md if you are insterested in add a new pattern*).
 
 ## Prerequisites
 
@@ -120,7 +119,7 @@ The program has two independent networks that we call: `first neural network` an
 
 The `first neural network` does the vector representation for all files. We should note that because our program read ASTs, and not vectors, in order to use a CNN, we first need to convert each node into a vector. We make this using another neural network (the first one), which takes the idea behind `Word2Vec`, i.e, creates the vectors based on the overall structure of the tree. Once the neural network is trained, we will have as output a dictionary with the following information: one vector for each node (we will represent the features of each node in a vector), two weighted matrices and one vector bias. It will train the first neural network based on the data you have in the `sets` folder. All these parameters are saved for each file using `pickle` into the `vector_representation` folder. 
 
-Before using this neural network, we need a first vector representation done with `Word2Vec`. In order to do this, simply call `python initialize_vector_representation.py` and it will generate a file called `initial_vector_representation.csv` with the vector for each type of node. Then you can call `python vector_representation.py` and it will use this initial vectors to get a better vector representation learning the context of each node within the tree.
+Before using this neural network, we need a first vector representation done with `Word2Vec`. In order to do this, simply call `python initialize_vector_representation.py` and it will generate a file called `initial_vector_representation.csv` with the vector for each type of node. Then you can call `python call_vector_representation.py` and it will use this initial vectors to get a better vector representation learning the context of each node within the tree.
 
 ### Second neural network
 
@@ -137,7 +136,7 @@ Once you have all the preriquisites and datasets, you can run the program step b
 
 ```
 python initialize_vector_representation.py
-python vector_representation.py
+python call_vector_representation.py
 python pattern_training.py
 ```
 
@@ -154,7 +153,7 @@ Moreover, there is another script called TBCNN.py that allows you to run all the
 python TBCNN.py
 ```
 
-And it will train your neural network based on the data you have in the `sets` folder. The neural network will be trained using the parameters you have in the `parameters.txt` file. Running this file you will get the file `initial_vector_representation.csv`, the vector representation for each node and each file; and all the trained matrices saved into the `params` folder.
+And it will train your neural network based on the data you have in the `sets` folder. The neural network will be trained using the parameters you have in the `parameters.py` file. Running the `TBCNN.py` file you will get the file `initial_vector_representation.csv`, the vector representation for each node and each file; and all the trained matrices saved into the `params` folder.
 
 Once the program has finished, the `params` folder will contain a subfolder that contains all the matrices and vectors (in .csv files) with the trained parameters.
 
@@ -177,9 +176,9 @@ python param_tester.py
 
 ## How to test the pattern's accuracy?
 
-You should have the following in your directory: a folder called `test_sets` which should contain a `pattern` subfolder, which should contain all the data you are going to use to test the accuracy of your neural network. It should only contain Python files, and you should divide them on whether they have generators or not by placing them in the `withpattern` or `nopatter` accordingly.  
+You should have the following in your directory: a folder called `test_sets`, which should contain a `pattern` subfolder. Also, this `pattern` subfolder should contain all the data you are going to use to test the accuracy of your neural network. It should only contain Python files, and you should divide them on whether they have the required pattern or not by placing them in the `withpattern` or `nopatter` accordingly.  
 
-To summarize, the structure should be the same as the data set:
+To summarize, the structure should be the same as the data set. Example for generators:
 
 ```
 test_sets
@@ -194,9 +193,45 @@ Once you have your test set, you should simply call:
 python test_accuracy_pattern.py pattern
 ```
 
-where `pattern` is the pattern that you want to test (for example generator, wrapper, decorator...). The file will use the matrices and vertices with the trained parameters, which are contained in the folder `params`, as input to be able to detect the required pattern in code. 
+where `pattern` is the pattern that you want to test (for example generator, wrapper, decorator...). The program will use the parameters you have in the `parameters.py` file to do the `vector representation` for each file of the `test set`. Also, the `test_accuracy_pattern.py` file will use the matrices and vectors that are contained in the folder `params` as input, to be able to detect the required pattern in code. 
 
-At the end you get in your screen the accuracy (proportion of correctly predicted files) based on the test set, a small representation of the confusion matrix and you will know which files were not well predicted. 
+At the end you will get in your screen the following elements: the accuracy (proportion of correctly predicted files) based on the test set, a small representation of the confusion matrix and you will know which files were not well predicted. 
+
+If your neural network have a good accuracy (up to 90%), then your CNN is well trained. In this case, you can save the matrices and vectors used to detect the pattern, the `initial_vector_representation.csv` with the vector representation for each type of node; and the parameters used to get the vector representation of a given file. These parameters are:
+
+```
+ - vector_size 
+ - learning_rate 
+ - momentum
+ - l2_penalty 
+ - epoch_first 
+```
+
+The matrices and vectors used to detect the pattern are saved into the `params` folder. However, to save the `initial_vector_representation.csv` and the parameters used to get the `vector representation` of a given file, you need the following folder structure:
+
+```
+initial_parameters.
+├───generator
+|   ├───inital_vector_representation.csv
+|   └───parameters_first_neural_network.py
+└───wrapper
+    ├───inital_vector_representation.csv
+|   └───parameters_first_neural_network.py
+```
+
+In your working directory you will find the `initial_parameters` folder. As you can see above, this folder contains a subfolder for each pattern. In the pattern subfolder (generator, wrapper,...) you will find two files: `initial_vector_representation.csv` and `parameters_first_neural_network.py`. 
+
+The file `parameters_first_neural_network.py` contains the parameters that are used to get the `vector representation` for a given file. In the pattern `generator` case, these parameters are:
+
+```
+ - vector_size = 30
+ - learning_rate = 0.3
+ - momentum = 0
+ - l2_penalty = 0
+ - epoch_first = 1
+```
+
+**Note**: if you train the CNN to detect other patterns, for example decorators, you should create a `decorator` subfolder. The folder should contain the `initial_vector_representation.csv` used to train the CNN and a `parameters_first_neural_network.py` file with the parameters used to get the `vector representation` of each file.
 
 
 ## How to check if a python file has the required pattern?
@@ -209,7 +244,7 @@ python generator_detector.py pattern
 
 where `pattern` is the pattern that you want to detect (for example generator, wrapper, decorator...). The program will ask you by screen the following: Do you want to indicate the path to a local file (or folder) or do you want to indicate a URL (GitHub repository)? . It also will use the folder `params` as input to be able to detect the required pattern in code. 
 
-Once the program has finished, it will return as output if there is the required pattern in a particular file or not.
+Once the program has finished, it will return as output which files have the required pattern.
 
 
 ## How to train the neural network to detect new patterns?

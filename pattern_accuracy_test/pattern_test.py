@@ -14,6 +14,7 @@ from layers.pooling_layer import Pooling_layer
 from layers.hidden_layer import Hidden_layer
 from utils.utils import conf_matrix, accuracy, bad_predicted_files
 from get_input import Get_input
+from parameters import learning_rate, momentum, l2_penalty, epoch_first
 
 class Pattern_test():
 
@@ -61,13 +62,13 @@ class Pattern_test():
         targets_label = []
         # iterates through the generators directory, identifies the folders and enter in them
         for (dirpath, dirnames, filenames) in os.walk(path):
-            if dirpath.endswith('withgen'):
+            if dirpath.endswith('withpattern'):
                 for filename in filenames:
                     if filename.endswith('.py'):
                         filepath = os.path.join(dirpath, filename)
                         targets_set.append(filepath)
                         targets_label.append(1)
-            elif dirpath.endswith('nogen'):
+            elif dirpath.endswith('nopattern'):
                 for filename in filenames:
                     if filename.endswith('.py'):
                         filepath = os.path.join(dirpath, filename)
@@ -79,7 +80,7 @@ class Pattern_test():
         return targets_set, targets_label
 
 
-    def first_neural_network(self, targets_set, learning_rate = 0.3, momentum = 0, l2_penalty = 0, epoch = 1):
+    def first_neural_network(self, targets_set):
         i = 1
         for tree in targets_set:
             time1 = time()
@@ -94,7 +95,7 @@ class Pattern_test():
             # Initializing vector embeddings
             set_vector(ls_nodes)
             # Calculate the vector representation for each node
-            vector_representation = First_neural_network(ls_nodes, self.vector_size, learning_rate, momentum, l2_penalty, epoch)
+            vector_representation = First_neural_network(ls_nodes, self.vector_size, learning_rate, momentum, l2_penalty, epoch_first)
             ls_nodes, w_l_code, w_r_code, b_code = vector_representation.train()
 
             filename = os.path.join('vector_representation', os.path.basename(tree) + '.txt')
