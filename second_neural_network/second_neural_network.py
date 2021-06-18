@@ -53,6 +53,7 @@ class SecondNeuralNetwork(nn.Module):
                 # Transfer to GPU
                 #data = data.to(self.device)
                 batch, target = data
+                target.to(self.device)
                 # zero the parameter gradients
                 optimizer.zero_grad()
 
@@ -166,6 +167,7 @@ The accuracy we have is: {self.best_accuracy} for epoch {best_epoch}
         all_targets = torch.empty(0)
         with torch.set_grad_enabled(False):
             for batch, target in validation_generator:
+                target.to(self.device)
                 predicts = torch.empty(0)
                 outputs = torch.empty(0)
                 for file in batch: 

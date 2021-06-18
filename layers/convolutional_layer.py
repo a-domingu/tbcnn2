@@ -40,10 +40,11 @@ class Convolutional_layer():
     b_conv [array[features_size]]: bias term
     '''
 
-    def __init__(self, vector_size, kernel_depth = 2, features_size = 4):
+    def __init__(self, vector_size, device, kernel_depth = 2, features_size = 4):
         self.vector_size = vector_size
         self.feature_size = features_size
         self.kernel_depth = kernel_depth
+        self.device = device
         self.w_t = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_()
         #self.w_t = torch.rand(self.feature_size, self.vector_size).requires_grad_()
         self.w_r = torch.distributions.Uniform(-1, +1).sample((self.feature_size, self.vector_size)).requires_grad_()
@@ -84,6 +85,11 @@ class Convolutional_layer():
             '''
             if node.children:
                 vector_matrix, w_t_coeffs, w_l_coeffs, w_r_coeffs = node.matrix, node.coeff_t, node.coeff_l, node.coeff_r
+                vector_matrix.to(self.device)
+                w_t_coeffs.to(self.device)
+                w_l_coeffs.to(self.device)
+                w_r_coeffs.to(self.device)
+
 
                 # The convolutional matrix for each node is a linear combination of matrices w_t, w_l and w_r
                 convolutional_matrix = (w_t_coeffs*self.w_t) + (w_l_coeffs*self.w_l) + (w_r_coeffs*self.w_r)

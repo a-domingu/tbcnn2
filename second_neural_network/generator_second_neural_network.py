@@ -24,7 +24,7 @@ class Generator_second_neural_network(SecondNeuralNetwork):
     
     def matrices_and_layers_initialization(self):
         # Initialize the layers
-        self.conv = Convolutional_layer(self.vector_size, features_size = self.feature_size)
+        self.conv = Convolutional_layer(self.vector_size, self.device, features_size = self.feature_size)
         self.hidden = Hidden_layer(self.feature_size)
         if self.pooling == 'three-way pooling':
             self.dynamic = Dynamic_pooling_layer()
