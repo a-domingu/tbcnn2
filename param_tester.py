@@ -9,15 +9,15 @@ import os
 if __name__ == '__main__':
 
     # Folder path
-    folder = 'sets_wrapper'
+    folder = 'sets'
     pattern = 'wrapper'
     
     # First neural network parameters
-    vector_size_ls = [30]
-    learning_rate_ls = [0.3]
+    vector_size_ls = [30, 100]
+    learning_rate_ls = [0.001, 0.01]
     momentum_ls = [0]
     l2_penalty_ls = [0]
-    epoch_first_ls = [1,5,10]
+    epoch_first_ls = [5,10]
     
     # Second neural network parameters
     feature_size_ls = [100]

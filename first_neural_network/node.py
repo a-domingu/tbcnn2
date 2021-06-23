@@ -20,7 +20,7 @@ class Node():
         self.node = node
         self.children = []
         self.parent = parent
-        self.type = self.node.__class__.__name__
+        self.type = self.get_node_type(node)
         self.vector = []
         self.combined_vector = []
         self.leaves = None
@@ -29,6 +29,17 @@ class Node():
         self.siblings = None
         self.y = None
         self.pool = None
+
+
+    def get_node_type(self, node):
+        if node.__class__.__name__ == 'FunctionDef':
+            if 'wrap' in node.name:
+                return 'wrap'
+            else:
+                return node.__class__.__name__
+        else:
+            return node.__class__.__name__
+
 
     def __str__(self):
         return self.type
